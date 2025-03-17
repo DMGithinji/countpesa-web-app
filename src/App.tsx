@@ -1,12 +1,36 @@
-import './App.css'
-import { Button } from './components/ui/button'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import DashboardPage from './pages/DashboardPage';
+import TransactionsPage from './pages/TransactionsPage';
+import AccountsPage from './pages/AccountsPage';
+import CategoriesPage from './pages/CategoriesPage';
+import MainLayout from './components/Layout';
 
 function App() {
   return (
-    <div className='flex flex-col text-lg text-red-500 font-extrabold'>
-      Click on the Vite and React logos to learn more
-      <Button>Hello React + Vite + ShadCN</Button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={
+          <MainLayout>
+            <DashboardPage />
+          </MainLayout>
+        } />
+        <Route path="/transactions" element={
+          <MainLayout>
+            <TransactionsPage />
+          </MainLayout>
+        } />
+        <Route path="/accounts" element={
+          <MainLayout>
+            <AccountsPage />
+          </MainLayout>
+        } />
+        <Route path="/categories" element={
+          <MainLayout>
+            <CategoriesPage />
+          </MainLayout>
+        } />
+      </Routes>
+    </Router>
   )
 }
 
