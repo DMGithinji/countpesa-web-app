@@ -5,6 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { ExtractedTransaction } from "@/types/Transaction"
+import transactionRepository from "@/database/TransactionRepository";
 
 
 const UploadStatementButton = () => {
@@ -39,10 +41,19 @@ const UploadStatementButton = () => {
         body: formData,
       });
 
-      const data = await response.json();
+      const data = await response.json() as {
+        message: string;
+        status: string;
+        results: {
+          transactions: ExtractedTransaction[]
+        }
+      };
+
+      console.log({data})
 
       if (data.status === "success") {
         console.log("API Response:", data);
+        await transactionRepository.processMpesaStatementData(data.results.transactions)
         toast("Your statement has been processed successfully");
         setOpen(false);
         setFile(null);
