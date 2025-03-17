@@ -1,18 +1,30 @@
 import { ExtractedTransaction, Transaction } from '../types/Transaction';
 import db from './schema';
+import Dexie from 'dexie';
+import { BaseRepository } from './BaseRepository';
+import { CompositeFilter, Filter, Query } from '@/types/Filters';
 
-export class TransactionRepository {
+export class TransactionRepository extends BaseRepository<Transaction, number> {
+  /**
+   * Return the Dexie table for transactions
+   */
+  protected getTable(): Dexie.Table<Transaction, number> {
+    return db.transactions;
+  }
+
   /**
    * Add multiple transactions at once
    */
-  async bulkAdd(transactions: Omit<Transaction, 'id'>[]): Promise<number[]> {
+  async bulkAdd(transactions: Transaction[]) {
     return await db.transactions.bulkAdd(transactions, { allKeys: true });
   }
 
   /**
-   * Get all transactions, optionally with sorting
+   * Get all or filtered transactions, optionally with sorting
+   * Maintained for backward compatibility
    */
-  async getAll(
+  async getTransactions(
+    compositeFilter?: Filter | CompositeFilter | undefined,
     options: {
       sortBy?: keyof Transaction;
       sortDirection?: 'asc' | 'desc';
@@ -22,32 +34,12 @@ export class TransactionRepository {
   ): Promise<Transaction[]> {
     const { sortBy = 'date', sortDirection = 'desc', limit, offset = 0 } = options;
 
-    let collection = db.transactions.orderBy(sortBy);
-
-    if (sortDirection === 'desc') {
-      collection = collection.reverse();
-    }
-
-    if (offset > 0) {
-      collection = collection.offset(offset);
-    }
-
-    if (limit) {
-      collection = collection.limit(limit);
-    }
-
-    return await collection.toArray();
-  }
-
-  /**
-   * Get transactions by sender/receiver
-   */
-  async getBySenderReceiver(name: string): Promise<Transaction[]> {
-    return await db.transactions
-      .where('account')
-      .equals(name)
-      .reverse()
-      .toArray();
+    return this.query({
+      filters: compositeFilter,
+      orderBy: [{ field: sortBy as string, direction: sortDirection }],
+      limit,
+      offset
+    } as Query);
   }
 
   /**
@@ -57,7 +49,7 @@ export class TransactionRepository {
   async processMpesaStatementData(mpesaTransactions: ExtractedTransaction[]): Promise<number[]> {
     const now = Date.now();
 
-    const existingTrs = await this.getAll();
+    const existingTrs = await this.getTransactions();
     const existingIdsDict = existingTrs.reduce((acc, tr) => {
       acc[tr.code] = true;
       return acc;
@@ -67,6 +59,7 @@ export class TransactionRepository {
       .filter((t) => !existingIdsDict[t.code])
       .map((t) => {
         return {
+          id: `${t.amount}_${t.code}`,
           code: t.code,
           date: t.date,
           description: t.description,

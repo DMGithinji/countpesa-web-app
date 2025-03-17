@@ -4,8 +4,11 @@ import TransactionsPage from './pages/TransactionsPage';
 import AccountsPage from './pages/AccountsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import MainLayout from './components/Layout';
+import { useTransactions } from './hooks/useTransactions';
 
 function App() {
+  useTransactions();
+
   return (
     <Router>
       <Routes>

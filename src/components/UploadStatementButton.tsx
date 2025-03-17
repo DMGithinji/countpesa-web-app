@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ExtractedTransaction } from "@/types/Transaction"
 import transactionRepository from "@/database/TransactionRepository";
+import { useTransactions } from "@/hooks/useTransactions";
 
 
 const UploadStatementButton = () => {
@@ -15,6 +16,7 @@ const UploadStatementButton = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const {loadTransactions} = useTransactions();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -49,11 +51,10 @@ const UploadStatementButton = () => {
         }
       };
 
-      console.log({data})
-
       if (data.status === "success") {
         console.log("API Response:", data);
-        await transactionRepository.processMpesaStatementData(data.results.transactions)
+        await transactionRepository.processMpesaStatementData(data.results.transactions);
+        loadTransactions()
         toast("Your statement has been processed successfully");
         setOpen(false);
         setFile(null);

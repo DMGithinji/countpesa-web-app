@@ -12,8 +12,8 @@ class CheckPesa extends Dexie {
 
     // Define tables and their schema (primary key and indexes)
     this.version(1).stores({
-      transactions: '++code, date, description, status, amount, balance, category, account, createdAt',
-      categories: '++name',
+      transactions: 'id, code, date, description, status, amount, balance, category, account, createdAt',
+      categories: 'name',
     });
   }
 }

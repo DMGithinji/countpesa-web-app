@@ -1,4 +1,5 @@
 export interface Transaction {
+  id: string;
   code: string;
   date: number; // Unix timestamp of when transaction occured
   description: string;
