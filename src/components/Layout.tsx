@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags, Download } from 'lucide-react';
+import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags } from 'lucide-react';
 import { Button } from './ui/button';
+import UploadStatementButton from './UploadStatementButton';
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -81,10 +82,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <h1 className="text-xl font-medium">Transactions</h1>
             </div>
             <div className="flex items-center space-x-4">
-
-              <Button variant={'outline'} className="w-8 h-8 border border-gray-700 rounded-sm cursor-pointer">
-                <Download size={32} />
-              </Button>
+              <UploadStatementButton />
             </div>
           </div>
         </header>
