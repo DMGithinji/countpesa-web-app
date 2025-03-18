@@ -1,43 +1,35 @@
-import { Transaction } from '@/types/Transaction';
-import {
-  format,
-  getWeek,
-  getYear,
-  fromUnixTime
-} from 'date-fns';
+import { Transaction } from "@/types/Transaction";
+import { format, getWeek, getYear } from "date-fns";
 
 export enum Period {
-  HOUR = 'hour',
-  DATE = 'date',
-  DAY = 'day',
-  WEEK = 'week',
-  MONTH = 'month',
-  YEAR = 'year'
+  HOUR = "hour",
+  DATE = "date",
+  WEEK = "week",
+  MONTH = "month",
+  YEAR = "year",
 }
 
-export function groupTransactionsByPeriod(transactions: Transaction[], period: Period) {
+export function groupTransactionsByPeriod(
+  transactions: Transaction[],
+  period: Period
+) {
   const grouped = transactions.reduce((result, transaction) => {
     // Convert Unix timestamp to Date object using date-fns
-    const date = fromUnixTime(transaction.date);
+    const date = new Date(transaction.date);
     let groupKey;
 
     switch (period) {
-      case 'hour':
+      case "hour":
         // Format: "dd-MM-yyyy HH:00"
         groupKey = format(date, "dd-MM-yyyy HH:00");
         break;
 
-      case 'date':
+      case "date":
         // Format: "EEE, dd-MM-yyyy"
         groupKey = format(date, "EEE, dd-MM-yyyy");
         break;
 
-      case 'day':
-        // Format: "Monday", "Tuesday", etc.
-        groupKey = format(date, "EEEE"); // Full day name
-        break;
-
-      case 'week': {
+      case "week": {
         // Format: "Week W, YYYY"
         const weekNum = getWeek(date);
         const year = getYear(date);
@@ -45,12 +37,12 @@ export function groupTransactionsByPeriod(transactions: Transaction[], period: P
         break;
       }
 
-      case 'month':
+      case "month":
         // Format: "January 2023", "February 2023", etc.
         groupKey = format(date, "MMMM yyyy");
         break;
 
-      case 'year':
+      case "year":
         // Format: "2023", "2024", etc.
         groupKey = format(date, "yyyy");
         break;

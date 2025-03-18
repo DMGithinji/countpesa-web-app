@@ -1,21 +1,14 @@
 import BalanceTrendCard from "@/components/BalanceTrend";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
 import { formatCurrency } from "@/lib/utils";
 import useTransactionStore from "@/stores/transactions.store";
 import { MinusCircle, PlusCircle } from "lucide-react";
 
 const DashboardPage = () => {
-  const {
-    transactionTotals,
-    balance,
-    balanceTrend
-  } = useDashboard();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { transactionTotals, balance, balanceTrend } = useDashboard();
   const loading = useTransactionStore((state) => state.loading);
 
   if (loading) return <div>Loading...</div>;
@@ -26,7 +19,7 @@ const DashboardPage = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Received ({(transactionTotals.moneyInCount)} Transactions)
+              Received ({transactionTotals.moneyInCount} Transactions)
             </CardTitle>
             <PlusCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -50,6 +43,9 @@ const DashboardPage = () => {
           </CardContent>
         </Card>
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
+      </div>
+      <div className="py-4">
+        <PeriodicTransactionsChart transactions={transactions} />
       </div>
     </div>
   );
