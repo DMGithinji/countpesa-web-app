@@ -34,7 +34,7 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
   ): Promise<Transaction[]> {
     const {
       sortBy = "date",
-      sortDirection = "desc",
+      sortDirection = "asc",
       limit,
       offset = 0,
     } = options;

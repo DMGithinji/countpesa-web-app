@@ -7,32 +7,40 @@ import BalanceTrendCard from "@/components/BalanceTrend";
 import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
 import TopTrsGroupedByField from "@/components/TopTrsGroupedByField";
 import { MoneyMode } from "@/types/Transaction";
+import { useDateRange } from "@/hooks/useDateRange";
 
 const DashboardPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
-  const { transactionTotals, balance, balanceTrend,
-    topAccountsSentToByAmt, topAccountsReceivedFromByAmt,
-    topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt,
-    topAccountsSentToByCount, topAccountsReceivedFromByCount,
-    topCategoriesMoneyInByCount, topCategoriesMoneyOutByCount
+  const {
+    transactionTotals,
+    balance,
+    balanceTrend,
+    topAccountsSentToByAmt,
+    topAccountsReceivedFromByAmt,
+    topCategoriesMoneyInByAmt,
+    topCategoriesMoneyOutByAmt,
+    topAccountsSentToByCount,
+    topAccountsReceivedFromByCount,
+    topCategoriesMoneyInByCount,
+    topCategoriesMoneyOutByCount,
   } = useDashboard();
   const loading = useTransactionStore((state) => state.loading);
+  const { defaultPeriod, periodOptions } = useDateRange();
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto max-w-5xl">
-
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <AmtSummaryCard
-          type='Received'
+          type="Received"
           count={transactionTotals.moneyInCount}
           amount={transactionTotals.moneyInAmount}
           mode={MoneyMode.MoneyIn}
           Icon={PlusCircle}
         />
         <AmtSummaryCard
-          type='Sent'
+          type="Sent"
           count={transactionTotals.moneyOutCount}
           amount={transactionTotals.moneyOutAmount}
           mode={MoneyMode.MoneyOut}
@@ -42,7 +50,11 @@ const DashboardPage = () => {
       </div>
 
       <div className="py-4">
-        <PeriodicTransactionsChart transactions={transactions} />
+        <PeriodicTransactionsChart
+          defaultPeriod={defaultPeriod}
+          periodOptions={periodOptions}
+          transactions={transactions}
+        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">

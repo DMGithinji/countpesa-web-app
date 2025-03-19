@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -16,38 +16,20 @@ import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Transaction } from "@/types/Transaction";
-import { differenceInDays, endOfDay, isSameDay, startOfDay } from "date-fns";
 
 type PeriodicTransactionsChartProps = {
   transactions: Transaction[];
+  defaultPeriod: Period;
+  periodOptions: Period[];
 };
 
 const PeriodicTransactionsChart = ({
   transactions,
+  defaultPeriod,
+  periodOptions,
 }: PeriodicTransactionsChartProps) => {
   const [filter, setFilter] = useState("all");
-  const [period, setPeriod] = useState<Period>();
-  const [periodOptions, setPeriodOptions] = useState<Period[]>([]);
-
-  // Set default period transactions are grouped by and period options
-  useEffect(() => {
-    const defaultPeriod = getDefaultPeriod(transactions);
-    setPeriod(defaultPeriod);
-    switch (defaultPeriod) {
-      case Period.WEEK:
-        setPeriodOptions(Object.values(Period).slice(1, 3));
-        break;
-      case Period.MONTH:
-        setPeriodOptions(Object.values(Period).slice(1));
-        break;
-      case Period.DATE:
-        setPeriodOptions(Object.values(Period).slice(1, 2));
-        break;
-      default:
-        setPeriodOptions(Object.values(Period).slice(1));
-        break;
-    }
-  }, [transactions]);
+  const [period, setPeriod] = useState<Period>(defaultPeriod);
 
   const groupedTrs = useMemo(() => {
     if (!period) return [];
@@ -186,26 +168,3 @@ const CustomTooltip = ({
   }
   return null;
 };
-
-export function getDefaultPeriod(orderedTrs: Transaction[]) {
-  if (!orderedTrs.length) return Period.DATE;
-
-  const from = new Date(orderedTrs[0].date);
-  const to = new Date(orderedTrs[orderedTrs.length - 1].date);
-  const start = startOfDay(from);
-  const end = endOfDay(to);
-
-  const showHours = isSameDay(start, end);
-  if (showHours) return Period.HOUR;
-
-  const showMonths = differenceInDays(end, start) >= 61;
-  if (showMonths) return Period.MONTH;
-
-  const showDays = differenceInDays(end, start) <= 7;
-  if (showDays) return Period.DATE;
-
-  const showWeeks = differenceInDays(end, start) > 7;
-  if (showWeeks) return Period.WEEK;
-
-  return Period.DATE;
-}

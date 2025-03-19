@@ -74,9 +74,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top header area */}
-        <header className="bg-dark-card shadow-xs py-4 px-6 h-16">
+        <header className="fixed w-full bg-white shadow-xs py-4 px-6 h-16">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <h1 className="text-xl font-medium">Transactions from M-Pesa</h1>
@@ -88,7 +88,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </header>
 
         {/* Content area */}
-        <main className="flex-1 overflow-y-auto p-6 py-8">
+        <main className="flex-1 overflow-y-auto p-6 py-8 mt-[80px]">
           {children}
         </main>
       </div>

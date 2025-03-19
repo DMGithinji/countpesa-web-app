@@ -8,42 +8,74 @@ import useTransactionStore from "@/stores/transactions.store";
 import { useMemo, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TransactionSearch } from "@/components/SearchInput";
-import { Transaction } from "@/types/Transaction";
+import { MoneyMode, Transaction } from "@/types/Transaction";
 import { filterTransactions } from "@/lib/utils";
+import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
+import { useDashboard } from "@/hooks/useDashboard";
+import { useDateRange } from "@/hooks/useDateRange";
 
 const TransactionsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
-  const [groupBy, setGroupBy] = useState<"all" | Period>(Period.DATE);
+  const { defaultPeriod, periodOptions } = useDateRange();
+
+  const [groupBy, setGroupBy] = useState<"all" | Period>("all");
   const loading = useTransactionStore((state) => state.loading);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const filteredTrs = useMemo(() => filterTransactions(transactions, searchQuery), [
-    searchQuery,
-    transactions,
-  ]);
+  const { transactionTotals } = useDashboard();
+
+  const filteredTrs = useMemo(
+    () =>
+      filterTransactions(transactions, searchQuery).sort(
+        (a, b) => b.date - a.date
+      ),
+    [searchQuery, transactions]
+  );
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="container mx-auto max-w-5xl">
-      <div className="flex justify-between items-center mb-4">
-        <TransactionSearch onSearch={setSearchQuery} />
-        <ToggleGroup type="single" value={groupBy}>
-          {["all", ...Object.values(Period).slice(1)].map((grouping) => (
-            <ToggleGroupItem
-              className={"cursor-pointer px-4 capitalize"}
-              onClick={() => setGroupBy(grouping as Period | "all")}
-              value={grouping}
-              key={grouping}
-            >
-              {grouping}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+    <div className="container mx-auto max-w-5xl flex flex-col gap-12">
+      <div className="grid gap-8 grid-cols-2">
+        <AmtSummaryCard2
+          type="Received"
+          count={transactionTotals.moneyInCount}
+          amount={transactionTotals.moneyInAmount}
+          mode={MoneyMode.MoneyIn}
+          transactions={transactionTotals.moneyInTrs}
+          periodOptions={periodOptions}
+          defaultPeriod={defaultPeriod}
+        />
+        <AmtSummaryCard2
+          type="Sent"
+          count={transactionTotals.moneyOutCount}
+          amount={transactionTotals.moneyOutAmount}
+          mode={MoneyMode.MoneyOut}
+          transactions={transactionTotals.moneyOutTrs}
+          periodOptions={periodOptions}
+          defaultPeriod={defaultPeriod}
+        />
       </div>
-      <Table transactions={filteredTrs} groupBy={groupBy} />
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <TransactionSearch onSearch={setSearchQuery} />
+          <ToggleGroup type="single" value={groupBy}>
+            {["all", ...Object.values(Period).slice(1)].map((grouping) => (
+              <ToggleGroupItem
+                className={"cursor-pointer px-4 capitalize"}
+                onClick={() => setGroupBy(grouping as Period | "all")}
+                value={grouping}
+                key={grouping}
+              >
+                {grouping}
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </div>
+        <Table transactions={filteredTrs} groupBy={groupBy} />
+      </div>
     </div>
   );
 };

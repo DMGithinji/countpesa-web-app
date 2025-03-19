@@ -5,9 +5,13 @@ import { MoneyMode } from "@/types/Transaction";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { formatCurrency } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectValue } from "./ui/select";
-import { SelectTrigger } from "@radix-ui/react-select";
-import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 interface TopTrsGroupedByFieldProps {
   groupedBy: GroupByField;
@@ -61,7 +65,6 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
             >
               <SelectTrigger className="h-7 w-auto border-none px-1 shadow-none flex gap-2 items-center focus:border-none focus:ring-none focus:outline-none">
                 <SelectValue placeholder="Direction" />
-                <ChevronDown className="h-4 w-4 opacity-50" />
               </SelectTrigger>
               <SelectContent>
                 {moneyModeOptions.map((option, index) => (
