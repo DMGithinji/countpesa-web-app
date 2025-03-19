@@ -17,7 +17,7 @@ const AmtSummaryCard = ({ type, count, amount, mode, Icon }: AmtSummaryCardProps
         <CardTitle className="text-sm font-medium">
           {type} ({count} Transactions)
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? 'text-green-600' : 'text-red-600'}`} />
       </CardHeader>
       <CardContent>
         <div className={cn("text-2xl font-bold", mode === MoneyMode.MoneyIn ? 'text-green-600' : 'text-red-600')}>

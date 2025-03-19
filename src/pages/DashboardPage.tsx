@@ -1,4 +1,4 @@
-import { MinusCircle, PlusCircle } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { useDashboard } from "@/hooks/useDashboard";
 import { GroupByField } from "@/lib/groupByField";
 import useTransactionStore from "@/stores/transactions.store";
@@ -37,14 +37,14 @@ const DashboardPage = () => {
           count={transactionTotals.moneyInCount}
           amount={transactionTotals.moneyInAmount}
           mode={MoneyMode.MoneyIn}
-          Icon={PlusCircle}
+          Icon={ArrowDownCircle}
         />
         <AmtSummaryCard
           type="Sent"
           count={transactionTotals.moneyOutCount}
           amount={transactionTotals.moneyOutAmount}
           mode={MoneyMode.MoneyOut}
-          Icon={MinusCircle}
+          Icon={ArrowUpCircle}
         />
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
       </div>

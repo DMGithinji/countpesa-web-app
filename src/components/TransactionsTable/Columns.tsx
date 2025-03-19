@@ -27,7 +27,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
         : `Ksh ${amount}`;
 
       return (
-        <div className={`w-[100px] ${amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+        <div className={`w-[100px] ${amount < 0 ? 'text-red-600' : 'text-green-600'} font-semibold`}>
           {formattedAmount}
         </div>
       );

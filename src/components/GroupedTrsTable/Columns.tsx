@@ -31,7 +31,7 @@ export const transactionGroupSummaryColumns = (
       <DataTableColumnHeader column={column} title="No. of Trs"  className="text-center w-[100px]" />
     ),
     cell: ({ row }) => (
-      <div className="text-center w-[100px]">
+      <div className="text-center w-[100px] font-semibold">
         {row.getValue("totalCount")}
       </div>
     ),
@@ -47,7 +47,7 @@ export const transactionGroupSummaryColumns = (
       const amount = row.getValue("moneyOutAmount") as number;
 
       return (
-        <div className={"text-red-500 w-[120px]"}>
+        <div className={"text-red-600 w-[120px] font-semibold"}>
           {formatCurrency(amount)}
         </div>
       );
@@ -64,7 +64,7 @@ export const transactionGroupSummaryColumns = (
       const amount = row.getValue("moneyInAmount") as number;
 
       return (
-        <div className={"text-green-600 w-[120px]"}>
+        <div className={"text-green-600 w-[120px] font-semibold"}>
           {formatCurrency(amount)}
         </div>
       );

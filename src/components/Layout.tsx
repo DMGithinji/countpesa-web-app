@@ -67,7 +67,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </div>
               )}
             </Link>
-            <Button variant="link" size="sm" onClick={toggleSidebar} className="bg-gray-600 text-white cursor-pointer w-6 h-6">
+            <Button variant="link" size="sm" onClick={toggleSidebar} className="bg-gray-600 text-white cursor-pointer w-6 h-6 z-[9999]">
               <ChevronLeft size={20} className={`transform transition-transform ${collapsed ? 'rotate-180' : ''}`} />
             </Button>
           </div>
@@ -98,7 +98,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top header area */}
-        <header className="fixed w-full bg-white shadow-sm py-4 px-6 h-16 z-10">
+        <header className="sticky top-0 w-full bg-white shadow-sm py-4 px-6 h-16 z-50">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <h1 className="text-xl font-medium">Transactions from M-Pesa</h1>
@@ -110,7 +110,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </header>
 
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
-        <main className="flex-1 overflow-y-auto p-6 py-8 mt-16 sm:mt-20 pb-20 sm:pb-6">
+        <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb-6">
           {children}
         </main>
 
