@@ -60,17 +60,17 @@ const DashboardPage = () => {
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
         <TopTrsGroupedByField
           groupedBy={GroupByField.Account}
-          moneyInSummaryByAmt={topAccountsSentToByAmt}
-          moneyOutSummaryByAmt={topAccountsReceivedFromByAmt}
-          moneyInSummaryByCount={topAccountsSentToByCount}
-          moneyOutSummaryByCount={topAccountsReceivedFromByCount}
+          moneyInSummaryByAmt={topAccountsSentToByAmt.slice(0, 6)}
+          moneyOutSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 6)}
+          moneyInSummaryByCount={topAccountsSentToByCount.slice(0, 6)}
+          moneyOutSummaryByCount={topAccountsReceivedFromByCount.slice(0, 6)}
         />
         <TopTrsGroupedByField
           groupedBy={GroupByField.Category}
-          moneyInSummaryByAmt={topCategoriesMoneyInByAmt}
-          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt}
-          moneyInSummaryByCount={topCategoriesMoneyInByCount}
-          moneyOutSummaryByCount={topCategoriesMoneyOutByCount}
+          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, 6)}
+          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, 6)}
+          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, 6)}
+          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, 6)}
         />
       </div>
     </div>

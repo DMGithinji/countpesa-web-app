@@ -75,10 +75,10 @@ export function useDateRange() {
       defaultPeriod = Period.HOUR;
     } else if (differenceInDays(end, start) >= 61) {
       defaultPeriod = Period.MONTH;
-    } else if (differenceInDays(end, start) <= 21) {
-      defaultPeriod = Period.WEEK;
+    } else if (differenceInDays(end, start) <= 31) {
+      defaultPeriod = Period.DATE;
     } else {
-      defaultPeriod = Period.DATE; // Default fallback
+      defaultPeriod = Period.WEEK; // Default fallback
     }
     const periodOpts = Object.values(Period);
     const periodIndex = periodOpts.indexOf(defaultPeriod);

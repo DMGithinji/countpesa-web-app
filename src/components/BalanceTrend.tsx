@@ -1,7 +1,13 @@
-import { LineChart, Line, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
+import {
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  TooltipProps,
+} from "recharts";
+import { TrendingUpDown } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
-import { MinusCircle, TrendingUpDown } from "lucide-react";
 
 type BalanceTrendCardProps = {
   latestBalance: number;
@@ -39,7 +45,11 @@ const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
               />
               <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ stroke: "#6b7280", strokeWidth: 1, strokeDasharray: "3 3" }}
+                cursor={{
+                  stroke: "#6b7280",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
