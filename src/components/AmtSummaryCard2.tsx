@@ -53,7 +53,7 @@ const AmtSummaryCard = ({
           Total {type} ({count} Transactions)
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-2  gap-8">
+      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">
           <div
             className={cn(
@@ -74,7 +74,7 @@ const AmtSummaryCard = ({
           </span>
           <span>Avg {type}</span>
         </div>
-        <div className="mt-[-24px]">
+        <div className="md:mt-[-24px]">
           <div>
             <Select
               value={chartPeriod}

@@ -1,7 +1,7 @@
 import { LineChart, Line, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
-import { MinusCircle } from "lucide-react";
+import { MinusCircle, TrendingUpDown } from "lucide-react";
 
 type BalanceTrendCardProps = {
   latestBalance: number;
@@ -16,7 +16,7 @@ const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">Balance Trend</CardTitle>
-        <MinusCircle className="h-4 w-4 text-muted-foreground" />
+        <TrendingUpDown className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="flex gap-2 items-baseline">

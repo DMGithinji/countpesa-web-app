@@ -38,7 +38,7 @@ const TransactionsPage = () => {
 
   return (
     <div className="container mx-auto max-w-5xl flex flex-col gap-12">
-      <div className="grid gap-8 grid-cols-2">
+      <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
         <AmtSummaryCard2
           type="Received"
           count={transactionTotals.moneyInCount}
@@ -62,7 +62,7 @@ const TransactionsPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
           <ToggleGroup type="single" value={groupBy}>
-            {["all", ...Object.values(Period).slice(1)].map((grouping) => (
+            {["all", Period.DATE, ...periodOptions].map((grouping) => (
               <ToggleGroupItem
                 className={"cursor-pointer px-4 capitalize"}
                 onClick={() => setGroupBy(grouping as Period | "all")}
