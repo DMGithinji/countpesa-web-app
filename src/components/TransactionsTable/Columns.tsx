@@ -7,11 +7,11 @@ import { Badge } from "../ui/badge";
 
 export const transactionColumns: ColumnDef<Transaction>[] = [
   {
-    accessorKey: "description",
+    accessorKey: "account",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Sender/Receiver" />
     ),
-    cell: ({ row }) => <div className="max-w-[400px] truncate">{row.getValue("description")}</div>,
+    cell: ({ row }) => <div className="font-medium text-gray-700 max-w-[250px] truncate">{row.getValue("account")}</div>,
     enableSorting: true,
     enableHiding: false,
   },

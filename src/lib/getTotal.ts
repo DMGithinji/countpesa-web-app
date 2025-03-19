@@ -1,6 +1,6 @@
 import { Transaction } from "@/types/Transaction";
 
-type TransactionTotals = {
+export type TransactionTotals = {
   totalCount: number;
   totalAmount: number;
 
