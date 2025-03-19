@@ -35,3 +35,8 @@ export interface ExtractedTransaction {
     type: TransactionTypes;
     category: string;
 }
+
+export enum MoneyMode {
+  MoneyIn = 'moneyIn',
+  MoneyOut = 'moneyOut',
+}

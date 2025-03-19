@@ -13,6 +13,15 @@ type TransactionTotals = {
   moneyOutAmount: number;
 };
 
+export function getTotals(transactions: Transaction[]) {
+  const totalAmount = Math.round(transactions.reduce((sum, tx) => sum + tx.amount, 0));
+  const count = transactions.length;
+  return {
+    totalCount: count,
+    totalAmount: totalAmount,
+  }
+}
+
 export function calculateTransactionTotals(transactions: Transaction[]): TransactionTotals {
   const totalAmount = Math.round(transactions.reduce((sum, tx) => sum + tx.amount, 0));
   const count = transactions.length;

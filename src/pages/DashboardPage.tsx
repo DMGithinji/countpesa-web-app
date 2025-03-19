@@ -1,20 +1,28 @@
 import BalanceTrendCard from "@/components/BalanceTrend";
 import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
+import TopTrsGroupedByField from "@/components/TopTrsGroupedByField";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useDashboard } from "@/hooks/useDashboard";
+import { GroupByField } from "@/lib/groupByField";
 import { formatCurrency } from "@/lib/utils";
 import useTransactionStore from "@/stores/transactions.store";
 import { MinusCircle, PlusCircle } from "lucide-react";
 
 const DashboardPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
-  const { transactionTotals, balance, balanceTrend } = useDashboard();
+  const { transactionTotals, balance, balanceTrend,
+    topAccountsSentToByAmt, topAccountsReceivedFromByAmt,
+    topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt,
+    topAccountsSentToByCount, topAccountsReceivedFromByCount,
+    topCategoriesMoneyInByCount, topCategoriesMoneyOutByCount
+  } = useDashboard();
   const loading = useTransactionStore((state) => state.loading);
 
   if (loading) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto max-w-5xl">
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -44,8 +52,26 @@ const DashboardPage = () => {
         </Card>
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
       </div>
+
       <div className="py-4">
         <PeriodicTransactionsChart transactions={transactions} />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+        <TopTrsGroupedByField
+          groupedBy={GroupByField.Account}
+          moneyInSummaryByAmt={topAccountsSentToByAmt}
+          moneyOutSummaryByAmt={topAccountsReceivedFromByAmt}
+          moneyInSummaryByCount={topAccountsSentToByCount}
+          moneyOutSummaryByCount={topAccountsReceivedFromByCount}
+        />
+        <TopTrsGroupedByField
+          groupedBy={GroupByField.Category}
+          moneyInSummaryByAmt={topCategoriesMoneyInByAmt}
+          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt}
+          moneyInSummaryByCount={topCategoriesMoneyInByCount}
+          moneyOutSummaryByCount={topCategoriesMoneyOutByCount}
+        />
       </div>
     </div>
   );

@@ -16,12 +16,16 @@ export function useDashboard() {
     const { moneyInTrs, moneyOutTrs } = transactionTotals;
 
     // Top accounts
-    const topAccountsSentTo = groupTransactionsByField(moneyOutTrs, GroupByField.Account).slice(0, 5);
-    const topAccountsReceivedFrom = groupTransactionsByField(moneyInTrs, GroupByField.Account).slice(0, 5);
+    const topAccountsSentToByAmt = groupTransactionsByField(moneyOutTrs, GroupByField.Account, 'amount').slice(0, 6);
+    const topAccountsReceivedFromByAmt = groupTransactionsByField(moneyInTrs, GroupByField.Account, 'amount').slice(0, 6);
+    const topAccountsSentToByCount = groupTransactionsByField(moneyOutTrs, GroupByField.Account, 'count').slice(0, 6);
+    const topAccountsReceivedFromByCount = groupTransactionsByField(moneyInTrs, GroupByField.Account, 'count').slice(0, 6);
 
     // Top categories
-    const topCategoriesMoneyOut = groupTransactionsByField(moneyOutTrs, GroupByField.Category).slice(0, 5);
-    const topCategoriesMoneyIn = groupTransactionsByField(moneyInTrs, GroupByField.Category).slice(0, 5);
+    const topCategoriesMoneyOutByAmt = groupTransactionsByField(moneyOutTrs, GroupByField.Category, 'amount').slice(0, 6);
+    const topCategoriesMoneyInByAmt = groupTransactionsByField(moneyInTrs, GroupByField.Category, 'amount').slice(0, 6);
+    const topCategoriesMoneyOutByCount = groupTransactionsByField(moneyOutTrs, GroupByField.Category, 'count').slice(0, 6);
+    const topCategoriesMoneyInByCount = groupTransactionsByField(moneyInTrs, GroupByField.Category, 'count').slice(0, 6);
 
     // Calculate current balance
     const balance = sortedTxs.length > 0 ? sortedTxs[sortedTxs.length - 1].balance : 0;
@@ -33,10 +37,17 @@ export function useDashboard() {
 
     return {
       transactionTotals,
-      topAccountsSentTo,
-      topAccountsReceivedFrom,
-      topCategoriesMoneyOut,
-      topCategoriesMoneyIn,
+
+      topAccountsSentToByAmt,
+      topAccountsReceivedFromByAmt,
+      topAccountsSentToByCount,
+      topAccountsReceivedFromByCount,
+
+      topCategoriesMoneyOutByAmt,
+      topCategoriesMoneyInByAmt,
+      topCategoriesMoneyOutByCount,
+      topCategoriesMoneyInByCount,
+
       balance,
       balanceTrend,
     };
