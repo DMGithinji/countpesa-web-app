@@ -7,6 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   TooltipProps,
+  CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronDown } from "lucide-react";
@@ -81,7 +82,8 @@ const PeriodicTransactionsChart = ({
                 option === period ? "opacity-100" : "opacity-50"
               )}
               onClick={() => setPeriod(option)}
-              value="period"
+              value={option}
+              key={option}
             >
               {option}
             </ToggleGroupItem>
@@ -91,12 +93,10 @@ const PeriodicTransactionsChart = ({
         <ToggleGroup type="single" value={filter}>
           {["all", "in", "out"].map((filterVal) => (
             <ToggleGroupItem
-              className={cn(
-                "cursor-pointer capitalize",
-                filterVal === filter ? "opacity-100" : "opacity-50"
-              )}
+              className={"cursor-pointer capitalize"}
               onClick={() => setFilter(filterVal)}
-              value="period"
+              value={filterVal}
+              key={filterVal}
             >
               {filterVal}
             </ToggleGroupItem>
@@ -112,6 +112,12 @@ const PeriodicTransactionsChart = ({
               margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
               barGap={0}
             >
+              <CartesianGrid
+                horizontal={true}
+                vertical={false}
+                strokeDasharray="3 3"
+                stroke="#e5e7eb"
+              />
               <XAxis
                 dataKey="dateRange"
                 axisLine={false}
@@ -131,7 +137,7 @@ const PeriodicTransactionsChart = ({
                 <Bar
                   dataKey="moneyIn"
                   name="Money In"
-                  fill="#10B981"
+                  fill="#00A63E"
                   radius={[8, 8, 0, 0]}
                   barSize={40}
                 />
@@ -140,7 +146,7 @@ const PeriodicTransactionsChart = ({
                 <Bar
                   dataKey="moneyOut"
                   name="Money Out"
-                  fill="#F87171"
+                  fill="#FB2C36"
                   radius={[8, 8, 0, 0]}
                   barSize={40}
                 />

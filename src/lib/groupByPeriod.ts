@@ -1,5 +1,5 @@
 import { Transaction } from "@/types/Transaction";
-import { format, getWeek, getYear } from "date-fns";
+import { endOfWeek, format, formatDate, startOfWeek } from "date-fns";
 
 export enum Period {
   HOUR = "hour",
@@ -31,9 +31,9 @@ export function groupTransactionsByPeriod(
 
       case "week": {
         // Format: "Week W, YYYY"
-        const weekNum = getWeek(date);
-        const year = getYear(date);
-        groupKey = `Week ${weekNum}, ${year}`;
+        const start = startOfWeek(date, { weekStartsOn: 1 });
+        const end = endOfWeek(date, { weekStartsOn: 1 });
+        groupKey = `${formatDate(start, 'MMM dd, yy')} - ${formatDate(end, 'MMM dd, yy')}`;
         break;
       }
 
