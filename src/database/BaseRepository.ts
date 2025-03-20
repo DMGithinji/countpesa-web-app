@@ -8,137 +8,8 @@ export abstract class BaseRepository<T, K> {
   protected abstract getTable(): Dexie.Table<T, K>;
 
   /**
-   * Apply a single filter condition to a Dexie collection
-   */
-  protected applyFilter(collection: Dexie.Collection<T, K>, filter: Filter) {
-    const { field, operator, value } = filter;
-
-    switch (operator) {
-      case '==':
-        return collection.filter(item => this.getItemValue(item, field) === value);
-      case '!=':
-        return collection.filter(item => this.getItemValue(item, field) !== value);
-      case '<':
-        return collection.filter(item => this.getItemValue(item, field) < value);
-      case '<=':
-        return collection.filter(item => this.getItemValue(item, field) <= value);
-      case '>':
-        return collection.filter(item => this.getItemValue(item, field) > value);
-      case '>=':
-        return collection.filter(item => this.getItemValue(item, field) >= value);
-      case 'contains':
-        return collection.filter(item => {
-          const fieldValue = this.getItemValue(item, field);
-          return typeof fieldValue === 'string' &&
-            fieldValue.toLowerCase().includes((value as string).toLowerCase());
-        });
-      case 'contains-any':
-        if (typeof value === 'string') {
-          const terms = value.toLowerCase().split(/\s+/);
-          return collection.filter(item => {
-            const fieldValue = this.getItemValue(item, field);
-            return typeof fieldValue === 'string' &&
-              terms.some(term => fieldValue.toLowerCase().includes(term));
-          });
-        }
-        return collection;
-      case 'in':
-        if (Array.isArray(value)) {
-          return collection.filter(item => value.includes(this.getItemValue(item, field)));
-        }
-        return collection;
-      case 'not-in':
-        if (Array.isArray(value)) {
-          return collection.filter(item => !value.includes(this.getItemValue(item, field)));
-        }
-        return collection;
-      default:
-        return collection;
-    }
-  }
-
-  /**
-   * Apply a composite filter (AND/OR) recursively
-   */
-  protected applyCompositeFilter(collection: Dexie.Collection<T, K>, compositeFilter: CompositeFilter): Dexie.Collection<T, K> {
-    const { type, filters } = compositeFilter;
-
-    if (filters.length === 0) {
-      return collection;
-    }
-
-    // For 'and' operations, we can chain filters
-    if (type === 'and') {
-      let result = collection;
-      for (const filter of filters) {
-        if ('field' in filter) {
-          result = this.applyFilter(result, filter);
-        } else {
-          result = this.applyCompositeFilter(result, filter);
-        }
-      }
-      return result;
-    }
-
-    // For 'or' operations, we need to combine results
-    if (type === 'or') {
-      // Get primary keys for each filter and combine them
-      return collection.filter(item => {
-        return filters.some(filter => {
-          if ('field' in filter) {
-            const { field, operator, value } = filter;
-
-            switch (operator) {
-              case '==': return this.getItemValue(item, field) === value;
-              case '!=': return this.getItemValue(item, field) !== value;
-              case '<': return this.getItemValue(item, field) < value;
-              case '<=': return this.getItemValue(item, field) <= value;
-              case '>': return this.getItemValue(item, field) > value;
-              case '>=': return this.getItemValue(item, field) >= value;
-              case 'contains':
-                return typeof this.getItemValue(item, field) === 'string' &&
-                  (this.getItemValue(item, field) as string).toLowerCase().includes((value as string).toLowerCase());
-              case 'contains-any':
-                if (typeof value === 'string') {
-                  const terms = value.toLowerCase().split(/\s+/);
-                  return typeof this.getItemValue(item, field) === 'string' &&
-                    terms.some(term => (this.getItemValue(item, field) as string).toLowerCase().includes(term));
-                }
-                return false;
-              case 'in':
-                return Array.isArray(value) && value.includes(this.getItemValue(item, field));
-              case 'not-in':
-                return Array.isArray(value) && !value.includes(this.getItemValue(item, field));
-              default:
-                return false;
-            }
-          } else {
-            // Handle nested composite filters recursively
-            if (filter.type === 'and') {
-              return filter.filters.every(subFilter => {
-                if ('field' in subFilter) {
-                  return this.evaluateFilter(item, subFilter);
-                }
-                return this.evaluateCompositeFilter(item, subFilter);
-              });
-            } else { // 'or'
-              return filter.filters.some(subFilter => {
-                if ('field' in subFilter) {
-                  return this.evaluateFilter(item, subFilter);
-                }
-                return this.evaluateCompositeFilter(item, subFilter);
-              });
-            }
-          }
-        });
-      });
-    }
-
-    return collection;
-  }
-
-  /**
-   * Evaluate a single filter against an item (for recursive evaluation)
+   * Evaluates a single filter against an item
+   * Central method for all filter evaluation logic
    */
   protected evaluateFilter(item: T, filter: Filter): boolean {
     const { field, operator, value } = filter;
@@ -195,6 +66,42 @@ export abstract class BaseRepository<T, K> {
         return this.evaluateCompositeFilter(item, filter);
       });
     }
+  }
+
+  /**
+   * Apply a single filter condition to a Dexie collection
+   * Uses the common evaluateFilter method instead of duplicating logic
+   */
+  protected applyFilter(collection: Dexie.Collection<T, K>, filter: Filter) {
+    return collection.filter(item => this.evaluateFilter(item, filter));
+  }
+
+  /**
+   * Apply a composite filter (AND/OR) recursively
+   */
+  protected applyCompositeFilter(collection: Dexie.Collection<T, K>, compositeFilter: CompositeFilter): Dexie.Collection<T, K> {
+    const { type, filters } = compositeFilter;
+
+    if (filters.length === 0) {
+      return collection;
+    }
+
+    // For 'and' operations, we can chain filters
+    if (type === 'and') {
+      let result = collection;
+      for (const filter of filters) {
+        if ('field' in filter) {
+          result = this.applyFilter(result, filter);
+        } else {
+          result = this.applyCompositeFilter(result, filter);
+        }
+      }
+      return result;
+    }
+
+    // For 'or' operations, use the evaluateCompositeFilter method
+    // instead of duplicating the filter logic
+    return collection.filter(item => this.evaluateCompositeFilter(item, compositeFilter));
   }
 
   /**
