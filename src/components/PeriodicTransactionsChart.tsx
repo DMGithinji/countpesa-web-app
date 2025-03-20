@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -30,6 +30,10 @@ const PeriodicTransactionsChart = ({
 }: PeriodicTransactionsChartProps) => {
   const [filter, setFilter] = useState("all");
   const [period, setPeriod] = useState<Period>(defaultPeriod);
+
+  useEffect(() => {
+    setPeriod(defaultPeriod);
+  }, [defaultPeriod]);
 
   const groupedTrs = useMemo(() => {
     if (!period) return [];

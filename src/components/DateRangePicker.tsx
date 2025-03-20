@@ -34,22 +34,23 @@ type PeriodType = "day" | "week" | "month" | "year" | "custom";
 
 export default function CalendarWithPopover({
   range,
-  onDateChange
+  onDateChange,
 }: {
   range?: DateRange;
   onDateChange: (date: DateRange) => void;
 }) {
-  const [date, setDate] = useState<DateRange | undefined>(range || {
-    from: new Date(),
-    to: addDays(new Date(), 7),
-  });
+  const [date, setDate] = useState<DateRange | undefined>(
+    range || {
+      from: new Date(),
+      to: addDays(new Date(), 7),
+    }
+  );
 
   useEffect(() => {
     if (range) {
       setDate(range);
     }
   }, [range]);
-
 
   const [open, setOpen] = useState(false);
 
@@ -65,10 +66,15 @@ export default function CalendarWithPopover({
 
   const handleRangeSelection = (range: DateRange | undefined) => {
     setDate(range);
+    if (!range) return;
+    onDateChange(range);
   };
 
   // Determine the period type and if navigation arrows should be shown
-  const { periodType, showNavigationArrows } = useMemo(() => getPeriodPresets(date), [date]);
+  const { periodType, showNavigationArrows } = useMemo(
+    () => getPeriodPresets(date),
+    [date]
+  );
   const navigateToPeriod = (change: number) => {
     const newDateRange = goToPeriod(date, periodType, change);
     if (!newDateRange) return;
@@ -88,7 +94,6 @@ export default function CalendarWithPopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex gap-2 items-center">
-
         <span className="hidden sm:block font-semibold">Transactions from</span>
         {showNavigationArrows && (
           <Button
@@ -158,68 +163,68 @@ export default function CalendarWithPopover({
   );
 }
 
-  // Preset date ranges
-  const presets = [
-    {
-      name: "Today",
-      getValue: () => ({
-        from: startOfDay(new Date()),
-        to: endOfDay(new Date()),
-      }),
+// Preset date ranges
+const presets = [
+  {
+    name: "Today",
+    getValue: () => ({
+      from: startOfDay(new Date()),
+      to: endOfDay(new Date()),
+    }),
+  },
+  {
+    name: "Yesterday",
+    getValue: () => ({
+      from: startOfDay(subDays(new Date(), 1)),
+      to: endOfDay(subDays(new Date(), 1)),
+    }),
+  },
+  {
+    name: "This Week",
+    getValue: () => ({
+      from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+      to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+    }),
+  },
+  {
+    name: "Last Week",
+    getValue: () => {
+      const now = new Date();
+      return {
+        from: startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
+        to: endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
+      };
     },
-    {
-      name: "Yesterday",
-      getValue: () => ({
-        from: startOfDay(subDays(new Date(), 1)),
-        to: endOfDay(subDays(new Date(), 1)),
-      }),
-    },
-    {
-      name: "This Week",
-      getValue: () => ({
-        from: startOfWeek(new Date(), { weekStartsOn: 1 }),
-        to: endOfWeek(new Date(), { weekStartsOn: 1 }),
-      }),
-    },
-    {
-      name: "Last Week",
-      getValue: () => {
-        const now = new Date();
-        return {
-          from: startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
-          to: endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
-        };
-      },
-    },
-    {
-      name: "This Month",
-      getValue: () => ({
-        from: startOfMonth(new Date()),
-        to: endOfMonth(new Date()),
-      }),
-    },
-    {
-      name: "Last Month",
-      getValue: () => ({
-        from: startOfMonth(subMonths(new Date(), 1)),
-        to: endOfMonth(subMonths(new Date(), 1)),
-      }),
-    },
-    {
-      name: "This Year",
-      getValue: () => ({
-        from: startOfYear(new Date()),
-        to: endOfYear(new Date()),
-      }),
-    },
-    {
-      name: "Last Year",
-      getValue: () => ({
-        from: startOfYear(subYears(new Date(), 1)),
-        to: endOfYear(subYears(new Date(), 1)),
-      }),
-    },
-  ];
+  },
+  {
+    name: "This Month",
+    getValue: () => ({
+      from: startOfMonth(new Date()),
+      to: endOfMonth(new Date()),
+    }),
+  },
+  {
+    name: "Last Month",
+    getValue: () => ({
+      from: startOfMonth(subMonths(new Date(), 1)),
+      to: endOfMonth(subMonths(new Date(), 1)),
+    }),
+  },
+  {
+    name: "This Year",
+    getValue: () => ({
+      from: startOfYear(new Date()),
+      to: endOfYear(new Date()),
+    }),
+  },
+  {
+    name: "Last Year",
+    getValue: () => ({
+      from: startOfYear(subYears(new Date(), 1)),
+      to: endOfYear(subYears(new Date(), 1)),
+    }),
+  },
+];
 
 function getPeriodPresets(date: DateRange | undefined) {
   if (!date?.from || !date?.to) {
@@ -237,30 +242,21 @@ function getPeriodPresets(date: DateRange | undefined) {
   // Check if it's a week
   const weekStart = startOfWeek(fromDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(fromDate, { weekStartsOn: 1 });
-  if (
-    isEqual(fromDate, weekStart) &&
-    isEqual(toDate, weekEnd)
-  ) {
+  if (isEqual(fromDate, weekStart) && isEqual(toDate, weekEnd)) {
     return { periodType: "week" as PeriodType, showNavigationArrows: true };
   }
 
   // Check if it's a month
   const monthStart = startOfMonth(fromDate);
   const monthEnd = endOfMonth(fromDate);
-  if (
-    isEqual(fromDate, monthStart) &&
-    isEqual(toDate, monthEnd)
-  ) {
+  if (isEqual(fromDate, monthStart) && isEqual(toDate, monthEnd)) {
     return { periodType: "month" as PeriodType, showNavigationArrows: true };
   }
 
   // Check if it's a year
   const yearStart = startOfYear(fromDate);
   const yearEnd = endOfYear(fromDate);
-  if (
-    isEqual(fromDate, yearStart) &&
-    isEqual(toDate, yearEnd)
-  ) {
+  if (isEqual(fromDate, yearStart) && isEqual(toDate, yearEnd)) {
     return { periodType: "year" as PeriodType, showNavigationArrows: true };
   }
 
@@ -268,31 +264,53 @@ function getPeriodPresets(date: DateRange | undefined) {
 }
 
 // Function to navigate to previous/next period
-function goToPeriod(date: DateRange | undefined, periodType: PeriodType, change: number) {
+function goToPeriod(
+  date: DateRange | undefined,
+  periodType: PeriodType,
+  change: number
+) {
   if (!date?.from || !date?.to) return;
 
   let newFrom, newTo;
 
   switch (periodType) {
     case "day":
-      newFrom = change > 0 ? addDays(date.from, change) : subDays(date.from, Math.abs(change));
-      newTo = change > 0 ? addDays(date.to, change) : subDays(date.to, Math.abs(change));
+      newFrom =
+        change > 0
+          ? addDays(date.from, change)
+          : subDays(date.from, Math.abs(change));
+      newTo =
+        change > 0
+          ? addDays(date.to, change)
+          : subDays(date.to, Math.abs(change));
       break;
     case "week":
-      newFrom = change > 0 ? addWeeks(date.from, change) : subWeeks(date.from, Math.abs(change));
-      newTo = change > 0 ? addWeeks(date.to, change) : subWeeks(date.to, Math.abs(change));
+      newFrom =
+        change > 0
+          ? addWeeks(date.from, change)
+          : subWeeks(date.from, Math.abs(change));
+      newTo =
+        change > 0
+          ? addWeeks(date.to, change)
+          : subWeeks(date.to, Math.abs(change));
       break;
     case "month":
       newFrom = addMonths(date.from, change);
       newTo = endOfMonth(newFrom);
       break;
     case "year":
-      newFrom = change > 0 ? addYears(date.from, change) : subYears(date.from, Math.abs(change));
-      newTo = change > 0 ? addYears(date.to, change) : subYears(date.to, Math.abs(change));
+      newFrom =
+        change > 0
+          ? addYears(date.from, change)
+          : subYears(date.from, Math.abs(change));
+      newTo =
+        change > 0
+          ? addYears(date.to, change)
+          : subYears(date.to, Math.abs(change));
       break;
     default:
       return;
   }
 
   return { from: newFrom, to: newTo };
-};
+}

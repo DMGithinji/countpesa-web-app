@@ -29,22 +29,18 @@ export function useDateRange() {
   return useMemo(() => {
     // Find date range filter if it exists
     const dateRangeFilter =
-      currentFilters &&
-      Array.isArray(currentFilters) &&
-      (currentFilters.find(
-        (fl: CompositeFilter) =>
-          fl.type === "and" && fl.filters.some((f) => f.field === "date")
-      ) as CompositeFilter | undefined);
+    (currentFilters as CompositeFilter)?.filters
+      .find((fl) => fl.field === "date")
 
     let startDate: Date;
     let endDate: Date;
 
     if (dateRangeFilter) {
       // Extract dates from filter
-      const startFilter = dateRangeFilter.filters.find(
+      const startFilter = (currentFilters as CompositeFilter).filters.find(
         (f) => f.field === "date" && f.operator === ">="
       );
-      const endFilter = dateRangeFilter.filters.find(
+      const endFilter = (currentFilters as CompositeFilter).filters.find(
         (f) => f.field === "date" && f.operator === "<="
       );
 
@@ -56,8 +52,9 @@ export function useDateRange() {
       // If no filter exists, use first and last transaction dates
       const orderedTrs = [...transactions].sort((a, b) => a.date - b.date);
 
-      startDate = new Date(orderedTrs[0].date);
-      endDate = new Date(orderedTrs[orderedTrs.length - 1].date);
+      const lastTr = orderedTrs[orderedTrs.length - 1];
+      startDate = startOfMonth(new Date(lastTr.date));
+      endDate = endOfMonth(startDate);
     } else {
       // Fallback if no transactions
       startDate = startOfMonth(new Date());
@@ -68,21 +65,24 @@ export function useDateRange() {
     const start = startOfDay(startDate);
     const end = endOfDay(endDate);
 
+    let validOptions = []
+
     // Determine appropriate period based on date range
     let defaultPeriod: Period;
 
     if (isSameDay(start, end)) {
       defaultPeriod = Period.HOUR;
+      validOptions = [Period.HOUR];
     } else if (differenceInDays(end, start) >= 61) {
       defaultPeriod = Period.MONTH;
+      validOptions = [Period.DATE, Period.WEEK, Period.MONTH];
     } else if (differenceInDays(end, start) <= 31) {
       defaultPeriod = Period.DATE;
+      validOptions = [Period.DATE, Period.WEEK];
     } else {
-      defaultPeriod = Period.WEEK; // Default fallback
+      defaultPeriod = Period.DATE; // Default fallback
+      validOptions = [Period.DATE];
     }
-    const periodOpts = Object.values(Period);
-    const periodIndex = periodOpts.indexOf(defaultPeriod);
-    const validOptions = Object.values(Period).slice(periodIndex);
 
     return {
       dateRange: { from: start, to: end },

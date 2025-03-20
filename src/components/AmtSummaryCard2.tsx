@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getTotals } from "@/lib/getTotal";
 
 interface AmtSummaryCardProps {
@@ -45,6 +45,10 @@ const AmtSummaryCard = ({
       value: Math.abs(getTotals(trs).totalAmount),
     }));
   }, [transactions, chartPeriod]);
+
+  useEffect(() => {
+    setChartPeriod(defaultPeriod);
+  }, [defaultPeriod]);
 
   return (
     <Card>
