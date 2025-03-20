@@ -85,6 +85,7 @@ export function useDateRange() {
     const validOptions = Object.values(Period).slice(periodIndex);
 
     return {
+      dateRange: { from: start, to: end },
       defaultPeriod,
       periodOptions: validOptions,
     };

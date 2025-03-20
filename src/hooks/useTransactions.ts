@@ -65,5 +65,6 @@ export function useTransactions() {
   return {
     transactions,
     loadTransactions,
+    setCurrentFilters
   };
 }

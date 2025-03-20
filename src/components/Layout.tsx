@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags } from 'lucide-react';
 import { Button } from './ui/button';
-import UploadStatementButton from './UploadStatementButton';
+import Header from './Header';
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -97,18 +97,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Top header area */}
-        <header className="sticky top-0 w-full bg-white shadow-sm py-4 px-6 h-16 z-50">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <h1 className="text-xl font-medium">Transactions from M-Pesa</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <UploadStatementButton />
-            </div>
-          </div>
-        </header>
-
+        <Header />
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
         <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb-6">
           {children}
