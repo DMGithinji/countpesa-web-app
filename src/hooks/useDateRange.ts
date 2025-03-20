@@ -53,8 +53,9 @@ export function useDateRange() {
       const orderedTrs = [...transactions].sort((a, b) => a.date - b.date);
 
       const lastTr = orderedTrs[orderedTrs.length - 1];
-      startDate = startOfMonth(new Date(lastTr.date));
-      endDate = endOfMonth(startDate);
+      const firstTr = orderedTrs[0];
+      startDate = new Date(firstTr.date);
+      endDate = new Date(lastTr.date);
     } else {
       // Fallback if no transactions
       startDate = startOfMonth(new Date());

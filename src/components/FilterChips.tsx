@@ -1,7 +1,11 @@
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import useTransactionStore from "@/stores/transactions.store";
 import { CompositeFilter, Filter, FilterOperator } from "@/types/Filters";
 import { format } from "date-fns";
@@ -14,10 +18,10 @@ const operatorTranslations: Record<FilterOperator, string> = {
   "<=": "at most",
   ">": "greater than",
   ">=": "at least",
-  "contains": "contains",
+  contains: "contains",
   "contains-any": "contains any of",
-  "in": "in",
-  "not-in": "not in"
+  in: "in",
+  "not-in": "not in",
 };
 
 // Format values based on field type
@@ -42,7 +46,7 @@ const extractFilters = (filter: Filter | CompositeFilter): Filter[] => {
     return [filter];
   }
 
-  return filter.filters.flatMap(f => {
+  return filter.filters.flatMap((f) => {
     if ("field" in f) {
       return [f];
     }
@@ -60,7 +64,7 @@ const getFilterGroups = (filters: Filter | CompositeFilter | undefined) => {
   // Group by field
   const groups: Record<string, { field: string; filters: Filter[] }> = {};
 
-  allFilters.forEach(filter => {
+  allFilters.forEach((filter) => {
     if (!groups[filter.field]) {
       groups[filter.field] = { field: filter.field, filters: [] };
     }
@@ -76,15 +80,18 @@ const formatFilterGroup = (group: { field: string; filters: Filter[] }) => {
 
   // Special case for date ranges
   if (field === "date") {
-    const startFilter = filters.find(f => f.operator === ">=");
-    const endFilter = filters.find(f => f.operator === "<=");
+    const startFilter = filters.find((f) => f.operator === ">=");
+    const endFilter = filters.find((f) => f.operator === "<=");
 
     if (startFilter && endFilter) {
       const startDate = formatValue("date", startFilter.value);
       const endDate = formatValue("date", endFilter.value);
       return (
         <span className="chip-text">
-          Date between <b>"{startDate} - {endDate}"</b>
+          Date between{" "}
+          <b>
+            "{startDate} - {endDate}"
+          </b>
         </span>
       );
     }
@@ -105,11 +112,7 @@ const formatFilterGroup = (group: { field: string; filters: Filter[] }) => {
   }
 
   // Default fallback for complex filters
-  return (
-    <span className="chip-text">
-      {field}: Multiple conditions
-    </span>
-  );
+  return <span className="chip-text">{field}: Multiple conditions</span>;
 };
 
 export function FilterChips() {
@@ -135,7 +138,7 @@ export function FilterChips() {
     // For composite filters
     if (currentFilters.type === "and") {
       // Create new filters array without the removed field
-      const newFilters = currentFilters.filters.filter(filter => {
+      const newFilters = currentFilters.filters.filter((filter) => {
         if ("field" in filter) {
           return filter.field !== fieldName;
         }
@@ -153,7 +156,7 @@ export function FilterChips() {
         // Otherwise update the composite filter
         setCurrentFilters({
           ...currentFilters,
-          filters: newFilters
+          filters: newFilters,
         });
       }
     } else {
@@ -170,41 +173,45 @@ export function FilterChips() {
   return (
     <div className="py-4 flex gap-2 flex-wrap mb-4">
       {filterGroups.map((group) => (
-        <Tooltip key={group.field}>
-          <TooltipTrigger asChild>
-            <Badge
-              variant="outline"
-              className="px-2 py-0.5 rounded-full bg-white text-zinc-800 hover:bg-zinc-100 flex items-center text-xs"
-            >
-              {formatFilterGroup(group)}
+        <Badge
+          variant="outline"
+          className="px-2 pt--.5 pb-1 rounded-full bg-slate-800 text-white cursor-pointerflex items-center text-xs"
+        >
+          {formatFilterGroup(group)}
+          <Tooltip key={group.field}>
+            <TooltipTrigger asChild>
               <Button
                 onClick={() => removeFilter(group.field)}
                 size="icon"
                 variant="ghost"
-                className="h-5 w-5 ml-1.5 rounded-full"
+                className="h-5 w-5 rounded-full cursor-pointer"
               >
                 <X size={14} />
                 <span className="sr-only">Remove filter</span>
               </Button>
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Remove filter</p>
-          </TooltipContent>
-        </Tooltip>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Remove filter</p>
+            </TooltipContent>
+          </Tooltip>
+        </Badge>
       ))}
 
       <Tooltip>
         <TooltipTrigger asChild>
-          {!!currentFilters && Array.isArray(currentFilters) && currentFilters.length > 1 && <Button
-            onClick={clearAllFilters}
-            variant="outline"
-            size="sm"
-            className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center"
-          >
-            <span className="font-semibold">Clear All Filters</span>
-            <X size={14} className="ml-1.5" />
-          </Button>}
+          {!!currentFilters &&
+            Array.isArray(currentFilters) &&
+            currentFilters.length > 1 && (
+              <Button
+                onClick={clearAllFilters}
+                variant="outline"
+                size="sm"
+                className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center"
+              >
+                <span className="font-semibold">Clear All Filters</span>
+                <X size={14} className="ml-1.5" />
+              </Button>
+            )}
         </TooltipTrigger>
         <TooltipContent>
           <p>Remove all filters</p>
