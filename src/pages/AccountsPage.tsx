@@ -2,7 +2,7 @@ import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Col
 import TransactionsTable from "@/components/GroupedTrsTable/Table";
 import { TransactionSearch } from "@/components/SearchInput";
 import TopAccountsChart from "@/components/TopAccountsChart";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useCalculate } from "@/hooks/useCalculate";
 import {
   GroupByField,
   GroupByTrxSortBy,
@@ -22,7 +22,7 @@ const AccountsPage = () => {
     topAccountsReceivedFromByAmt,
     topAccountsReceivedFromByCount,
     topAccountsSentToByCount,
-  } = useDashboard();
+  } = useCalculate();
 
   const columnDefProps = { title: "Sender/Receiver" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);

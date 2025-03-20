@@ -1,5 +1,5 @@
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useCalculate } from "@/hooks/useCalculate";
 import { GroupByField } from "@/lib/groupByField";
 import useTransactionStore from "@/stores/transactions.store";
 import AmtSummaryCard from "@/components/AmtSummaryCard";
@@ -23,7 +23,7 @@ const DashboardPage = () => {
     topAccountsReceivedFromByCount,
     topCategoriesMoneyInByCount,
     topCategoriesMoneyOutByCount,
-  } = useDashboard();
+  } = useCalculate();
   const loading = useTransactionStore((state) => state.loading);
   const { defaultPeriod, periodOptions } = useDateRange();
 

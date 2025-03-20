@@ -11,7 +11,7 @@ import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import { filterTransactions } from "@/lib/utils";
 import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useCalculate } from "@/hooks/useCalculate";
 import { useDateRange } from "@/hooks/useDateRange";
 
 const TransactionsPage = () => {
@@ -22,7 +22,7 @@ const TransactionsPage = () => {
   const loading = useTransactionStore((state) => state.loading);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { transactionTotals } = useDashboard();
+  const { transactionTotals } = useCalculate();
 
   const filteredTrs = useMemo(
     () =>

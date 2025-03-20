@@ -9,7 +9,7 @@ import useTransactionStore from "@/stores/transactions.store";
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { filterTransactions } from "@/lib/utils";
 import { TransactionSearch } from "@/components/SearchInput";
-import { useDashboard } from "@/hooks/useDashboard";
+import { useCalculate } from "@/hooks/useCalculate";
 import { MoneyMode } from "@/types/Transaction";
 import CategoriesChart from "@/components/CategoriesChart";
 
@@ -20,7 +20,7 @@ const CategoriesPage = () => {
     transactionTotals,
     topCategoriesMoneyInByAmt,
     topCategoriesMoneyOutByAmt,
-  } = useDashboard();
+  } = useCalculate();
 
   const columnDefProps = { title: "Categories" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);

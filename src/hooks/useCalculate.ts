@@ -4,7 +4,7 @@ import { calculateTransactionTotals } from "@/lib/getTotal";
 import { groupTransactionsByField, GroupByField } from "@/lib/groupByField";
 import { formatDate } from "date-fns";
 
-export function useDashboard() {
+export function useCalculate() {
   const { transactions } = useTransactionStore();
 
   // Calculate all dashboard metrics only when transactions change
