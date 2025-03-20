@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Custom
+flat_repository/
+flat_repository.zip
+flat_repo.sh
+repository_files.txt
