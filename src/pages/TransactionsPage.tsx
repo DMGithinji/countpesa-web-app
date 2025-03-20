@@ -1,6 +1,6 @@
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
-import TransactionsTable from "@/components/TransactionsTable/Table";
-import GroupedTransactionsTable from "@/components/GroupedTrsTable/Table";
+import TransactionsTable, { SortBy } from "@/components/TransactionsTable/Table";
+import GroupedTransactionsTable, { SortBy as GroupedSortBy } from "@/components/GroupedTrsTable/Table";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { TransactionSummary } from "@/lib/groupByField";
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { filterTransactions } from "@/lib/utils";
+import { filterTransactions, sortBy } from "@/lib/utils";
 import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
 import { useCalculate } from "@/hooks/useCalculate";
 import { useDateRange } from "@/hooks/useDateRange";
@@ -17,24 +17,28 @@ import { useDateRange } from "@/hooks/useDateRange";
 const TransactionsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
   const { defaultPeriod, periodOptions } = useDateRange();
-
-  const [groupBy, setGroupBy] = useState<"all" | Period>("all");
-  const loading = useTransactionStore((state) => state.loading);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
   const { transactionTotals } = useCalculate();
 
-  const filteredTrs = useMemo(
-    () =>
-      filterTransactions(transactions, searchQuery).sort(
-        (a, b) => b.date - a.date
-      ),
-    [searchQuery, transactions]
-  );
+  const [groupBy, setGroupBy] = useState<"all" | Period>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sortingState, setSortingState] = useState<SortBy>({
+    desc: true,
+    id: "date",
+  });
+  const [groupedSortingState, setGroupedSortingState] = useState<GroupedSortBy>({
+    desc: true,
+    id: "name",
+  });
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const filteredTrs = useMemo(() => {
+    const filtered = filterTransactions(transactions, searchQuery);
+    const sorted = sortBy(
+      filtered,
+      sortingState.id,
+      sortingState.desc ? "desc" : "asc"
+    );
+    return sorted;
+  }, [searchQuery, transactions, sortingState]);
 
   return (
     <div className="container mx-auto max-w-5xl flex flex-col gap-12">
@@ -62,7 +66,7 @@ const TransactionsPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
           <ToggleGroup type="single" value={groupBy}>
-            {["all", Period.DATE, ...periodOptions].map((grouping) => (
+            {["all", ...periodOptions].map((grouping) => (
               <ToggleGroupItem
                 className={"cursor-pointer px-4 capitalize"}
                 onClick={() => setGroupBy(grouping as Period | "all")}
@@ -74,7 +78,14 @@ const TransactionsPage = () => {
             ))}
           </ToggleGroup>
         </div>
-        <Table transactions={filteredTrs} groupBy={groupBy} />
+        <Table
+          transactions={filteredTrs}
+          groupBy={groupBy}
+          sortBy={sortingState}
+          onSortingChange={setSortingState}
+          groupedSortingState={groupedSortingState}
+          setGroupedSortingState={setGroupedSortingState}
+        />
       </div>
     </div>
   );
@@ -85,21 +96,34 @@ export default TransactionsPage;
 function Table({
   transactions,
   groupBy,
+  sortBy,
+  onSortingChange,
+  groupedSortingState,
+  setGroupedSortingState,
 }: {
   transactions: Transaction[];
   groupBy: "all" | Period;
+  sortBy: SortBy;
+  onSortingChange: (sortBy: SortBy) => void;
+  groupedSortingState: GroupedSortBy;
+  setGroupedSortingState: (sortBy: GroupedSortBy) => void;
 }) {
   switch (groupBy) {
     case "all":
       return (
         <div className="container mx-auto max-w-5xl">
-          <TransactionsTable transactions={transactions} />
+          <TransactionsTable
+            transactions={transactions}
+            sortBy={sortBy}
+            onSortingChange={onSortingChange}
+          />
         </div>
       );
     case Period.DATE:
     case Period.WEEK:
     case Period.MONTH:
     case Period.YEAR: {
+
       const columnDefProps = {
         title: groupBy.slice(0, 1).toUpperCase() + groupBy.slice(1),
       };
@@ -120,6 +144,8 @@ function Table({
           <GroupedTransactionsTable
             transactions={summary}
             columnDef={columnDef}
+            sortBy={groupedSortingState}
+            onSortingChange={setGroupedSortingState}
           />
         </div>
       );

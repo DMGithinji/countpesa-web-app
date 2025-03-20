@@ -69,7 +69,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
         </Badge>
       );
     },
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   },
   {
@@ -78,7 +78,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
       <DataTableColumnHeader column={column} title="Type" />
     ),
     cell: ({ row }) => <div  className="w-[100px]">{row.getValue("transactionType")}</div>,
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
   }
 ]

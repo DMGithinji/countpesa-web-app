@@ -1,30 +1,37 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { TransactionSummary } from "@/lib/groupByField";
 import { ColumnDef } from "@tanstack/react-table";
 
 const PAGE_SIZE = 10;
+export type SortBy = {
+  desc: boolean;
+  id: keyof TransactionSummary;
+}
 
 const Table = ({
   transactions,
-  columnDef
+  columnDef,
+  sortBy,
+  onSortingChange,
 }: {
   transactions: TransactionSummary[],
-  columnDef: ColumnDef<TransactionSummary>[]
+  columnDef: ColumnDef<TransactionSummary>[],
+  sortBy: SortBy;
+  onSortingChange: (sorting: SortBy) => void;
 }) => {
   const [page, setPage] = useState(1);
-  const displayedTrs = useMemo(() => {
-    return transactions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  }, [page, transactions]);
 
   return (
       <DataTable
-        data={displayedTrs}
+        data={transactions}
         columns={columnDef}
         totalCount={transactions.length}
         pageSize={PAGE_SIZE}
         pageIndex={page - 1}
         onPageChange={(newPage) => setPage(newPage + 1)}
+        initialSorting={[sortBy]}
+        onSortingChange={(sorting) => onSortingChange(sorting[0] as SortBy)}
       />
   );
 };

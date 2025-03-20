@@ -24,3 +24,42 @@ export const filterTransactions = (transactions: Transaction[], searchQuery: str
     tr.code.toLowerCase().includes(query)
   );
 };
+
+/**
+ * Sort an array of objects by a specific field.
+ * Handles both string and numeric values appropriately.
+ *
+ * @param array The array to sort
+ * @param field The field key to sort by
+ * @param direction The sort direction ('asc' or 'desc')
+ * @returns A new sorted array
+ */
+export function sortBy<T extends Record<string, any>>(
+  array: T[],
+  field: keyof T,
+  direction: 'asc' | 'desc' = 'asc'
+): T[] {
+  const isDescending = direction === 'desc';
+
+  return [...array].sort((a: T, b: T) => {
+    // Get the values to compare
+    const aValue = a[field];
+    const bValue = b[field];
+
+    // Handle null or undefined values
+    if (aValue == null && bValue == null) return 0;
+    if (aValue == null) return isDescending ? 1 : -1;
+    if (bValue == null) return isDescending ? -1 : 1;
+
+    // Handle different types
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      // Case-insensitive string comparison
+      const comparison = aValue.localeCompare(bValue);
+      return isDescending ? -comparison : comparison;
+    }
+
+    // Numbers or other comparable types
+    const comparison = aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    return isDescending ? -comparison : comparison;
+  });
+}

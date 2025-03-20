@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import TransactionsTable from "@/components/GroupedTrsTable/Table";
+import TransactionsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 import {
   GroupByField,
   GroupByTrxSortBy,
@@ -7,7 +7,7 @@ import {
 } from "@/lib/groupByField";
 import useTransactionStore from "@/stores/transactions.store";
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
-import { filterTransactions } from "@/lib/utils";
+import { filterTransactions, sortBy } from "@/lib/utils";
 import { TransactionSearch } from "@/components/SearchInput";
 import { useCalculate } from "@/hooks/useCalculate";
 import { MoneyMode } from "@/types/Transaction";
@@ -24,18 +24,20 @@ const CategoriesPage = () => {
 
   const columnDefProps = { title: "Categories" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);
-  const [sortBy, setSortBy] = useState<GroupByTrxSortBy>(
-    GroupByTrxSortBy.MoneyOut
-  );
-
-  const filteredTrs = useMemo(
-    () => filterTransactions(transactions, searchQuery),
-    [searchQuery, transactions]
-  );
+  const [sortingState, setSortingState] = useState<SortBy>({
+    desc: false,
+    id: GroupByTrxSortBy.MoneyOut,
+  });
 
   const groupedTrs = useMemo(() => {
-    return groupedTrxByField(filteredTrs, GroupByField.Category, sortBy);
-  }, [filteredTrs, sortBy]);
+    const filteredTrs = filterTransactions(transactions, searchQuery);
+    const groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Category);
+    return sortBy(
+      groupedTrx,
+      sortingState.id,
+      sortingState.desc ? "desc" : "asc"
+    );
+  }, [searchQuery, sortingState, transactions]);
 
   return (
     <div className="container mx-auto max-w-5xl flex flex-col gap-8">
@@ -48,7 +50,7 @@ const CategoriesPage = () => {
             name: t.name,
             amount: t.amount,
             count: t.count,
-            percentage: t.amountPercentage
+            percentage: t.amountPercentage,
           }))}
         />
         <CategoriesChart
@@ -59,7 +61,7 @@ const CategoriesPage = () => {
             name: t.name,
             amount: t.amount,
             count: t.count,
-            percentage: t.amountPercentage
+            percentage: t.amountPercentage,
           }))}
         />
       </div>
@@ -67,7 +69,12 @@ const CategoriesPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
         </div>
-        <TransactionsTable transactions={groupedTrs} columnDef={columnDef} />
+        <TransactionsTable
+          transactions={groupedTrs}
+          columnDef={columnDef}
+          onSortingChange={setSortingState}
+          sortBy={sortingState}
+        />
       </div>
     </div>
   );

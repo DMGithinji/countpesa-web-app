@@ -32,7 +32,9 @@ interface DataTableProps<TData, TValue> {
   pageIndex: number
   pageSize?: number
   onPageChange: (page: number) => void
+  onSortingChange?: (sorting: SortingState) => void
   onRowClick?: (row: TData) => void
+  initialSorting?: SortingState
 }
 
 export function DataTable<TData, TValue>({
@@ -42,7 +44,9 @@ export function DataTable<TData, TValue>({
   pageIndex,
   pageSize = 10,
   onPageChange,
+  onSortingChange,
   onRowClick,
+  initialSorting = [],
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -50,7 +54,28 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
     []
   )
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>(initialSorting)
+
+  const handleSortingChange = (updaterOrValue: SortingState | ((prev: SortingState) => SortingState)) => {
+    // Handle both function updaters and direct value assignments
+    let newSorting: SortingState;
+
+    if (typeof updaterOrValue === 'function') {
+      newSorting = updaterOrValue(sorting);
+    } else {
+      newSorting = updaterOrValue;
+    }
+
+    // Update internal state
+    setSorting(newSorting);
+
+    // Call the parent callback if provided
+    if (onSortingChange) {
+      onPageChange(0);
+      onSortingChange(newSorting);
+    }
+  };
+
 
   const table = useReactTable({
     data,
@@ -69,14 +94,13 @@ export function DataTable<TData, TValue>({
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
         const newState = updater({ pageIndex, pageSize });
-        console.log({pageIndex, pageSize, newState})
         onPageChange(newState.pageIndex);
       }
     },
-    manualPagination: true,
+    manualPagination: false,
     enableRowSelection: true,
+    onSortingChange: handleSortingChange,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
