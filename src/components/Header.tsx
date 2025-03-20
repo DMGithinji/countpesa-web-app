@@ -4,6 +4,7 @@ import UploadStatementButton from "./UploadStatementButton";
 import { DateRange } from "react-day-picker";
 import { CompositeFilter } from "@/types/Filters";
 import { useDateRange } from "@/hooks/useDateRange";
+import { FilterChips } from "./FilterChips";
 
 const Header = () => {
   const { dateRange } = useDateRange();
@@ -11,6 +12,7 @@ const Header = () => {
 
   const handleDateChange = (dateRange: DateRange | undefined) => {
     if (!dateRange?.from || !dateRange?.to) return;
+
     const dateRangeFilter: CompositeFilter = {
       type: "and",
       filters: [
@@ -31,7 +33,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 w-full bg-white shadow-sm py-4 px-6 h-16 z-50">
+    <header className="sticky top-0 w-full bg-white shadow-xs py-4 px-6 h-16 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <DateRangePicker range={dateRange} onDateChange={handleDateChange} />
@@ -40,6 +42,7 @@ const Header = () => {
           <UploadStatementButton />
         </div>
       </div>
+      <FilterChips />
     </header>
   );
 };

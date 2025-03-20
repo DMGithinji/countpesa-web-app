@@ -99,7 +99,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <Header />
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
-        <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb-6">
+        <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb- mt-2">
           {children}
         </main>
 

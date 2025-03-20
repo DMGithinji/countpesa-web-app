@@ -70,7 +70,7 @@ const AmtSummaryCard = ({
                 : "text-red-600 bg-red-600/20"
             } px- mx-1`}
           >
-            {formatCurrency(Math.floor(amount / count))}
+            {formatCurrency(Math.floor((amount) / count) || 0)}
           </span>
           <span>Avg {type}</span>
         </div>

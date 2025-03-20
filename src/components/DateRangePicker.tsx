@@ -21,7 +21,7 @@ import {
   addMonths,
   addYears,
 } from "date-fns";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -44,6 +44,13 @@ export default function CalendarWithPopover({
     to: addDays(new Date(), 7),
   });
 
+  useEffect(() => {
+    if (range) {
+      setDate(range);
+    }
+  }, [range]);
+
+
   const [open, setOpen] = useState(false);
 
   // Format the date range for display on the button
@@ -56,74 +63,9 @@ export default function CalendarWithPopover({
     )}`;
   };
 
-  // Preset date ranges
-  const presets = [
-    {
-      name: "Today",
-      getValue: () => ({
-        from: startOfDay(new Date()),
-        to: endOfDay(new Date()),
-      }),
-    },
-    {
-      name: "Yesterday",
-      getValue: () => ({
-        from: startOfDay(subDays(new Date(), 1)),
-        to: endOfDay(subDays(new Date(), 1)),
-      }),
-    },
-    {
-      name: "This Week",
-      getValue: () => ({
-        from: startOfWeek(new Date(), { weekStartsOn: 1 }),
-        to: endOfWeek(new Date(), { weekStartsOn: 1 }),
-      }),
-    },
-    {
-      name: "Last Week",
-      getValue: () => {
-        const now = new Date();
-        return {
-          from: startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
-          to: endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
-        };
-      },
-    },
-    {
-      name: "This Month",
-      getValue: () => ({
-        from: startOfMonth(new Date()),
-        to: endOfMonth(new Date()),
-      }),
-    },
-    {
-      name: "Last Month",
-      getValue: () => ({
-        from: startOfMonth(subMonths(new Date(), 1)),
-        to: endOfMonth(subMonths(new Date(), 1)),
-      }),
-    },
-    {
-      name: "This Year",
-      getValue: () => ({
-        from: startOfYear(new Date()),
-        to: endOfYear(new Date()),
-      }),
-    },
-    {
-      name: "Last Year",
-      getValue: () => ({
-        from: startOfYear(subYears(new Date(), 1)),
-        to: endOfYear(subYears(new Date(), 1)),
-      }),
-    },
-  ];
-
   const handleRangeSelection = (range: DateRange | undefined) => {
     setDate(range);
   };
-
-
 
   // Determine the period type and if navigation arrows should be shown
   const { periodType, showNavigationArrows } = useMemo(() => getPeriodPresets(date), [date]);
@@ -140,6 +82,7 @@ export default function CalendarWithPopover({
     const newDateRange = preset;
     setDate(newDateRange);
     onDateChange(newDateRange);
+    setOpen(false);
   };
 
   return (
@@ -214,6 +157,69 @@ export default function CalendarWithPopover({
     </Popover>
   );
 }
+
+  // Preset date ranges
+  const presets = [
+    {
+      name: "Today",
+      getValue: () => ({
+        from: startOfDay(new Date()),
+        to: endOfDay(new Date()),
+      }),
+    },
+    {
+      name: "Yesterday",
+      getValue: () => ({
+        from: startOfDay(subDays(new Date(), 1)),
+        to: endOfDay(subDays(new Date(), 1)),
+      }),
+    },
+    {
+      name: "This Week",
+      getValue: () => ({
+        from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+        to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+      }),
+    },
+    {
+      name: "Last Week",
+      getValue: () => {
+        const now = new Date();
+        return {
+          from: startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
+          to: endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }),
+        };
+      },
+    },
+    {
+      name: "This Month",
+      getValue: () => ({
+        from: startOfMonth(new Date()),
+        to: endOfMonth(new Date()),
+      }),
+    },
+    {
+      name: "Last Month",
+      getValue: () => ({
+        from: startOfMonth(subMonths(new Date(), 1)),
+        to: endOfMonth(subMonths(new Date(), 1)),
+      }),
+    },
+    {
+      name: "This Year",
+      getValue: () => ({
+        from: startOfYear(new Date()),
+        to: endOfYear(new Date()),
+      }),
+    },
+    {
+      name: "Last Year",
+      getValue: () => ({
+        from: startOfYear(subYears(new Date(), 1)),
+        to: endOfYear(subYears(new Date(), 1)),
+      }),
+    },
+  ];
 
 function getPeriodPresets(date: DateRange | undefined) {
   if (!date?.from || !date?.to) {
