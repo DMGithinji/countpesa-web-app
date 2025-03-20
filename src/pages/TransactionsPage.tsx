@@ -1,18 +1,22 @@
+import { useMemo, useState } from "react";
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
-import TransactionsTable, { SortBy } from "@/components/TransactionsTable/Table";
-import GroupedTransactionsTable, { SortBy as GroupedSortBy } from "@/components/GroupedTrsTable/Table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { TransactionSearch } from "@/components/SearchInput";
+import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
+import TransactionsTable, {
+  SortBy,
+} from "@/components/TransactionsTable/Table";
+import GroupedTransactionsTable, {
+  SortBy as GroupedSortBy,
+} from "@/components/GroupedTrsTable/Table";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { TransactionSummary } from "@/lib/groupByField";
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
-import useTransactionStore from "@/stores/transactions.store";
-import { useMemo, useState } from "react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { TransactionSearch } from "@/components/SearchInput";
-import { MoneyMode, Transaction } from "@/types/Transaction";
 import { filterTransactions, sortBy } from "@/lib/utils";
-import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
+import { MoneyMode, Transaction } from "@/types/Transaction";
 import { useCalculate } from "@/hooks/useCalculate";
 import { useDateRange } from "@/hooks/useDateRange";
+import useTransactionStore from "@/stores/transactions.store";
 
 const TransactionsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
@@ -25,10 +29,12 @@ const TransactionsPage = () => {
     desc: true,
     id: "date",
   });
-  const [groupedSortingState, setGroupedSortingState] = useState<GroupedSortBy>({
-    desc: true,
-    id: "name",
-  });
+  const [groupedSortingState, setGroupedSortingState] = useState<GroupedSortBy>(
+    {
+      desc: true,
+      id: "name",
+    }
+  );
 
   const filteredTrs = useMemo(() => {
     const filtered = filterTransactions(transactions, searchQuery);
@@ -123,7 +129,6 @@ function Table({
     case Period.WEEK:
     case Period.MONTH:
     case Period.YEAR: {
-
       const columnDefProps = {
         title: groupBy.slice(0, 1).toUpperCase() + groupBy.slice(1),
       };

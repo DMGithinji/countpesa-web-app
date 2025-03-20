@@ -9,10 +9,7 @@ interface SidepanelState {
 
 // Create the minimal Zustand store
 const useSidepanelStore = create<SidepanelState>((set) => ({
-  // Initial state
-  sidepanelOpen: true,
-
-  // Simple setters
+  sidepanelOpen: false,
   setSidepanelOpen: (sidepanelOpen) => set({ sidepanelOpen }),
 }));
 

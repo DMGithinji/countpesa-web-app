@@ -1,17 +1,25 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { format } from "date-fns"
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { DataTableColumnHeader } from "../ui/table/data-table-column-header";
 import { Transaction } from "@/types/Transaction";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 
-export const transactionColumns: ColumnDef<Transaction>[] = [
+type TransactionColumnProps = {
+  onCategoryClick?: (transaction: Transaction) => void;
+};
+
+export const createTransactionColumns = ({ onCategoryClick }: TransactionColumnProps = {}): ColumnDef<Transaction>[] => [
   {
     accessorKey: "account",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Sender/Receiver" />
     ),
-    cell: ({ row }) => <div className="font-medium text-gray-700 max-w-[250px] truncate">{row.getValue("account")}</div>,
+    cell: ({ row }) => (
+      <div className="font-medium text-gray-700 max-w-[250px] truncate">
+        {row.getValue("account")}
+      </div>
+    ),
     enableSorting: true,
     enableHiding: false,
   },
@@ -22,12 +30,15 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
     ),
     cell: ({ row }) => {
       const amount = row.getValue("amount") as number;
-      const formattedAmount = amount < 0
-        ? `-Ksh ${Math.abs(amount)}`
-        : `Ksh ${amount}`;
+      const formattedAmount =
+        amount < 0 ? `-Ksh ${Math.abs(amount)}` : `Ksh ${amount}`;
 
       return (
-        <div className={`w-[100px] ${amount < 0 ? 'text-red-600' : 'text-green-600'} font-semibold`}>
+        <div
+          className={`w-[100px] ${
+            amount < 0 ? "text-red-600" : "text-green-600"
+          } font-semibold`}
+        >
           {formattedAmount}
         </div>
       );
@@ -46,7 +57,7 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
 
       return (
         <div className="w-[160px]">
-          {format(date, 'EEE, MMM dd yyyy HH:mm')}
+          {format(date, "EEE, MMM dd yyyy HH:mm")}
         </div>
       );
     },
@@ -60,12 +71,19 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
     ),
     cell: ({ row }) => {
       const category = row.getValue("category") as string;
+      const transaction = row.original;
 
       return (
         <Badge
-          className={cn('w-[120px]', category !== 'Uncategorized' ? 'bg-green-100 text-green-500 border-green-200' : 'bg-orange-100/80 text-orange-400/80 border-orange-100')}
+          className={cn(
+            "w-[120px] cursor-pointer hover:opacity-80",
+            category !== "Uncategorized"
+              ? "bg-green-100 text-green-500 border-green-200"
+              : "bg-orange-100/80 text-orange-400/80 border-orange-100"
+          )}
+          onClick={() => onCategoryClick && onCategoryClick(transaction)}
         >
-          {category === 'Uncategorized' ? 'Categorize' : category }
+          {category === "Uncategorized" ? "Categorize" : category}
         </Badge>
       );
     },
@@ -77,8 +95,10 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Type" />
     ),
-    cell: ({ row }) => <div  className="w-[100px]">{row.getValue("transactionType")}</div>,
+    cell: ({ row }) => (
+      <div className="w-[100px]">{row.getValue("transactionType")}</div>
+    ),
     enableSorting: false,
     enableHiding: false,
-  }
-]
+  },
+];
