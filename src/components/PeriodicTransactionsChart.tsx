@@ -6,7 +6,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  TooltipProps,
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +15,7 @@ import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Transaction } from "@/types/Transaction";
+import CustomTooltip from "./CustomTooltip";
 
 type PeriodicTransactionsChartProps = {
   transactions: Transaction[];
@@ -143,28 +143,3 @@ const PeriodicTransactionsChart = ({
 
 export default PeriodicTransactionsChart;
 
-// Custom tooltip component
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: TooltipProps<number, string>) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-zinc-800 p-3 border border-zinc-700 rounded-md shadow-md">
-        <p className="text-zinc-300 mb-2">{label}</p>
-        {payload.map((entry, index) => (
-          <p
-            key={`item-${index}`}
-            className="text-sm"
-            style={{ color: entry.color }}
-          >
-            {entry.name === "moneyIn" ? "Money In: " : "Money Out: "}
-            Ksh {entry.value?.toLocaleString()}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};

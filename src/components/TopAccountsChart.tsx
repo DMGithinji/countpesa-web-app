@@ -21,6 +21,7 @@ import {
   YAxis,
 } from "recharts";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+import CustomTooltip from "./CustomTooltip";
 
 // Function to format axis values
 const formatAxisValue = (value: number) => {
@@ -155,6 +156,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
                   displayMode === "amount" ? "Amount" : "Count",
                 ]}
                 labelFormatter={(label) => `${label}`}
+                content={<CustomTooltip />}
               />
               <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, index) => (

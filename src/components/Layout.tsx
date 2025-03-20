@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags } from 'lucide-react';
 import { Button } from './ui/button';
 import Header from './Header';
+import { Sidepanel } from './Sidepanel';
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -125,6 +126,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </ul>
           </nav>
         )}
+        <Sidepanel />
       </div>
     </div>
   );
