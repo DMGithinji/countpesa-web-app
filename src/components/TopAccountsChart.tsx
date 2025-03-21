@@ -21,7 +21,6 @@ import {
   YAxis,
 } from "recharts";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
-import CustomTooltip from "./CustomTooltip";
 
 // Function to format axis values
 const formatAxisValue = (value: number) => {
@@ -45,6 +44,8 @@ interface TopAccountsChartProps {
   totalAmount: number;
 }
 
+type DisplayMode = "amount" | "count";
+
 const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
   moneyMode,
   groupedDataByAmount,
@@ -52,7 +53,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
   totalAmount,
 }) => {
   const [displayCount, setDisplayCount] = useState<number>(15);
-  const [displayMode, setDisplayMode] = useState<"amount" | "count">("amount");
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("amount");
 
   // Prepare data for the chart - limit by displayCount and format long names
   const chartData = useMemo(
@@ -156,7 +157,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
                   displayMode === "amount" ? "Amount" : "Count",
                 ]}
                 labelFormatter={(label) => `${label}`}
-                content={<CustomTooltip />}
+                content={<CustomTooltip moneyMode={moneyMode} displayMode={displayMode} />}
               />
               <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, index) => (
@@ -187,3 +188,31 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
 };
 
 export default TopAccountsChart;
+
+import { TooltipProps } from 'recharts';
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+  displayMode
+}: { moneyMode: MoneyMode, displayMode: DisplayMode } & TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-zinc-100 p-2 rounded-md shadow-sm text-sm">
+        <p className="mb-2">{label}</p>
+        {payload.map((entry, index) => (
+          <p
+            key={`item-${index}`}
+            className="text-sm"
+            style={{ color: entry.color }}
+          >
+            {displayMode === "amount" ? formatCurrency(entry.value as number) : `No. of Transactions: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+

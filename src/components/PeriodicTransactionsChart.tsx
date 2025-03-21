@@ -9,7 +9,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronDown } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { calculateTransactionTotals } from "@/lib/getTotal";
@@ -57,7 +56,6 @@ const PeriodicTransactionsChart = ({
           <CardTitle className="text-lg font-medium">
             Total periodic transactions
           </CardTitle>
-          <ChevronDown className="h-4 w-4 text-zinc-400" />
         </div>
 
         <ToggleGroup value={period} type="single">
