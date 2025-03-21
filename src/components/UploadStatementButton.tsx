@@ -73,7 +73,6 @@ const UploadStatementButton = () => {
   return (
     <>
       <Button
-        variant="ghost"
         size="icon"
         onClick={() => setOpen(true)}
         className="w-10 h-10 rounded-md cursor-pointer"

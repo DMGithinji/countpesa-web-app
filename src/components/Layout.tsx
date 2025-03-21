@@ -4,6 +4,7 @@ import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags } from 'lucide-rea
 import { Button } from './ui/button';
 import Header from './Header';
 import { Sidepanel } from './Sidepanel';
+import BottomDrawer from './BottomDrawer';
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -127,6 +128,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </nav>
         )}
         <Sidepanel />
+        <BottomDrawer />
       </div>
     </div>
   );

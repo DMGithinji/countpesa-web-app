@@ -5,6 +5,7 @@ import { DateRange } from "react-day-picker";
 import { CompositeFilter } from "@/types/Filters";
 import { useDateRange } from "@/hooks/useDateRange";
 import { FilterChips } from "./FilterChips";
+import AnalysisInitiator from "./AnalysisInitiator";
 
 const Header = () => {
   const { dateRange } = useDateRange();
@@ -39,6 +40,7 @@ const Header = () => {
           <DateRangePicker range={dateRange} onDateChange={handleDateChange} />
         </div>
         <div className="flex items-center space-x-4">
+          <AnalysisInitiator />
           <UploadStatementButton />
         </div>
       </div>

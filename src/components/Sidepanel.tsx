@@ -13,7 +13,7 @@ export function Sidepanel() {
   return (
     <Sheet open={sidepanelOpen} onOpenChange={setSidepanelOpen}>
       <SheetContent>
-        <SheetHeader className="bg-slate-800 text-white">
+        <SheetHeader className="bg-slate-900 text-white">
           <SheetTitle className="text-white">Manage Categories</SheetTitle>
         </SheetHeader>
         <div className="grid gap-4 px-4 overflow-y-auto">
