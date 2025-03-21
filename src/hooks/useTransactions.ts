@@ -39,7 +39,6 @@ export function useTransactions() {
       reloadCategories()
     }
 
-    console.log({ category, subcategory, categoryToSet })
     await transactionRepository.categorizeTransaction(trId, categoryToSet);
 
     loadTransactions();

@@ -66,7 +66,7 @@ export function groupTransactionsByField(
 
 
   // Convert to array and sort by amount
-  const res = groups
+  return groups
     .map(({ name, transactions: trs, totalAmount: amount, totalCount: count }) => ({
       name,
       amount: Math.abs(amount),
@@ -76,6 +76,4 @@ export function groupTransactionsByField(
       transactions: trs,
     }))
     .sort((a, b) => b[sortBy] - a[sortBy]);
-    console.log({res})
-    return res;
 }

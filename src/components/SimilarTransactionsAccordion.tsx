@@ -27,7 +27,6 @@ const SimilarTransactionsAccordion = ({
   useEffect(() => {
     getRelatedTransactions(selectedTransaction.account, selectedTransaction.category).then((trs => {
       const filtered = trs.filter((tx) => tx.id !== selectedTransaction.id);
-      console.log({trs, selectedTransaction})
       setSimilarTransactions(filtered);
     }));
   }, [getRelatedTransactions, selectedTransaction]);
