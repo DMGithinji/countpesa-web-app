@@ -81,41 +81,42 @@ export function useLoadTransactions() {
 
   const { loadTransactions } = useTransactions();
 
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const trs = await transactionRepository.getTransactions();
+      const latestTrDate = trs.length ? new Date(trs[trs.length - 1].date) : new Date();
+
+      const startDate = startOfMonth(latestTrDate).getTime();
+      const endDate = endOfMonth(latestTrDate).getTime();
+
+      const dateRangeFilter: CompositeFilter = {
+        type: "and",
+        filters: [
+          {
+            field: "date",
+            operator: ">=",
+            value: startDate,
+          },
+          {
+            field: "date",
+            operator: "<=",
+            value: endDate,
+          },
+        ],
+      };
+
+      setCurrentFilters(dateRangeFilter);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching transactions:", err);
+      setError("Failed to fetch transactions");
+    }
+  }, []);
+
   // Run once on load to set default month filter and fetch transactions
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        // Set current month filter
-        const now = new Date();
-        const startDate = startOfMonth(now).getTime();
-        const endDate = endOfMonth(now).getTime();
-
-        const dateRangeFilter: CompositeFilter = {
-          type: "and",
-          filters: [
-            {
-              field: "date",
-              operator: ">=",
-              value: startDate,
-            },
-            {
-              field: "date",
-              operator: "<=",
-              value: endDate,
-            },
-          ],
-        };
-
-        setCurrentFilters(dateRangeFilter);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching transactions:", err);
-        setError("Failed to fetch transactions");
-      }
-    };
-
     fetchTransactions();
-  }, [setCurrentFilters, setError, setLoading]); // Empty dependency array means this runs once on mount
+  }, [fetchTransactions, setCurrentFilters, setError, setLoading]); // Empty dependency array means this runs once on mount
 
 
   useEffect(() => {
@@ -123,4 +124,6 @@ export function useLoadTransactions() {
 
     loadTransactions();
   }, [currentFilters, loading, loadTransactions, setTransactions]);
+
+  return { fetchTransactions }
 }
