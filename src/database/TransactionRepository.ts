@@ -12,11 +12,12 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     return db.transactions;
   }
 
-  /**
-   * Add multiple transactions at once
-   */
   async bulkAdd(transactions: Transaction[]) {
     return await db.transactions.bulkAdd(transactions, { allKeys: true });
+  }
+
+  async bulkUpdate(transactions: Transaction[]) {
+    return await db.transactions.bulkPut(transactions);
   }
 
   /**
@@ -83,6 +84,52 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     // Add all transactions to the database
     return await this.bulkAdd(transactions);
   }
+
+  /**
+   * Helper method to update transactions with a specific category
+   */
+  async updateTransactionsWithCategories(oldCategory: string, newCategory: string): Promise<void> {
+    // Find all transactions with this category
+    const transactions = await db.transactions.where({ category: oldCategory }).toArray();
+
+    if (transactions.length === 0) {
+      return;
+    }
+
+    // Prepare batch update
+    const updates = transactions.map(transaction => ({
+      ...transaction,
+      category: newCategory
+    }));
+
+    // Perform batch update
+    await this.bulkUpdate(updates);
+  }
+
+    /**
+   * Helper method to update transactions with a specific category:subcategory combination
+   */
+    async updateTransactionsWithCategorySubcategory(
+      oldCategorySubcategory: string,
+      newCategoryValue: string
+    ): Promise<void> {
+      // Find all transactions with this category:subcategory
+      const transactions = await db.transactions.where({ category: oldCategorySubcategory }).toArray();
+
+      if (transactions.length === 0) {
+        return;
+      }
+
+      // Prepare batch update
+      const updates = transactions.map(transaction => ({
+        ...transaction,
+        category: newCategoryValue
+      }));
+
+      // Perform batch update
+      await transactionRepository.bulkUpdate(updates);
+    }
+
 }
 
 // Create a singleton instance
