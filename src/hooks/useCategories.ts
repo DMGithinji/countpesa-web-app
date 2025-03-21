@@ -54,24 +54,14 @@ export function useCategories() {
     setCombinedCategories
   } = useCategoriesStore();
 
-  /**
-   * Preload default categories and subcategories
-   */
-  const preloadTrs = async () => {
+  const preloadDefaultCategories = async () => {
     try {
       console.log("Preloading default categories and subcategories");
-
-      // Add categories first
-      const categoryIds: Record<string, number> = {};
-
       for (const category of preloadedCategories) {
         // Add the category
         const categoryId = await categoryRepository.addCategory({
           name: category.name
         });
-
-        // Store the category ID for adding subcategories
-        categoryIds[category.name] = categoryId as number;
 
         // Add subcategories for this category
         for (const subcategoryName of category.subcategories) {
@@ -93,7 +83,7 @@ export function useCategories() {
 
     if (!combinedCategories || combinedCategories.length === 0) {
       // No categories found, preload defaults
-      await preloadTrs();
+      await preloadDefaultCategories();
       // Reload after preloading
       loadCategories();
       return;

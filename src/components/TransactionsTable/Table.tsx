@@ -23,11 +23,12 @@ const Table = ({
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
 
-  const handleCategoryClick = (transaction: Transaction, category?: string, subcategory?: string) => {
-    console.log({transaction, category, subcategory});
+
+  const handleCategoryClick = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
     setIsModalOpen(true);
   };
+
   const columns = useMemo(
     () => createTransactionColumns({ onCategoryClick: handleCategoryClick }),
     []
@@ -44,12 +45,11 @@ const Table = ({
         initialSorting={[sortBy]}
         onSortingChange={(sorting) => onSortingChange(sorting[0] as SortBy)}
       />
-      <CategorizeModal
+      {selectedTransaction && <CategorizeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         transaction={selectedTransaction}
-        onSave={handleCategoryClick}
-      />
+      />}
     </>
   );
 };

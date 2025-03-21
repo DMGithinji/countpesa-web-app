@@ -160,8 +160,8 @@ const CategoriesManager = () => {
 
         // Reload categories to ensure consistency
         await reloadCategories();
-      } catch (e) {
-        toast.error("Failed to delete category", e);
+      } catch {
+        toast.error("Failed to delete category");
         await reloadCategories();
       }
     }

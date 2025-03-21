@@ -4,6 +4,7 @@ import { DataTableColumnHeader } from "../ui/table/data-table-column-header";
 import { Transaction } from "@/types/Transaction";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
+import { UNCATEGORIZED } from "@/types/Categories";
 
 type TransactionColumnProps = {
   onCategoryClick?: (transaction: Transaction) => void;
@@ -76,14 +77,14 @@ export const createTransactionColumns = ({ onCategoryClick }: TransactionColumnP
       return (
         <Badge
           className={cn(
-            "w-[120px] cursor-pointer hover:opacity-80",
-            category !== "Uncategorized"
+            "w-[120px] cursor-pointer hover:opacity-80 truncate",
+            category !== UNCATEGORIZED
               ? "bg-green-100 text-green-500 border-green-200"
               : "bg-orange-100/80 text-orange-400/80 border-orange-100"
           )}
           onClick={() => onCategoryClick && onCategoryClick(transaction)}
         >
-          {category === "Uncategorized" ? "Categorize" : category}
+          <span className="truncate">{category === UNCATEGORIZED ? "Categorize" : category}</span>
         </Badge>
       );
     },

@@ -35,8 +35,9 @@ export function groupedTrxByField(
 
   // Aggregate by field
   transactions.forEach(tx => {
-    const current = fieldMap.get(tx[field]) || { transactions: [] };
-    fieldMap.set(tx[field], {
+    const key = (field === GroupByField.Category) && tx[field].includes(':') ? tx[field].split(':')[0] : tx[field];
+    const current = fieldMap.get(key) || { transactions: [] };
+    fieldMap.set(key, {
       transactions: [...current.transactions, tx],
     });
   });
@@ -60,28 +61,21 @@ export function groupTransactionsByField(
   field: GroupByField,
   sortBy: 'amount' | 'count' = 'amount'
 ): FieldGroupSummary[] {
-  const fieldMap = new Map<string, { transactions: Transaction[]; amount: number; count: number }>();
-  const {totalAmount, totalCount } = getTotals(transactions)
+  const { totalAmount, totalCount } = getTotals(transactions);
+  const groups = groupedTrxByField(transactions, field);
 
-  // Aggregate by field
-  transactions.forEach(tx => {
-    const current = fieldMap.get(tx[field]) || { transactions: [], amount: 0, count: 0 };
-    fieldMap.set(tx[field], {
-      transactions: [...current.transactions, tx],
-      amount: current.amount + Math.abs(tx.amount),
-      count: current.count + 1,
-    });
-  });
 
   // Convert to array and sort by amount
-  return Array.from(fieldMap.entries())
-    .map(([name, { amount, count }]) => ({
+  const res = groups
+    .map(({ name, transactions: trs, totalAmount: amount, totalCount: count }) => ({
       name,
-      amount: Math.floor(amount),
+      amount: Math.abs(amount),
       count,
-      amountPercentage: Math.abs((amount / totalAmount) * 100),
+      amountPercentage: Math.abs(amount / totalAmount) * 100,
       countPercentage: (count / totalCount) * 100,
-      transactions,
+      transactions: trs,
     }))
     .sort((a, b) => b[sortBy] - a[sortBy]);
+    console.log({res})
+    return res;
 }

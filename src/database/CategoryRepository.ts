@@ -1,10 +1,15 @@
-import { Category, CombinedCategory, Subcategory } from "@/types/Categories";
+import { Category, CombinedCategory, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import db from "./schema";
 import transactionRepository from "./TransactionRepository";
+import { formatTrCategory } from "@/hooks/useTransactions";
 
 export class CategoryRepository {
 
   async addCategory(category: Omit<Category, "id">) {
+    const exists = await db.categories.where({ name: category.name }).first();
+    if (exists) {
+      return;
+    }
     return await db.categories.add(category as Category);
   }
 
@@ -41,7 +46,7 @@ export class CategoryRepository {
 
       // Set transactions to "Uncategorized" if no replacement provided
       const oldCategName = `${oldCategory.name}:`;
-      transactionRepository.updateTransactionsWithCategories(oldCategName, "")
+      transactionRepository.updateTransactionsWithCategories(oldCategName, UNCATEGORIZED)
 
       // Delete subcategories of this category
       await db.subcategories.where({ categoryId: id }).delete();
@@ -55,11 +60,15 @@ export class CategoryRepository {
     return db.categories.toArray();
   }
 
-  async addSubcategory(subcategory: Subcategory) {
+  async addSubcategory(subcategory: Omit<Subcategory, "id">) {
     // Verify that the parent category exists
     const categoryExists = await db.categories.get(subcategory.categoryId);
     if (!categoryExists) {
       throw new Error(`Parent category ${subcategory.categoryId} does not exist`);
+    }
+    const subcategoryExists = await db.subcategories.where({ categoryId: subcategory.categoryId, name: subcategory.name }).first();
+    if (subcategoryExists) {
+      return;
     }
 
     return db.subcategories.add(subcategory);
@@ -84,8 +93,10 @@ export class CategoryRepository {
       }
 
       // If only name is changing, update transactions
-      const oldCategorySubcategory = `${category.name}:${existingSubcategory.name}`;
-      const newCategorySubcategory = `${category.name}:${newName}`;
+      const oldCategorySubcategory = formatTrCategory(category.name, existingSubcategory.name);
+      const newCategorySubcategory = formatTrCategory(category.name, newName);
+
+      console.log({ oldCategorySubcategory, newCategorySubcategory })
 
       await transactionRepository.updateTransactionsWithCategorySubcategory(
         oldCategorySubcategory,
@@ -110,8 +121,7 @@ export class CategoryRepository {
       }
 
       // Get the category:subcategory string for this subcategory
-      const categorySubcategory = `${category.name}:${subcategory.name}`;
-
+      const categorySubcategory = formatTrCategory(category.name, subcategory.name);
 
       // Update transactions to use just the parent category without subcategory
       await transactionRepository.updateTransactionsWithCategorySubcategory(

@@ -10,7 +10,6 @@ import {
   Tooltip,
 } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./ui/button";
 
 interface CategoriesDonutChartProps {
   title?: string;
@@ -44,7 +43,7 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
   totalAmount,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 3;
 
   // Calculate total pages
   const totalPages = Math.ceil(groupedDataByAmount.length / itemsPerPage);
@@ -69,7 +68,6 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     return chartData.slice(startIndex, startIndex + itemsPerPage);
   }, [chartData, currentPage]);
 
-  // Custom tooltip formatter
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -94,11 +92,13 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     return null;
   };
 
+
+
   // Custom legend component
   const CustomLegend = () => {
     return (
-      <div className="flex justify-center mt-4">
-        <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-col items-center mt-4">
+        <div className="flex flex-wrap justify-center gap-3 mb-2">
           {currentLegendData.map((entry, index) => {
             const actualIndex = ((currentPage - 1) * itemsPerPage) + index;
             return (
@@ -111,30 +111,23 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
               </div>
             );
           })}
-          {totalPages > 1 && (
-            <div className="flex items-center gap-1 ml-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              >
-                <ChevronLeft size={14} />
-              </Button>
-              <span className="text-xs">{currentPage}/{totalPages}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              >
-                <ChevronRight size={14} />
-              </Button>
-            </div>
-          )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-1">
+            <ChevronLeft
+              size={16}
+              className={`cursor-pointer ${currentPage === 1 ? 'text-gray-300' : 'text-gray-600 hover:text-gray-900'}`}
+              onClick={() => currentPage > 1 && setCurrentPage(prev => prev - 1)}
+            />
+            <span className="text-xs text-gray-600">{currentPage}/{totalPages}</span>
+            <ChevronRight
+              size={16}
+              className={`cursor-pointer ${currentPage === totalPages ? 'text-gray-300' : 'text-gray-600 hover:text-gray-900'}`}
+              onClick={() => currentPage < totalPages && setCurrentPage(prev => prev + 1)}
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -150,8 +143,8 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
       </CardHeader>
 
       <CardContent className="pt-0">
-        <div className="flex flex-col h-60 relative">
-          <ResponsiveContainer width="100%" height="85%">
+        <div className="flex flex-col h-64 relative">
+          <ResponsiveContainer width="100%" height="75%">
             <PieChart>
               <Pie
                 data={chartData}

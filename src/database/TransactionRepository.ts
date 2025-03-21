@@ -3,6 +3,7 @@ import db from "./schema";
 import Dexie from "dexie";
 import { BaseRepository } from "./BaseRepository";
 import { CompositeFilter, Filter, Query } from "@/types/Filters";
+import { UNCATEGORIZED } from "@/types/Categories";
 
 export class TransactionRepository extends BaseRepository<Transaction, number> {
   /**
@@ -16,8 +17,8 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     return await db.transactions.bulkAdd(transactions, { allKeys: true });
   }
 
-  async bulkUpdate(transactions: Transaction[]) {
-    return await db.transactions.bulkPut(transactions);
+  async bulkUpdate(updates: Transaction[]) {
+    return await db.transactions.bulkPut(updates);
   }
 
   /**
@@ -75,7 +76,7 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
           amount: t.amount,
           account: t.account,
           balance: t.balance,
-          category: t.category || "Uncategorized",
+          category: t.category || UNCATEGORIZED,
           transactionType: t.type,
           createdAt: now,
         };
@@ -85,51 +86,74 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     return await this.bulkAdd(transactions);
   }
 
+  async categorizeTransaction(
+    trId: string,
+    category: string,
+  ): Promise<void> {
+    db.transactions.update(((trId as unknown) as number), { category });
+  }
+
+  async getRelatedTransactions(
+    account: string,
+    category = UNCATEGORIZED
+  ) {
+    return await db.transactions
+      .where({ account, category })
+      .toArray();
+  }
+
   /**
    * Helper method to update transactions with a specific category
    */
-  async updateTransactionsWithCategories(oldCategory: string, newCategory: string): Promise<void> {
+  async updateTransactionsWithCategories(
+    oldCategory: string,
+    newCategory: string
+  ): Promise<void> {
     // Find all transactions with this category
-    const transactions = await db.transactions.where({ category: oldCategory }).toArray();
+    const transactions = await db.transactions
+      .where("category")
+      .startsWith(oldCategory)
+      .toArray();
 
     if (transactions.length === 0) {
       return;
     }
 
     // Prepare batch update
-    const updates = transactions.map(transaction => ({
+    const updates = transactions.map((transaction) => ({
       ...transaction,
-      category: newCategory
+      category: newCategory,
     }));
 
     // Perform batch update
     await this.bulkUpdate(updates);
   }
 
-    /**
+  /**
    * Helper method to update transactions with a specific category:subcategory combination
    */
-    async updateTransactionsWithCategorySubcategory(
-      oldCategorySubcategory: string,
-      newCategoryValue: string
-    ): Promise<void> {
-      // Find all transactions with this category:subcategory
-      const transactions = await db.transactions.where({ category: oldCategorySubcategory }).toArray();
+  async updateTransactionsWithCategorySubcategory(
+    oldCategorySubcategory: string,
+    newCategoryValue: string
+  ): Promise<void> {
+    // Find all transactions with this category:subcategory
+    const transactions = await db.transactions
+      .where({ category: oldCategorySubcategory })
+      .toArray();
 
-      if (transactions.length === 0) {
-        return;
-      }
-
-      // Prepare batch update
-      const updates = transactions.map(transaction => ({
-        ...transaction,
-        category: newCategoryValue
-      }));
-
-      // Perform batch update
-      await transactionRepository.bulkUpdate(updates);
+    if (transactions.length === 0) {
+      return;
     }
 
+    // Prepare batch update
+    const updates = transactions.map((transaction) => ({
+      ...transaction,
+      category: newCategoryValue,
+    }));
+
+    // Perform batch update
+    await transactionRepository.bulkUpdate(updates);
+  }
 }
 
 // Create a singleton instance

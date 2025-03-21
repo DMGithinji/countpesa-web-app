@@ -9,6 +9,7 @@ import {
 import useTransactionStore from "@/stores/transactions.store";
 import { CompositeFilter, Filter, FilterOperator } from "@/types/Filters";
 import { format } from "date-fns";
+import { UNCATEGORIZED } from "@/types/Categories";
 
 // Dictionary to translate operators to readable text
 const operatorTranslations: Record<FilterOperator, string> = {
@@ -33,7 +34,7 @@ const formatValue = (field: string, value: string | number) => {
 
   // Handle categories with 'Uncategorized' default
   if (field === "category" && (value === "" || value === null)) {
-    return "Uncategorized";
+    return UNCATEGORIZED;
   }
 
   // Standard string formatting
@@ -174,11 +175,12 @@ export function FilterChips() {
     <div className="py-4 flex gap-2 flex-wrap mb-4">
       {filterGroups.map((group) => (
         <Badge
+          key={group.field}
           variant="outline"
           className="px-2 pt--.5 pb-1 rounded-full bg-slate-800 text-white cursor-pointerflex items-center text-xs"
         >
           {formatFilterGroup(group)}
-          <Tooltip key={group.field}>
+          <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 onClick={() => removeFilter(group.field)}
