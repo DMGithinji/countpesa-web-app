@@ -3,43 +3,31 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Transaction } from "@/types/Transaction";
 import { Button } from "./ui/button";
 import SelectionDropdown from "./SelectionDropDown";
+import useCategoriesStore from "@/stores/categories.store";
 
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   transaction: Transaction | null;
-  onSave: (transaction: Transaction, newCategory: string, subcategory: string) => void;
+  onSave: (
+    transaction: Transaction,
+    newCategory: string,
+    subcategory: string
+  ) => void;
 }
 
-const CATEGORIES = [
-  "Debt Financing",
-  "Food & Dining",
-  "Bills & Utilities",
-  "Shopping",
-  "Transport",
-  "Entertainment",
-  "Health",
-  "Travel",
-  "Education",
-  "Personal Care",
-  "Gifts & Donations",
-  "Investments",
-  "Income",
-  "Savings",
-  "Transfer",
-];
-
-const SUBCATEGORIES: Record<string, string[]> = {
-  "Debt Financing": ["Loan Repayment", "Credit Card", "Mortgage", "Personal Loan"],
-  "Food & Dining": ["Restaurants", "Groceries", "Fast Food", "Coffee Shops"],
-  "Bills & Utilities": ["Electricity", "Water", "Internet", "Phone", "Rent"],
-  "Shopping": ["Clothing", "Electronics", "Home Goods", "Gifts"],
-  "Transport": ["Fuel", "Public Transport", "Ride Sharing", "Vehicle Maintenance"],
-};
-
-const CategorizeModal = ({ isOpen, onClose, transaction, onSave }: CategoryModalProps) => {
+const CategorizeModal = ({
+  isOpen,
+  onClose,
+  transaction,
+  onSave,
+}: CategoryModalProps) => {
   const [category, setCategory] = useState<string>("");
   const [subcategory, setSubcategory] = useState<string>("");
+  const combinedCategories = useCategoriesStore(
+    (state) => state.categoriesWithSubcategories
+  );
+  const [subcategories, setSubcategories] = useState<string[]>([]);
 
   // Reset states when transaction changes
   useEffect(() => {
@@ -60,10 +48,14 @@ const CategorizeModal = ({ isOpen, onClose, transaction, onSave }: CategoryModal
   const handleCategoryChange = (value: string) => {
     setCategory(value);
     setSubcategory(""); // Reset subcategory when category changes
+    const categoryData = combinedCategories.find(
+      (category) => category.name === value
+    );
+    const subCategories = categoryData
+      ? categoryData.subcategories.map((s) => s.name)
+      : [];
+    setSubcategories(subCategories);
   };
-
-  // Get subcategories for currently selected category
-  const currentSubcategories = category && SUBCATEGORIES[category] ? SUBCATEGORIES[category] : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -84,7 +76,7 @@ const CategorizeModal = ({ isOpen, onClose, transaction, onSave }: CategoryModal
               <SelectionDropdown
                 title="Category"
                 placeholder="Select or create..."
-                options={CATEGORIES}
+                options={combinedCategories.map((category) => category.name)}
                 value={category}
                 onChange={handleCategoryChange}
               />
@@ -93,10 +85,10 @@ const CategorizeModal = ({ isOpen, onClose, transaction, onSave }: CategoryModal
               <SelectionDropdown
                 title="Subcategory"
                 placeholder="Select or type..."
-                options={currentSubcategories}
+                options={subcategories}
                 value={subcategory}
                 onChange={setSubcategory}
-                disabled={!category || category === 'Uncategorized'}
+                disabled={!category || category === "Uncategorized"}
               />
             </div>
 
@@ -117,25 +109,36 @@ const CategorizeModal = ({ isOpen, onClose, transaction, onSave }: CategoryModal
 
 export default CategorizeModal;
 
-const TransactionDetails = ({transaction}: { transaction: Transaction }) => (
+const TransactionDetails = ({ transaction }: { transaction: Transaction }) => (
   <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50 ">
-              <p className="text-sm font-medium">Transaction Details:</p>
-              <div className="py-3 px-2 rounded-md">
-                <p className="text-sm">
-                  <span className="font-medium">Amount:</span>{" "}
-                  <span className={`font-semibold ${transaction.amount < 0 ? "text-red-600" : "text-green-600"}`}>
-                    {transaction.amount < 0 ? `-Ksh ${Math.abs(transaction.amount)}` : `Ksh ${transaction.amount}`}
-                  </span>
-                </p>
-                <p className="text-sm">
-                  <span className="font-medium">{transaction.amount > 0 ? 'Sender' : 'Receiver'}:</span> {transaction.account}
-                </p>
-                <p className="text-sm">
-                  <span className="font-medium">Date:</span> {new Date(transaction.date).toLocaleString()}
-                </p>
-                <p className="text-sm">
-                  <span className="font-medium">Description:</span> {transaction.description}
-                </p>
-              </div>
-            </div>
-)
+    <p className="text-sm font-medium">Transaction Details:</p>
+    <div className="py-3 px-2 rounded-md">
+      <p className="text-sm">
+        <span className="font-medium">Amount:</span>{" "}
+        <span
+          className={`font-semibold ${
+            transaction.amount < 0 ? "text-red-600" : "text-green-600"
+          }`}
+        >
+          {transaction.amount < 0
+            ? `-Ksh ${Math.abs(transaction.amount)}`
+            : `Ksh ${transaction.amount}`}
+        </span>
+      </p>
+      <p className="text-sm">
+        <span className="font-medium">
+          {transaction.amount > 0 ? "Sender" : "Receiver"}:
+        </span>{" "}
+        {transaction.account}
+      </p>
+      <p className="text-sm">
+        <span className="font-medium">Date:</span>{" "}
+        {new Date(transaction.date).toLocaleString()}
+      </p>
+      <p className="text-sm">
+        <span className="font-medium">Description:</span>{" "}
+        {transaction.description}
+      </p>
+    </div>
+  </div>
+);
