@@ -2,48 +2,8 @@ import { useCallback } from 'react';
 import { useEffect } from 'react';
 import useCategoriesStore from '@/stores/categories.store';
 import categoryRepository from '@/database/CategoryRepository';
-import { Subcategory } from '@/types/Categories';
+import { DEFAULT_CATEGORIES, Subcategory } from '@/types/Categories';
 
-/**
- * Default categories and subcategories to preload if none exist
- */
-const preloadedCategories = [
-  {
-    name: "Bills & Utilities",
-    subcategories: [
-      "Electricity", "Gas", "House Help", "Internet",
-      "Phone Bill", "Rent", "Water"
-    ]
-  },
-  {
-    name: "Debt Financing",
-    subcategories: ["Bank Loans", "Credit Card"]
-  },
-  {
-    name: "Entertainment",
-    subcategories: ["Movies", "Music", "Games"]
-  },
-  {
-    name: "Family",
-    subcategories: ["Childcare", "Education"]
-  },
-  {
-    name: "Fitness",
-    subcategories: ["Gym", "Sports"]
-  },
-  {
-    name: "Food",
-    subcategories: ["Groceries", "Restaurants"]
-  },
-  {
-    name: "Gifts & Contributions",
-    subcategories: ["Charity", "Gifts"]
-  },
-  {
-    name: "Health",
-    subcategories: ["Doctor", "Pharmacy"]
-  }
-];
 
 /**
  * Hook for managing categories and subcategories
@@ -57,14 +17,14 @@ export function useCategories() {
   const preloadDefaultCategories = async () => {
     try {
       console.log("Preloading default categories and subcategories");
-      for (const category of preloadedCategories) {
+      for (const category of DEFAULT_CATEGORIES) {
         // Add the category
         const categoryId = await categoryRepository.addCategory({
           name: category.name
         });
 
         // Add subcategories for this category
-        for (const subcategoryName of category.subcategories) {
+        for (const subcategoryName of category.subCategories) {
           await categoryRepository.addSubcategory({
             name: subcategoryName,
             categoryId
