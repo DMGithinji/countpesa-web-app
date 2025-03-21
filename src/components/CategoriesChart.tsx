@@ -23,20 +23,6 @@ interface CategoriesDonutChartProps {
   totalAmount: number;
 }
 
-// Define your color palette
-const COLORS = [
-  "#CCCCCC", // Gray for Uncategorized
-  "#EC4899", // Pink for Debt financing
-  "#4ADE80", // Green for Entertainment
-  "#F97316", // Orange for Transfer
-  "#3B82F6", // Blue for Bills & utilities
-  "#EF4444", // Red
-  "#8B5CF6", // Purple
-  "#FBBF24", // Yellow
-  "#06B6D4", // Cyan
-  "#10B981", // Emerald
-];
-
 const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
   moneyMode,
   groupedDataByAmount,
@@ -59,6 +45,7 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
       // Keep original data for tooltip
       originalAmount: item.amount,
       originalCount: item.count,
+      color: getCategoryColor(item.name)
     }));
   }, [groupedDataByAmount]);
 
@@ -100,12 +87,11 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
       <div className="flex flex-col items-center mt-4">
         <div className="flex flex-wrap justify-center gap-3 mb-2">
           {currentLegendData.map((entry, index) => {
-            const actualIndex = ((currentPage - 1) * itemsPerPage) + index;
             return (
               <div key={`legend-${index}`} className="flex items-center gap-1">
                 <div
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: COLORS[actualIndex % COLORS.length] }}
+                  style={{ backgroundColor: entry.color }}
                 />
                 <span className="text-xs">{entry.name}</span>
               </div>
@@ -157,10 +143,10 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
                 dataKey="value"
                 animationDuration={0}
               >
-                {chartData.map((_, index) => (
+                {chartData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
+                    fill={entry.color}
                   />
                 ))}
               </Pie>
@@ -176,3 +162,40 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
 };
 
 export default CategoriesDonutChart;
+
+const getCategoryColor = (name: string): string => {
+  // Special case for Uncategorized
+  if (name === "Uncategorized") {
+    return "#CCCCCC"; // Gray
+  }
+
+  // Vibrant color palette
+  const vibrantColors = [
+    "#FF5252", // Red
+    "#448AFF", // Blue
+    "#66BB6A", // Green
+    "#FFCA28", // Amber
+    "#AB47BC", // Purple
+    "#26C6DA", // Cyan
+    "#FFA726", // Orange
+    "#EC407A", // Pink
+    "#7E57C2", // Deep Purple
+    "#9CCC65", // Light Green
+    "#5C6BC0", // Indigo
+    "#FF7043", // Deep Orange
+    "#78909C", // Blue Gray
+    "#42A5F5", // Light Blue
+    "#4DD0E1", // Light Cyan
+    "#DCE775", // Lime
+  ];
+
+  // Hash the name to get a consistent color for the same category
+  let hashCode = 0;
+  for (let i = 0; i < name.length; i++) {
+    hashCode = name.charCodeAt(i) + ((hashCode << 5) - hashCode);
+  }
+
+  // Use the hash to pick a color, with fallback to index for stability
+  const colorIndex = Math.abs(hashCode) % vibrantColors.length;
+  return vibrantColors[colorIndex];
+};
