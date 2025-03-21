@@ -4,6 +4,7 @@ import Dexie from "dexie";
 import { BaseRepository } from "./BaseRepository";
 import { CompositeFilter, Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
+import { deconstructTrCategory, formatTrCategory } from "@/hooks/useTransactions";
 
 export class TransactionRepository extends BaseRepository<Transaction, number> {
   /**
@@ -132,7 +133,7 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
   /**
    * Helper method to update transactions with a specific category:subcategory combination
    */
-  async updateTransactionsWithCategorySubcategory(
+  async updateTransactionsSubcategory(
     oldCategorySubcategory: string,
     newCategoryValue: string
   ): Promise<void> {
@@ -145,11 +146,16 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
       return;
     }
 
+
     // Prepare batch update
-    const updates = transactions.map((transaction) => ({
-      ...transaction,
-      category: newCategoryValue,
-    }));
+    const updates = transactions.map((tr) => {
+      const { category } = deconstructTrCategory(tr.category)
+      const newCategoryName = formatTrCategory(category, newCategoryValue)
+      return {
+        ...tr,
+        category: newCategoryName,
+        };
+      });
 
     // Perform batch update
     await transactionRepository.bulkUpdate(updates);

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import useCategoriesStore from "@/stores/categories.store";
 import useCategories from "@/hooks/useCategories";
 import { toast } from "sonner";
+import { useTransactions } from "@/hooks/useTransactions";
 
 // Define our category types for the UI
 interface UiSubcategory {
@@ -29,6 +30,12 @@ const CategoriesManager = () => {
     deleteSubcategory,
     reloadCategories
   } = useCategories();
+
+  const { loadTransactions } = useTransactions();
+
+  useEffect(() => {
+    return () => void loadTransactions();
+  }, [loadTransactions]);
 
   // Transform combinedCategories into local UI state with isExpanded property
   const [categories, setCategories] = useState<UiCategory[]>([]);

@@ -2,6 +2,7 @@ import { Category, CombinedCategory, Subcategory, UNCATEGORIZED } from "@/types/
 import db from "./schema";
 import transactionRepository from "./TransactionRepository";
 import { formatTrCategory } from "@/hooks/useTransactions";
+import { sortBy } from "@/lib/utils";
 
 export class CategoryRepository {
 
@@ -74,10 +75,10 @@ export class CategoryRepository {
     return db.subcategories.add(subcategory);
   }
 
-  async updateSubcategory(id: number, newName: string) {
+  async updateSubcategory(id: number, newSubcategory: string) {
     const existingSubcategory = await db.subcategories.get(id);
 
-    if (!newName) {
+    if (!newSubcategory) {
       return;
     }
 
@@ -86,7 +87,7 @@ export class CategoryRepository {
     }
 
     // If category is changing, verify new category exists
-    if (newName !== existingSubcategory.name) {
+    if (newSubcategory !== existingSubcategory.name) {
       const category = await db.categories.get(existingSubcategory.categoryId);
       if (!category) {
         throw new Error(`Parent category ${existingSubcategory.categoryId} does not exist`);
@@ -94,17 +95,14 @@ export class CategoryRepository {
 
       // If only name is changing, update transactions
       const oldCategorySubcategory = formatTrCategory(category.name, existingSubcategory.name);
-      const newCategorySubcategory = formatTrCategory(category.name, newName);
 
-      console.log({ oldCategorySubcategory, newCategorySubcategory })
-
-      await transactionRepository.updateTransactionsWithCategorySubcategory(
+      await transactionRepository.updateTransactionsSubcategory(
         oldCategorySubcategory,
-        newCategorySubcategory
+        newSubcategory
       );
     }
 
-    return db.subcategories.update(id, { name: newName });
+    return db.subcategories.update(id, { name: newSubcategory });
   }
 
   async deleteSubcategory(id: number) {
@@ -124,9 +122,9 @@ export class CategoryRepository {
       const categorySubcategory = formatTrCategory(category.name, subcategory.name);
 
       // Update transactions to use just the parent category without subcategory
-      await transactionRepository.updateTransactionsWithCategorySubcategory(
+      await transactionRepository.updateTransactionsSubcategory(
         categorySubcategory,
-        category.name
+        ''
       );
 
       // Delete the subcategory
@@ -145,10 +143,13 @@ export class CategoryRepository {
   async getCategoriesWithSubcategories(): Promise<CombinedCategory[]> {
     const categories = await this.getAllCategories();
 
-    const result = await Promise.all(categories.map(async category => ({
-      ...category,
-      subcategories: await db.subcategories.where({ categoryId: category.id }).toArray()
-    })));
+    const result = await Promise.all(sortBy(categories, 'name').map(async category => {
+      const subcategories = await db.subcategories.where({ categoryId: category.id }).toArray();
+      return {
+        ...category,
+        subcategories: sortBy(subcategories, 'name')
+      }
+    }));
 
     return result;
   }
