@@ -114,12 +114,10 @@ const CategorizeModal = ({
           </div>
         </div>
 
-        {category && subcategory && (
           <SimilarTransactionsAccordion
             newCategory={formatTrCategory(category, subcategory)}
             selectedTransaction={transaction}
           />
-        )}
       </DialogContent>
     </Dialog>
   );

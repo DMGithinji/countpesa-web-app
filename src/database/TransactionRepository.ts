@@ -121,10 +121,14 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     }
 
     // Prepare batch update
-    const updates = transactions.map((transaction) => ({
-      ...transaction,
-      category: newCategory,
-    }));
+    const updates = transactions.map((transaction) => {
+      const { subcategory } = deconstructTrCategory(transaction.category)
+      const updatedCategory = formatTrCategory(newCategory, subcategory)
+      return {
+        ...transaction,
+        category: updatedCategory,
+      }
+    });
 
     // Perform batch update
     await this.bulkUpdate(updates);

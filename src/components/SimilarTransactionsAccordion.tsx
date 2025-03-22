@@ -5,6 +5,8 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { useTransactions } from "@/hooks/useTransactions";
 import { Checkbox } from "./ui/checkbox";
+import { ScrollArea } from "./ui/scroll-area";
+import { UNCATEGORIZED } from "@/types/Categories";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -25,9 +27,9 @@ const SimilarTransactionsAccordion = ({
     useTransactions();
 
   useEffect(() => {
-    getRelatedTransactions(selectedTransaction.account).then((trs => {
+    getRelatedTransactions(selectedTransaction.account, selectedTransaction.category).then((trs => {
       const filtered = trs.filter((tx) => tx.id !== selectedTransaction.id);
-      setSimilarTransactions(filtered);
+      setTimeout(() => setSimilarTransactions(filtered), 100)
     }));
   }, [getRelatedTransactions, selectedTransaction]);
 
@@ -51,12 +53,12 @@ const SimilarTransactionsAccordion = ({
         >
           <div className="flex items-center gap-2">
             <div className="flex items-start gap-2">
-              <Checkbox className="mt-[4px] border-2 cursor-pointer" onClick={(e) => {
+              <Checkbox className="mt-[2px] border-2 cursor-pointer" onClick={(e) => {
                 categorizeTransactions();
                 e.stopPropagation();
               } } />
-              <span className="text-green-600 font-xs">
-                Sync category for {similarTransactions.length} similar uncategorized transactions.
+              <span className="text-green-600 font-xs text-sm">
+                {newCategory  !== UNCATEGORIZED ? `Match this category for ${similarTransactions.length} similar/uncategorized transactions.` : `${similarTransactions.length} similar transactions found.`}
               </span>
             </div>
           </div>
@@ -70,7 +72,7 @@ const SimilarTransactionsAccordion = ({
         </div>
 
         {isOpen && (
-          <div className="divide-y px-4 pt-2 max-h-64 overflow-y-auto">
+          <ScrollArea className="px-4 pt-2 h-64 overflow-y-auto">
             {similarTransactions.map((tx) => (
               <div key={tx.id} className="px-2 py-3 hover:bg-slate-50">
                 <div className="flex justify-between items-center">
@@ -102,7 +104,7 @@ const SimilarTransactionsAccordion = ({
                 </div>
               </div>
             ))}
-          </div>
+          </ScrollArea>
         )}
       </div>
     </div>
