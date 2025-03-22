@@ -33,7 +33,6 @@ const AnalysisInitiator = () => {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() => handleAssessment(AssessmentMode.SERIOUS)}
-            className="cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-slate-800"></div>
@@ -42,7 +41,6 @@ const AnalysisInitiator = () => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => handleAssessment(AssessmentMode.ROAST)}
-            className="cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-orange-400"></div>
