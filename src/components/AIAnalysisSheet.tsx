@@ -26,6 +26,8 @@ import { formatDate } from "date-fns";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { SetDateRange } from "@/lib/getDateRangeData";
+import analysisRepository, { getReportAnalysisId } from "@/database/AnalysisRepository";
+import { AnalysisReport } from "@/types/AnalysisReport";
 
 const BottomDrawer = () => {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
@@ -40,8 +42,6 @@ const BottomDrawer = () => {
   const { dateRange, defaultPeriod } = dateRangeData;
   const {
     transactionTotals,
-    balance,
-    balanceTrend,
     topAccountsSentToByAmt,
     topAccountsReceivedFromByAmt,
     topCategoriesMoneyInByAmt,
@@ -70,14 +70,10 @@ const BottomDrawer = () => {
 
     return {
       transactionTotals,
-      balance,
-      balanceTrend,
       dataGroupedByPeriod: getPeriodData(transactions, defaultPeriod),
       ...Object.entries(topData).reduce((acc, [key, value]) => ({ ...acc, [`top${key.charAt(0).toUpperCase() + key.slice(1)}`]: value }), {})
     };
   }, [
-    balance,
-    balanceTrend,
     defaultPeriod,
     topAccountsReceivedFromByAmt,
     topAccountsReceivedFromByCount,
@@ -92,13 +88,24 @@ const BottomDrawer = () => {
   ]);
 
   useEffect(() => {
+
     if (isOpen && calculationResults) {
       generateAssessment(calculationResults);
     }
   }, [isOpen, calculationResults]);
 
   const generateAssessment = async (data) => {
+
     setIsLoading(true);
+    const reportId = getReportAnalysisId(dateRange, assessmentMode)
+    const existingReport = await analysisRepository.getReport(reportId);
+
+    if (existingReport) {
+      setStreamingResponse(existingReport.report);
+      setIsLoading(false);
+      return;
+    }
+
     setStreamingResponse("");
 
     try {
@@ -127,6 +134,20 @@ const BottomDrawer = () => {
     }
   };
 
+  const handleOnClose = async () => {
+    const reportId = getReportAnalysisId(dateRange, assessmentMode)
+    if (streamingResponse) {
+      await analysisRepository.saveReport({
+        id: reportId,
+        report: streamingResponse,
+        createdAt: new Date()
+      } as AnalysisReport)
+      setDrawerOpen(false);
+    } else {
+      setDrawerOpen(false);
+    }
+  }
+
   // Function to copy assessment to clipboard
   const copyToClipboard = () => {
     // Convert markdown to plain text for clipboard
@@ -142,7 +163,7 @@ const BottomDrawer = () => {
   };
 
   return (
-    <Drawer open={isOpen} onClose={() => setDrawerOpen(false)}>
+    <Drawer open={isOpen} onClose={handleOnClose}>
       <DrawerContent className="container mx-auto max-w-4xl">
         <DrawerHeader>
           <DrawerTitle className="flex gap-2 items-center ">

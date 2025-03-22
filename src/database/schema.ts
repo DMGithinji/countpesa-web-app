@@ -1,12 +1,14 @@
 import Dexie, { Table }  from "dexie";
 import { Transaction } from "../types/Transaction";
 import { Category, Subcategory } from "../types/Categories";
+import { AnalysisReport } from "@/types/AnalysisReport";
 
 class CheckPesa extends Dexie {
   // Tables
   transactions!: Table<Transaction, number>;
   categories!: Table<Category, number>;
   subcategories!: Table<Subcategory, number>;
+  analysisReports!: Table<AnalysisReport, string>;
 
   constructor() {
     super('CheckPesaDatabase');
@@ -15,7 +17,8 @@ class CheckPesa extends Dexie {
     this.version(1).stores({
       transactions: 'id, code, date, description, status, amount, balance, category, account, createdAt',
       categories: '++id, name',
-      subcategories: '++id, name, categoryId'
+      subcategories: '++id, name, categoryId',
+      analysisReports: 'id, report, createdAt',
     });
   }
 }
