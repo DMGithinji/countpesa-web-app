@@ -1,5 +1,4 @@
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
-import { useCalculate } from "@/hooks/useCalculate";
 import { GroupByField } from "@/lib/groupByField";
 import useTransactionStore from "@/stores/transactions.store";
 import AmtSummaryCard from "@/components/AmtSummaryCard";
@@ -7,10 +6,11 @@ import BalanceTrendCard from "@/components/BalanceTrend";
 import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
 import TopTrsGroupedByField from "@/components/TopTrsGroupedByField";
 import { MoneyMode } from "@/types/Transaction";
-import { useDateRange } from "@/hooks/useDateRange";
+import { useTransactionContext } from "@/context/TransactionDataContext";
 
 const DashboardPage = () => {
-  const transactions = useTransactionStore((state) => state.transactions);
+  const loading = useTransactionStore((state) => state.loading);
+  const { transactions, calculatedData, dateRangeData } = useTransactionContext();
   const {
     transactionTotals,
     balance,
@@ -23,9 +23,8 @@ const DashboardPage = () => {
     topAccountsReceivedFromByCount,
     topCategoriesMoneyInByCount,
     topCategoriesMoneyOutByCount,
-  } = useCalculate();
-  const loading = useTransactionStore((state) => state.loading);
-  const { defaultPeriod, periodOptions } = useDateRange();
+  } = calculatedData;
+  const { defaultPeriod, periodOptions } = dateRangeData;
 
   if (loading) return <div>Loading...</div>;
 

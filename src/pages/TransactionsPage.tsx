@@ -14,14 +14,12 @@ import { TransactionSummary } from "@/lib/groupByField";
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { useCalculate } from "@/hooks/useCalculate";
-import { useDateRange } from "@/hooks/useDateRange";
-import useTransactionStore from "@/stores/transactions.store";
+import { useTransactionContext } from "@/context/TransactionDataContext";
 
 const TransactionsPage = () => {
-  const transactions = useTransactionStore((state) => state.transactions);
-  const { defaultPeriod, periodOptions } = useDateRange();
-  const { transactionTotals } = useCalculate();
+  const { transactions, calculatedData, dateRangeData } = useTransactionContext();
+  const { defaultPeriod, periodOptions } = dateRangeData;
+  const { transactionTotals } = calculatedData;
 
   const [groupBy, setGroupBy] = useState<"all" | Period>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");

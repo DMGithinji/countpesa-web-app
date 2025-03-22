@@ -5,25 +5,24 @@ import {
   GroupByTrxSortBy,
   groupedTrxByField,
 } from "@/lib/groupByField";
-import useTransactionStore from "@/stores/transactions.store";
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { TransactionSearch } from "@/components/SearchInput";
-import { useCalculate } from "@/hooks/useCalculate";
 import { MoneyMode } from "@/types/Transaction";
 import CategoriesChart from "@/components/CategoriesChart";
 import { Button } from "@/components/ui/button";
 import useSidepanelStore from "@/stores/sidepanel.store";
+import { useTransactionContext } from "@/context/TransactionDataContext";
 
 const CategoriesPage = () => {
+  const { transactions, calculatedData } = useTransactionContext();
   const setSidepanelOpen = useSidepanelStore(state => state.setSidepanelOpen)
-  const transactions = useTransactionStore((state) => state.transactions);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,
     topCategoriesMoneyInByAmt,
     topCategoriesMoneyOutByAmt,
-  } = useCalculate();
+  } = calculatedData;
 
   const columnDefProps = { title: "Categories" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);

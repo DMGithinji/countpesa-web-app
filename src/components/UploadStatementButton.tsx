@@ -7,7 +7,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { ExtractedTransaction } from "@/types/Transaction"
 import transactionRepository from "@/database/TransactionRepository";
-import { useLoadTransactions } from "@/hooks/useTransactions";
+import { useLoadInitialTransactions } from "@/hooks/useTransactions";
 
 
 const UploadStatementButton = () => {
@@ -16,7 +16,7 @@ const UploadStatementButton = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const {fetchTransactions} = useLoadTransactions();
+  const {fetchTransactions} = useLoadInitialTransactions();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

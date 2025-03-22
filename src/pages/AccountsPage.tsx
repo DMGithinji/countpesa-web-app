@@ -2,19 +2,18 @@ import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Col
 import TransactionsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 import { TransactionSearch } from "@/components/SearchInput";
 import TopAccountsChart from "@/components/TopAccountsChart";
-import { useCalculate } from "@/hooks/useCalculate";
+import { useTransactionContext } from "@/context/TransactionDataContext";
 import {
   GroupByField,
   GroupByTrxSortBy,
   groupedTrxByField,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
-import useTransactionStore from "@/stores/transactions.store";
 import { MoneyMode } from "@/types/Transaction";
 import { useMemo, useState } from "react";
 
 const AccountsPage = () => {
-  const transactions = useTransactionStore((state) => state.transactions);
+  const { transactions, calculatedData } = useTransactionContext();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,
@@ -22,7 +21,7 @@ const AccountsPage = () => {
     topAccountsReceivedFromByAmt,
     topAccountsReceivedFromByCount,
     topAccountsSentToByCount,
-  } = useCalculate();
+  } = calculatedData;
 
   const columnDefProps = { title: "Sender/Receiver" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);

@@ -12,21 +12,20 @@ import {
 import { Button } from "./ui/button";
 import useSidepanelStore from "@/stores/sidepanel.store";
 import { useEffect, useMemo, useState } from "react";
-import { useCalculate } from "@/hooks/useCalculate";
 import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
-import { useDateRange } from "@/hooks/useDateRange";
 import {
   AssessmentMode,
   GetPromptTemplate,
   GetRoastPromptTemplate,
 } from "@/types/PromptTemplate";
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
-import useTransactionStore from "@/stores/transactions.store";
 import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { formatDate } from "date-fns";
 import { FieldGroupSummary } from "@/lib/groupByField";
+import { useTransactionContext } from "@/context/TransactionDataContext";
+import { SetDateRange } from "@/lib/getDateRangeData";
 
 const BottomDrawer = () => {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
@@ -36,8 +35,9 @@ const BottomDrawer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const transactions = useTransactionStore((state) => state.transactions);
-  const { dateRange, defaultPeriod } = useDateRange();
+  const { transactions, calculatedData, dateRangeData } = useTransactionContext();
+
+  const { dateRange, defaultPeriod } = dateRangeData;
   const {
     transactionTotals,
     balance,
@@ -50,7 +50,7 @@ const BottomDrawer = () => {
     topAccountsReceivedFromByCount,
     topCategoriesMoneyInByCount,
     topCategoriesMoneyOutByCount,
-  } = useCalculate();
+  } = calculatedData;
 
   const calculationResults = useMemo(() => {
     // Extract top 15 items and map to consistent format
@@ -110,7 +110,7 @@ const BottomDrawer = () => {
         assessmentMode === AssessmentMode.SERIOUS
           ? GetPromptTemplate
           : GetRoastPromptTemplate;
-      const prompt = promptFunction(data, dateRange);
+      const prompt = promptFunction(data, dateRange as SetDateRange);
       const result = await model.generateContentStream(prompt);
 
       for await (const chunk of result.stream) {

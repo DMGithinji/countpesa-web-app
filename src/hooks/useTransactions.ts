@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import useTransactionStore from "@/stores/transactions.store";
 import transactionRepository from "@/database/TransactionRepository";
@@ -9,9 +9,8 @@ import categoryRepository from "@/database/CategoryRepository";
 import useCategories from "./useCategories";
 
 export function useTransactions() {
-  const transactions = useTransactionStore(state => state.transactions);
-  const setTransactions = useTransactionStore(state => state.setTransactions);
   const currentFilters = useTransactionStore(state => state.currentFilters);
+  const setTransactions = useTransactionStore(state => state.setTransactions);
   const setCurrentFilters = useTransactionStore(state => state.setCurrentFilters);
 
   const categoriesWithSubcategories = useCategoriesStore(state => state.categoriesWithSubcategories);
@@ -50,7 +49,6 @@ export function useTransactions() {
   }, [loadTransactions]);
 
   return {
-    transactions,
     loadTransactions,
     setCurrentFilters,
     categorizeTransaction: handleCategorizeTransactions,
@@ -71,15 +69,10 @@ export const deconstructTrCategory = (category: string) => {
 };
 
 
-export function useLoadTransactions() {
-  const setTransactions = useTransactionStore(state => state.setTransactions);
-  const currentFilters = useTransactionStore(state => state.currentFilters);
+export function useLoadInitialTransactions() {
   const setCurrentFilters = useTransactionStore(state => state.setCurrentFilters);
-  const loading = useTransactionStore(state => state.loading);
   const setLoading = useTransactionStore(state => state.setLoading);
   const setError = useTransactionStore(state => state.setError);
-
-  const { loadTransactions } = useTransactions();
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -112,18 +105,6 @@ export function useLoadTransactions() {
       setError("Failed to fetch transactions");
     }
   }, []);
-
-  // Run once on load to set default month filter and fetch transactions
-  useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions, setCurrentFilters, setError, setLoading]); // Empty dependency array means this runs once on mount
-
-
-  useEffect(() => {
-    if (loading) return;
-
-    loadTransactions();
-  }, [currentFilters, loading, loadTransactions, setTransactions]);
 
   return { fetchTransactions }
 }
