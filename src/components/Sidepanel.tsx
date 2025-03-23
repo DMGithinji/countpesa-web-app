@@ -1,25 +1,30 @@
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
-  SheetTitle,
 } from "@/components/ui/sheet";
-import useSidepanelStore from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import CategoriesManager from "./CategoriesManager";
+import SidepanelTransactions from "./SidepanelTransactions";
 
 export function Sidepanel() {
-  const sidepanelOpen = useSidepanelStore((state) => state.sidepanelOpen);
-  const setSidepanelOpen = useSidepanelStore((state) => state.setSidepanelOpen);
+  const mode = useSidepanelStore((state) => state.mode);
+
   return (
-    <Sheet open={sidepanelOpen} onOpenChange={setSidepanelOpen}>
-      <SheetContent>
-        <SheetHeader className="bg-slate-900 text-white">
-          <SheetTitle className="text-white">Manage Categories</SheetTitle>
-        </SheetHeader>
-        <div className="grid gap-4 px-4 overflow-y-auto">
-          <CategoriesManager />
-        </div>
+    <Sheet open={mode !== SidepanelMode.Closed}>
+      <SheetContent className="p-0">
+        <Display mode={mode} />
       </SheetContent>
     </Sheet>
   );
+}
+
+const Display = ({mode}: {mode: SidepanelMode}) => {
+  switch (mode) {
+    case SidepanelMode.Categories:
+      return <CategoriesManager />
+    case SidepanelMode.Transactions:
+      return <SidepanelTransactions />
+    default:
+      return null
+  }
 }

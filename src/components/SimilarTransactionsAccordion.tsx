@@ -3,10 +3,10 @@ import { Transaction } from "@/types/Transaction";
 import { formatDate } from "date-fns";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
-import { useTransactions } from "@/hooks/useTransactions";
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
 import { UNCATEGORIZED } from "@/types/Categories";
+import { useTransactionContext } from "@/context/TransactionDataContext";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -23,8 +23,7 @@ const SimilarTransactionsAccordion = ({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { getRelatedTransactions, bulkUpdateTransactions } =
-    useTransactions();
+  const { getRelatedTransactions, bulkUpdateTransactions } = useTransactionContext();
 
   useEffect(() => {
     getRelatedTransactions(selectedTransaction.account, selectedTransaction.category).then((trs => {

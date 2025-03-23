@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { Check, ChevronDown, ChevronUp, Pencil, Trash } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Pencil, Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import useCategoriesStore from "@/stores/categories.store";
 import useCategories from "@/hooks/useCategories";
 import { toast } from "sonner";
-import { useTransactions } from "@/hooks/useTransactions";
+import { CardHeader, CardTitle } from "./ui/card";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 
-// Define our category types for the UI
 interface UiSubcategory {
   id: number;
   name: string;
@@ -22,20 +23,18 @@ interface UiCategory {
 }
 
 const CategoriesManager = () => {
-  const combinedCategories = useCategoriesStore((state) => state.categoriesWithSubcategories);
+  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const combinedCategories = useCategoriesStore(
+    (state) => state.categoriesWithSubcategories
+  );
   const {
     updateCategory,
     deleteCategory,
     updateSubcategory,
     deleteSubcategory,
-    reloadCategories
+    reloadCategories,
   } = useCategories();
 
-  const { loadTransactions } = useTransactions();
-
-  useEffect(() => {
-    return () => void loadTransactions();
-  }, [loadTransactions]);
 
   // Transform combinedCategories into local UI state with isExpanded property
   const [categories, setCategories] = useState<UiCategory[]>([]);
@@ -43,13 +42,13 @@ const CategoriesManager = () => {
   useEffect(() => {
     // When store data changes, update our local state but preserve expansion state
     if (combinedCategories && combinedCategories.length > 0) {
-      setCategories(prev => {
-        return combinedCategories.map(category => {
+      setCategories((prev) => {
+        return combinedCategories.map((category) => {
           // Try to find existing category to preserve expansion state
-          const existingCategory = prev.find(c => c.id === category.id);
+          const existingCategory = prev.find((c) => c.id === category.id);
           return {
             ...category,
-            isExpanded: existingCategory?.isExpanded || false
+            isExpanded: existingCategory?.isExpanded || false,
           };
         });
       });
@@ -57,7 +56,9 @@ const CategoriesManager = () => {
   }, [combinedCategories]);
 
   // State for tracking which category or subcategory is being edited
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+    null
+  );
   const [editingSubcategoryId, setEditingSubcategoryId] = useState<{
     categoryId: number;
     subcategoryId: number;
@@ -160,7 +161,9 @@ const CategoriesManager = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         // Update UI optimistically
-        setCategories(categories.filter((category) => category.id !== categoryId));
+        setCategories(
+          categories.filter((category) => category.id !== categoryId)
+        );
 
         // Call repository
         await deleteCategory(categoryId);
@@ -175,7 +178,10 @@ const CategoriesManager = () => {
   };
 
   // Delete a subcategory
-  const handleDeleteSubcategory = async (categoryId: number, subcategoryId: number) => {
+  const handleDeleteSubcategory = async (
+    categoryId: number,
+    subcategoryId: number
+  ) => {
     if (window.confirm("Are you sure you want to delete this subcategory?")) {
       try {
         // Update UI optimistically
@@ -205,8 +211,20 @@ const CategoriesManager = () => {
   };
 
   return (
-    <div className="p-0">
-      <div className="divide-y">
+    <div>
+      <CardHeader className="bg-slate-900 text-white sticky top-0 z-50 pl-4 pr-0">
+        <div className="flex items-center justify-between">
+          <CardTitle className="py-4 text-white">Manage Categories</CardTitle>
+          <Button
+            variant={"ghost"}
+            onClick={() => setSidepanel(SidepanelMode.Closed)}
+            className="hover:bg-transparent hover:text-white"
+          >
+            <X size={16} />
+          </Button>
+        </div>
+      </CardHeader>
+      <ScrollArea className="h-[calc(100vh-4rem)] overflow-y-auto mt-0">
         {categories.map((category) => (
           <div key={category.id} className="group">
             <div className="py-2 flex items-center justify-between hover:bg-gray-50">
@@ -278,7 +296,9 @@ const CategoriesManager = () => {
             {category.isExpanded && (
               <div className="pl-12 pr-4 pb-4">
                 {category.subcategories.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic">No subcategories</div>
+                  <div className="text-sm text-gray-500 italic">
+                    No subcategories
+                  </div>
                 ) : (
                   <ul className="space-y-2">
                     {category.subcategories.map((subcategory) => (
@@ -288,7 +308,8 @@ const CategoriesManager = () => {
                       >
                         {editingSubcategoryId &&
                         editingSubcategoryId.categoryId === category.id &&
-                        editingSubcategoryId.subcategoryId === subcategory.id ? (
+                        editingSubcategoryId.subcategoryId ===
+                          subcategory.id ? (
                           <div className="flex-1 flex items-center">
                             <Input
                               value={editValue}
@@ -326,7 +347,10 @@ const CategoriesManager = () => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() =>
-                                  handleDeleteSubcategory(category.id, subcategory.id)
+                                  handleDeleteSubcategory(
+                                    category.id,
+                                    subcategory.id
+                                  )
                                 }
                                 className="h-8 w-8 p-0 text-red-500"
                               >
@@ -343,7 +367,7 @@ const CategoriesManager = () => {
             )}
           </div>
         ))}
-      </div>
+      </ScrollArea>
     </div>
   );
 };

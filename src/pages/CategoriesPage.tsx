@@ -11,12 +11,12 @@ import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode } from "@/types/Transaction";
 import CategoriesChart from "@/components/CategoriesChart";
 import { Button } from "@/components/ui/button";
-import useSidepanelStore from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 
 const CategoriesPage = () => {
   const { transactions, calculatedData } = useTransactionContext();
-  const setSidepanelOpen = useSidepanelStore(state => state.setSidepanelOpen)
+  const setSidepanel = useSidepanelStore(state => state.setMode)
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,
@@ -70,7 +70,7 @@ const CategoriesPage = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
-          <Button variant={'outline'} className="cursor-pointer" onClick={() => setSidepanelOpen(true)}>
+          <Button variant={'outline'} className="cursor-pointer" onClick={() => setSidepanel(SidepanelMode.Categories)}>
             Manage Categories
           </Button>
         </div>
