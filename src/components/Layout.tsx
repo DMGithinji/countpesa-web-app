@@ -25,9 +25,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 640); // sm breakpoint
-      // Auto-collapse sidebar on medium screens
-      if (window.innerWidth >= 640 && window.innerWidth < 728) {
+      // Auto-collapse sidebar on screens below 1280px
+      if (window.innerWidth < 1280) {
         setCollapsed(true);
+      } else {
+        setCollapsed(false);
       }
     };
 
@@ -66,7 +68,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       {!isMobile && (
         <div
           className={`bg-gray-800 flex-col border-r border-gray-800 transition-all duration-300 hidden sm:flex ${
-            collapsed ? "w-16" : "w-64"
+            collapsed ? "w-16" : "w-56"
           }`}
         >
           {/* Logo */}
