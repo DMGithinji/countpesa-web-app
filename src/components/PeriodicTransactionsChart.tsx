@@ -173,6 +173,7 @@ const PeriodicTransactionsChart = ({
           selected={selectedTransactions}
           defaultSortBy="date"
           defaultDisplayMode={{all: "all", in: "moneyIn", out: "moneyOut"}[filter] as 'all' | 'moneyIn' | 'moneyOut'}
+          defaultSortDirection="desc"
         />
       </div>
     </div>

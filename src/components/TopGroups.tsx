@@ -46,7 +46,8 @@ const TopGroups = () => {
     <ChartTransactions
       selected={selectedTransactions}
       defaultDisplayMode={'all'}
-      defaultSortBy='date'
+      defaultSortBy='amount'
+      showDisplayMode={false}
     />
     </div>
   )

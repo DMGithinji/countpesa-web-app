@@ -18,6 +18,8 @@ const ChartTransactions = ({
   selected,
   defaultDisplayMode = "all",
   defaultSortBy = "date",
+  defaultSortDirection = "asc",
+  showDisplayMode = true,
 }: {
   selected?: {
     title: string;
@@ -25,6 +27,8 @@ const ChartTransactions = ({
   };
   defaultDisplayMode?: "all" | "moneyIn" | "moneyOut";
   defaultSortBy?: "amount" | "date";
+  defaultSortDirection?: "asc" | "desc";
+  showDisplayMode?: boolean;
 }) => {
   const [sortByField, setSortByField] = useState<"amount" | "date">(
     defaultSortBy
@@ -37,11 +41,13 @@ const ChartTransactions = ({
   useEffect(() => {
     setSortByField(defaultSortBy);
     setDisplayMode(defaultDisplayMode);
-  }, [defaultSortBy, defaultDisplayMode]);
+    setSortDirection(defaultSortDirection);
+  }, [defaultSortBy, defaultDisplayMode, defaultSortDirection]);
 
   const sortedTransactions = useMemo(() => {
     const filteredTransactions = (selected?.transactions || []).filter(
       (transaction) => {
+        if (showDisplayMode === false) return true;
         if (display === "all") return true;
         if (display === "moneyIn") return transaction.amount > 0;
         if (display === "moneyOut") return transaction.amount < 0;
@@ -54,7 +60,7 @@ const ChartTransactions = ({
       sortByField as keyof Transaction,
       sortDirection
     );
-  }, [selected?.transactions, sortByField, sortDirection, display]);
+  }, [selected?.transactions, sortByField, sortDirection, showDisplayMode, display]);
 
   const toggleSort = (type: "amount" | "date") => {
     if (sortByField === type) {
@@ -70,22 +76,22 @@ const ChartTransactions = ({
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto !gap-0 pb-0">
-      <CardHeader className="!pb-4 shadow-xs px-3">
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className="w-full mx-auto !gap-0 pb-0">
+      <CardHeader className="!pb-2 shadow-xs px-3">
+        <div className="flex flex-row items-center justify-between space-y-0">
           <div className="text-sm font-medium">
             {selected?.title
               ? `"${selected?.title}" Transactions`
               : "Chart Transactions"}
           </div>
-          <div className="flex space-x-2">
+          {showDisplayMode && <div className="flex space-x-2">
             <div
               className={`p-1 rounded cursor-pointer ${
                 display === "all" ? "bg-green-100" : ""
               }`}
               onClick={() => toggleDisplayMode("all")}
             >
-              <ArrowUpDown size={18} />
+              <ArrowUpDown size={16} />
             </div>
             <div
               className={`p-1 rounded cursor-pointer ${
@@ -93,7 +99,7 @@ const ChartTransactions = ({
               }`}
               onClick={() => toggleDisplayMode("moneyIn")}
             >
-              <ArrowUp size={18} />
+              <ArrowUp size={16} />
             </div>
             <div
               className={`p-1 rounded cursor-pointer ${
@@ -101,9 +107,9 @@ const ChartTransactions = ({
               }`}
               onClick={() => toggleDisplayMode("moneyOut")}
             >
-              <ArrowDown size={18} />
+              <ArrowDown size={16} />
             </div>
-          </div>
+          </div>}
         </div>
         <div className="flex gap-2 items-center">
           <div
@@ -112,7 +118,7 @@ const ChartTransactions = ({
             }`}
             onClick={() => toggleSort("date")}
           >
-            <Calendar size={18} className="mr-1" />
+            <Calendar size={16} className="mr-1" />
           </div>
           <div
             className={`flex items-center cursor-pointer ${
