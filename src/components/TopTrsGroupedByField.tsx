@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { FieldGroupSummary, GroupByField } from "@/lib/groupByField";
-import { MoneyMode } from "@/types/Transaction";
+import { MoneyMode, Transaction } from "@/types/Transaction";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { formatCurrency } from "@/lib/utils";
@@ -19,6 +19,10 @@ interface TopTrsGroupedByFieldProps {
   moneyOutSummaryByAmt: FieldGroupSummary[];
   moneyInSummaryByCount: FieldGroupSummary[];
   moneyOutSummaryByCount: FieldGroupSummary[];
+  onSelectGroup: (selected: {
+    title: string,
+    transactions: Transaction[],
+  }) => void;
 }
 
 const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
@@ -27,6 +31,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
   moneyOutSummaryByAmt,
   moneyInSummaryByCount,
   moneyOutSummaryByCount,
+  onSelectGroup,
 }) => {
   const [moneyMode, setMoneyMode] = useState<MoneyMode>(MoneyMode.MoneyOut);
   const [summaryMode, setSummaryMode] = useState<"count" | "amount">("amount");
@@ -55,7 +60,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4">
         <CardTitle className="text-sm font-medium">
           <div className="flex items-center gap-1">
             <span className="text-sm font-medium">{groupTitle}</span>
@@ -89,7 +94,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
           ))}
         </ToggleGroup>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4">
         {summary.map((item) => (
           <div key={item.name} className="space-y-1 mb-4">
             <div className="flex items-center justify-between">
@@ -104,6 +109,11 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
             </div>
             <div>
               <Progress
+                className="cursor-pointer"
+                onClick={() => onSelectGroup({
+                  title: item.name,
+                  transactions: item.transactions
+                })}
                 color={
                   moneyMode === MoneyMode.MoneyIn
                     ? "bg-green-600"
