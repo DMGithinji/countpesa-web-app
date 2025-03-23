@@ -42,7 +42,7 @@ const CategoriesPage = () => {
   }, [searchQuery, sortingState, transactions]);
 
   return (
-    <div className="container mx-auto max-w-5xl flex flex-col gap-8">
+    <div className="flex flex-col gap-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
         <CategoriesChart
           title="Money In"

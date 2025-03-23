@@ -1,12 +1,11 @@
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
-import { GroupByField } from "@/lib/groupByField";
 import useTransactionStore from "@/stores/transactions.store";
 import AmtSummaryCard from "@/components/AmtSummaryCard";
 import BalanceTrendCard from "@/components/BalanceTrend";
 import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
-import TopTrsGroupedByField from "@/components/TopTrsGroupedByField";
 import { MoneyMode } from "@/types/Transaction";
 import { useTransactionContext } from "@/context/TransactionDataContext";
+import TopGroups from "@/components/TopGroups";
 
 const DashboardPage = () => {
   const loading = useTransactionStore((state) => state.loading);
@@ -15,21 +14,13 @@ const DashboardPage = () => {
     transactionTotals,
     balance,
     balanceTrend,
-    topAccountsSentToByAmt,
-    topAccountsReceivedFromByAmt,
-    topCategoriesMoneyInByAmt,
-    topCategoriesMoneyOutByAmt,
-    topAccountsSentToByCount,
-    topAccountsReceivedFromByCount,
-    topCategoriesMoneyInByCount,
-    topCategoriesMoneyOutByCount,
   } = calculatedData;
   const { defaultPeriod, periodOptions } = dateRangeData;
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="container mx-auto max-w-5xl">
+    <>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <AmtSummaryCard
           type="Received"
@@ -56,23 +47,8 @@ const DashboardPage = () => {
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
-        <TopTrsGroupedByField
-          groupedBy={GroupByField.Account}
-          moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 6)}
-          moneyOutSummaryByAmt={topAccountsSentToByAmt.slice(0, 6)}
-          moneyInSummaryByCount={topAccountsReceivedFromByCount.slice(0, 6)}
-          moneyOutSummaryByCount={topAccountsSentToByCount.slice(0, 6)}
-        />
-        <TopTrsGroupedByField
-          groupedBy={GroupByField.Category}
-          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, 6)}
-          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, 6)}
-          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, 6)}
-          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, 6)}
-        />
-      </div>
-    </div>
+      <TopGroups />
+    </>
   );
 };
 

@@ -45,7 +45,9 @@ const Header = () => {
           <UploadStatementButton />
         </div>
       </div>
-      <FilterChips />
+      <div className="container mx-auto max-w-8xl">
+        <FilterChips />
+      </div>
     </header>
   );
 };

@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, LayoutDashboard, BarChart2, Users, Tags } from 'lucide-react';
-import { Button } from './ui/button';
-import Header from './Header';
-import { Sidepanel } from './Sidepanel';
-import BottomDrawer from './BottomDrawer';
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  ChevronLeft,
+  LayoutDashboard,
+  BarChart2,
+  Users,
+  Tags,
+} from "lucide-react";
+import { Button } from "./ui/button";
+import Header from "./Header";
+import { Sidepanel } from "./Sidepanel";
+import AIAnalysisSheet from "./AIAnalysisSheet";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -20,7 +26,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 640); // sm breakpoint
       // Auto-collapse sidebar on medium screens
-      if (window.innerWidth >= 640 && window.innerWidth < 768) {
+      if (window.innerWidth >= 640 && window.innerWidth < 728) {
         setCollapsed(true);
       }
     };
@@ -29,10 +35,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     checkScreenSize();
 
     // Add resize listener
-    window.addEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
 
     // Cleanup
-    return () => window.removeEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   const toggleSidebar = () => {
@@ -40,10 +46,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   };
 
   const navItems = [
-    { path: '/', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
-    { path: '/transactions', icon: <BarChart2 size={20} />, label: 'Transactions' },
-    { path: '/accounts', icon: <Users size={20} />, label: 'Senders/Receivers' },
-    { path: '/categories', icon: <Tags size={20} />, label: 'Categories' },
+    { path: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
+    {
+      path: "/transactions",
+      icon: <BarChart2 size={20} />,
+      label: "Transactions",
+    },
+    {
+      path: "/accounts",
+      icon: <Users size={20} />,
+      label: "Senders/Receivers",
+    },
+    { path: "/categories", icon: <Tags size={20} />, label: "Categories" },
   ];
 
   return (
@@ -52,7 +66,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       {!isMobile && (
         <div
           className={`bg-gray-800 flex-col border-r border-gray-800 transition-all duration-300 hidden sm:flex ${
-            collapsed ? 'w-16' : 'w-64'
+            collapsed ? "w-16" : "w-64"
           }`}
         >
           {/* Logo */}
@@ -69,8 +83,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </div>
               )}
             </Link>
-            <Button variant="link" size="sm" onClick={toggleSidebar} className="bg-gray-600 text-white cursor-pointer w-6 h-6 z-[9999]">
-              <ChevronLeft size={20} className={`transform transition-transform ${collapsed ? 'rotate-180' : ''}`} />
+            <Button
+              variant="link"
+              size="sm"
+              onClick={toggleSidebar}
+              className="bg-gray-600 text-white cursor-pointer w-6 h-6 z-[9999]"
+            >
+              <ChevronLeft
+                size={20}
+                className={`transform transition-transform ${
+                  collapsed ? "rotate-180" : ""
+                }`}
+              />
             </Button>
           </div>
 
@@ -83,11 +107,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     to={item.path}
                     className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
                       location.pathname === item.path
-                        ? 'bg-gray-700 text-white'
-                        : 'text-gray-400 hover:bg-gray-700 hover:text-white'
+                        ? "bg-gray-700 text-white"
+                        : "text-gray-400 hover:bg-gray-700 hover:text-white"
                     }`}
                   >
-                    <span className={collapsed ? 'mx-auto' : 'mr-3'}>{item.icon}</span>
+                    <span className={collapsed ? "mx-auto" : "mr-3"}>
+                      {item.icon}
+                    </span>
                     {!collapsed && <span>{item.label}</span>}
                   </Link>
                 </li>
@@ -102,7 +128,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <Header />
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
         <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb- mt-2">
-          {children}
+          <div className="container mx-auto max-w-8xl"> {children}</div>
         </main>
 
         {/* Mobile Bottom Navigation */}
@@ -115,8 +141,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     to={item.path}
                     className={`flex flex-col items-center justify-center h-full py-1 ${
                       location.pathname === item.path
-                        ? 'text-green-primary'
-                        : 'text-gray-500 hover:text-green-primary'
+                        ? "text-green-primary"
+                        : "text-gray-500 hover:text-green-primary"
                     }`}
                   >
                     {item.icon}
@@ -128,7 +154,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </nav>
         )}
         <Sidepanel />
-        <BottomDrawer />
+        <AIAnalysisSheet />
       </div>
     </div>
   );

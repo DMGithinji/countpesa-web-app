@@ -45,7 +45,7 @@ const TransactionsPage = () => {
   }, [searchQuery, transactions, sortingState]);
 
   return (
-    <div className="container mx-auto max-w-5xl flex flex-col gap-12">
+    <div className="flex flex-col gap-12">
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
         <AmtSummaryCard2
           type="Received"
@@ -115,13 +115,11 @@ function Table({
   switch (groupBy) {
     case "all":
       return (
-        <div className="container mx-auto max-w-5xl">
-          <TransactionsTable
-            transactions={transactions}
-            sortBy={sortBy}
-            onSortingChange={onSortingChange}
-          />
-        </div>
+        <TransactionsTable
+          transactions={transactions}
+          sortBy={sortBy}
+          onSortingChange={onSortingChange}
+        />
       );
     case Period.DATE:
     case Period.WEEK:
