@@ -22,7 +22,7 @@ import {
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "@/lib/getTotal";
-import { formatDate } from "date-fns";
+import { endOfDay, formatDate } from "date-fns";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { SetDateRange } from "@/lib/getDateRangeData";
@@ -40,6 +40,10 @@ const BottomDrawer = () => {
   const { transactions, calculatedData, dateRangeData } = useTransactionContext();
 
   const { dateRange, defaultPeriod } = dateRangeData;
+  const formattedDateRange = {
+    ...dateRange,
+    to: dateRange.to.getTime() > new Date().getTime() ? endOfDay(new Date()) : dateRange.to,
+  }
   const {
     transactionTotals,
     topAccountsSentToByAmt,
@@ -97,7 +101,7 @@ const BottomDrawer = () => {
   const generateAssessment = async (data) => {
 
     setIsLoading(true);
-    const reportId = getReportAnalysisId(dateRange, assessmentMode)
+    const reportId = getReportAnalysisId(formattedDateRange, assessmentMode)
     const existingReport = await analysisRepository.getReport(reportId);
 
     if (existingReport) {
@@ -117,7 +121,7 @@ const BottomDrawer = () => {
         assessmentMode === AssessmentMode.SERIOUS
           ? GetPromptTemplate
           : GetRoastPromptTemplate;
-      const prompt = promptFunction(data, dateRange as SetDateRange);
+      const prompt = promptFunction(data, formattedDateRange as SetDateRange);
       const result = await model.generateContentStream(prompt);
 
       for await (const chunk of result.stream) {
@@ -135,7 +139,7 @@ const BottomDrawer = () => {
   };
 
   const handleOnClose = async () => {
-    const reportId = getReportAnalysisId(dateRange, assessmentMode)
+    const reportId = getReportAnalysisId(formattedDateRange, assessmentMode)
     if (streamingResponse) {
       await analysisRepository.saveReport({
         id: reportId,
@@ -170,8 +174,8 @@ const BottomDrawer = () => {
             <Sparkle className="h-6 w-6 !text-slate-800" />
             <span className="!text-slate-800">
               AI Financial Assessment Report (
-              {formatDate(dateRange.from, "MMMM d, yyyy")} -{" "}
-              {formatDate(dateRange.to, "MMMM d, yyyy")})
+              {formatDate(formattedDateRange.from, "MMMM d, yyyy")} -{" "}
+              {formatDate(formattedDateRange.to, "MMMM d, yyyy")})
             </span>
           </DrawerTitle>
           <DrawerDescription className="mt-4">
