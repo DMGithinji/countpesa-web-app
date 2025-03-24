@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import TransactionsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 import {
   GroupByField,
@@ -11,18 +11,23 @@ import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode } from "@/types/Transaction";
 import CategoriesChart from "@/components/CategoriesChart";
 import { Button } from "@/components/ui/button";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/stores/sidepanel.store";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 
 const CategoriesPage = () => {
-  const { transactions, calculatedData } = useTransactionContext();
-  const setSidepanel = useSidepanelStore(state => state.setMode)
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const { transactions, calculatedData } = useTransactionContext();
   const {
     transactionTotals,
     topCategoriesMoneyInByAmt,
     topCategoriesMoneyOutByAmt,
   } = calculatedData;
+
+  const setSidepanel = useSidepanelStore(state => state.setMode);
+  const setSidepanelMode = useSidepanelStore((state) => state.setMode)
+  const setTransactionsData = useSidepanelStore((state) => state.setTransactionsData)
+
 
   const columnDefProps = { title: "Categories" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);
@@ -41,6 +46,11 @@ const CategoriesPage = () => {
     );
   }, [searchQuery, sortingState, transactions]);
 
+  const handlePieChartClick = useCallback((summary: SidepanelTransactions) => {
+    setTransactionsData(summary)
+    setSidepanelMode(SidepanelMode.Transactions)
+  }, [setSidepanelMode, setTransactionsData])
+
   return (
     <div className="flex flex-col gap-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
@@ -48,23 +58,15 @@ const CategoriesPage = () => {
           title="Money In"
           moneyMode={MoneyMode.MoneyIn}
           totalAmount={transactionTotals.moneyInAmount}
-          groupedDataByAmount={topCategoriesMoneyInByAmt.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-            percentage: t.amountPercentage,
-          }))}
+          groupedDataByAmount={topCategoriesMoneyInByAmt}
+          onItemClick={handlePieChartClick}
         />
         <CategoriesChart
           title="Money Out"
           moneyMode={MoneyMode.MoneyOut}
           totalAmount={transactionTotals.moneyOutAmount}
-          groupedDataByAmount={topCategoriesMoneyOutByAmt.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-            percentage: t.amountPercentage,
-          }))}
+          groupedDataByAmount={topCategoriesMoneyOutByAmt}
+          onItemClick={handlePieChartClick}
         />
       </div>
       <div>

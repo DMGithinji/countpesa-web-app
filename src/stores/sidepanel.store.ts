@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { TransactionSummary } from '@/lib/groupByField';
 import { AssessmentMode } from '@/types/PromptTemplate';
+import { Transaction } from '@/types/Transaction';
 
 export enum SidepanelMode {
   Closed = 'Closed',
@@ -8,12 +8,17 @@ export enum SidepanelMode {
   Transactions = 'Transactions',
 }
 
+export interface SidepanelTransactions {
+  name: string;
+  transactions: Transaction[] | undefined;
+}
+
 interface SidepanelState {
   mode: SidepanelMode;
   setMode: (mode: SidepanelMode) => void;
 
-  transactionsData: TransactionSummary | undefined;
-  setTransactionsData: (data: TransactionSummary) => void;
+  transactionsData: SidepanelTransactions | undefined;
+  setTransactionsData: (data: SidepanelTransactions) => void;
 
   drawerOpen: boolean;
   setDrawerOpen: (open: boolean) => void;

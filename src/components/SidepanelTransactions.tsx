@@ -64,9 +64,9 @@ const SidepanelTransactions = () => {
     <div>
       <CardHeader className="bg-slate-900 text-white sticky top-0 z-50 pt-2 pb-2 pl-4 pr-0">
         <div className="flex flex-row items-start justify-between space-y-0">
-          <div className="text-lg font-medium">
+          <div className="text-base font-medium">
             {transactionSummary?.name
-              ? `${transactionSummary.name} Transactions`
+              ? `"${transactionSummary.name}" Transactions`
               : "No Data Selected"}
           </div>
           <Button
@@ -91,10 +91,6 @@ const SidepanelTransactions = () => {
               size={18}
             />
           </div>
-          {!!(
-            transactionSummary?.moneyInTrs?.length &&
-            transactionSummary?.moneyOutTrs?.length
-          ) && (
             <div className="flex space-x-2">
               <IconButton
                 isActive={display === "all"}
@@ -112,7 +108,6 @@ const SidepanelTransactions = () => {
                 Icon={ArrowDown}
               />
             </div>
-          )}
         </div>
       </CardHeader>
       <CardContent className="pt-2 px-2">

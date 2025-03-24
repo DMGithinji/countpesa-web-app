@@ -31,17 +31,10 @@ const formatAxisValue = (value: number) => {
 
 interface TopAccountsChartProps {
   moneyMode: MoneyMode;
-  groupedDataByAmount: {
-    name: string;
-    amount: number;
-    count: number;
-  }[];
-  groupedDataByCount: {
-    name: string;
-    amount: number;
-    count: number;
-  }[];
+  groupedDataByAmount: FieldGroupSummary[];
+  groupedDataByCount: FieldGroupSummary[];
   totalAmount: number;
+  onItemClick?: (item: SidepanelTransactions) => void;
 }
 
 type DisplayMode = "amount" | "count";
@@ -51,6 +44,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
   groupedDataByAmount,
   groupedDataByCount,
   totalAmount,
+  onItemClick,
 }) => {
   const [displayCount, setDisplayCount] = useState<number>(15);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("amount");
@@ -100,7 +94,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
                 ))}
               </SelectContent>
             </Select>
-            {moneyMode === MoneyMode.MoneyIn ? 'Senders' : 'Receivers'}
+            {moneyMode === MoneyMode.MoneyIn ? "Senders" : "Receivers"}
           </CardTitle>
         </div>
 
@@ -157,11 +151,21 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
                   displayMode === "amount" ? "Amount" : "Count",
                 ]}
                 labelFormatter={(label) => `${label}`}
-                content={<CustomTooltip moneyMode={moneyMode} displayMode={displayMode} />}
+                content={
+                  <CustomTooltip
+                    moneyMode={moneyMode}
+                    displayMode={displayMode}
+                  />
+                }
               />
               <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={barColor} />
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={barColor}
+                    className="cursor-pointer"
+                    onClick={() => onItemClick && onItemClick(entry)}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -189,14 +193,19 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
 
 export default TopAccountsChart;
 
-import { TooltipProps } from 'recharts';
+import { TooltipProps } from "recharts";
+import { SidepanelTransactions } from "@/stores/sidepanel.store";
+import { FieldGroupSummary } from "@/lib/groupByField";
 
 const CustomTooltip = ({
   active,
   payload,
   label,
-  displayMode
-}: { moneyMode: MoneyMode, displayMode: DisplayMode } & TooltipProps<number, string>) => {
+  displayMode,
+}: { moneyMode: MoneyMode; displayMode: DisplayMode } & TooltipProps<
+  number,
+  string
+>) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-zinc-100 p-2 rounded-md shadow-sm text-sm">
@@ -207,7 +216,9 @@ const CustomTooltip = ({
             className="text-sm"
             style={{ color: entry.color }}
           >
-            {displayMode === "amount" ? formatCurrency(entry.value as number) : `No. of Transactions: ${entry.value}`}
+            {displayMode === "amount"
+              ? formatCurrency(entry.value as number)
+              : `No. of Transactions: ${entry.value}`}
           </p>
         ))}
       </div>
@@ -215,4 +226,3 @@ const CustomTooltip = ({
   }
   return null;
 };
-

@@ -154,7 +154,7 @@ const CustomTooltip = ({
             "font-medium",
             mode === MoneyMode.MoneyOut ? "text-red-600" : "text-green-600"
           )}
-        >{`Balance: Ksh ${payload[0].value?.toLocaleString()}`}</p>
+        >{`Balance: ${formatCurrency(payload[0].value || 0)}`}</p>
       </div>
     );
   }

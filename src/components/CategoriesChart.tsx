@@ -10,41 +10,33 @@ import {
   Tooltip,
 } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { FieldGroupSummary } from "@/lib/groupByField";
+import { SidepanelTransactions } from "@/stores/sidepanel.store";
 
 interface CategoriesDonutChartProps {
   title?: string;
   moneyMode: MoneyMode;
-  groupedDataByAmount: {
-    name: string;
-    amount: number;
-    count: number;
-    percentage: number;
-  }[];
+  groupedDataByAmount: FieldGroupSummary[];
   totalAmount: number;
+  onItemClick?: (item: SidepanelTransactions) => void;
 }
 
 const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
   moneyMode,
   groupedDataByAmount,
   totalAmount,
+  onItemClick,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
-  // Calculate total pages
   const totalPages = Math.ceil(groupedDataByAmount.length / itemsPerPage);
 
-  // Prepare data for the chart
   const chartData = useMemo(() => {
-
     // Format data for pie chart
     return groupedDataByAmount.map((item) => ({
-      name: item.name,
+      ...item,
       value: item.amount,
-      percentage: item.percentage,
-      // Keep original data for tooltip
-      originalAmount: item.amount,
-      originalCount: item.count,
       color: getCategoryColor(item.name)
     }));
   }, [groupedDataByAmount]);
@@ -63,15 +55,15 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
           <p className="font-medium">{data.name}</p>
           <p>
             <span className="text-gray-600">Amount: </span>
-            <span className="font-medium">{formatCurrency(data.originalAmount)}</span>
+            <span className="font-medium">{formatCurrency(data.amount)}</span>
           </p>
           <p>
             <span className="text-gray-600">No of Trs: </span>
-            <span className="font-medium">{data.originalCount}</span>
+            <span className="font-medium">{data.count}</span>
           </p>
           <p>
             <span className="text-gray-600">Percentage: </span>
-            <span className="font-medium">{data.percentage.toFixed(1)}%</span>
+            <span className="font-medium">{data.amountPercentage.toFixed(1)}%</span>
           </p>
         </div>
       );
@@ -147,6 +139,8 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
+                    className="cursor-pointer"
+                    onClick={() => onItemClick && onItemClick(entry)}
                   />
                 ))}
               </Pie>

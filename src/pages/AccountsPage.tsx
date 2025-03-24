@@ -9,8 +9,9 @@ import {
   groupedTrxByField,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
+import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/stores/sidepanel.store";
 import { MoneyMode } from "@/types/Transaction";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 const AccountsPage = () => {
   const { transactions, calculatedData } = useTransactionContext();
@@ -22,6 +23,9 @@ const AccountsPage = () => {
     topAccountsReceivedFromByCount,
     topAccountsSentToByCount,
   } = calculatedData;
+
+  const setSidepanelMode = useSidepanelStore((state) => state.setMode)
+  const setTransactionsData = useSidepanelStore((state) => state.setTransactionsData)
 
   const columnDefProps = { title: "Sender/Receiver" };
   const columnDef = transactionGroupSummaryColumns(columnDefProps);
@@ -37,36 +41,28 @@ const AccountsPage = () => {
     return sortBy(groupedTrx, sortingState.id, sortingState.desc ? 'desc' : 'asc');
   }, [searchQuery, transactions, sortingState]);
 
+
+  const handlePieChartClick = useCallback((summary: SidepanelTransactions) => {
+    setTransactionsData(summary)
+    setSidepanelMode(SidepanelMode.Transactions)
+  }, [setSidepanelMode, setTransactionsData])
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
         <TopAccountsChart
           moneyMode={MoneyMode.MoneyIn}
           totalAmount={transactionTotals.moneyInAmount}
-          groupedDataByAmount={topAccountsReceivedFromByAmt.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-          }))}
-          groupedDataByCount={topAccountsReceivedFromByCount.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-          }))}
+          groupedDataByAmount={topAccountsReceivedFromByAmt}
+          groupedDataByCount={topAccountsReceivedFromByCount}
+          onItemClick={handlePieChartClick}
         />
         <TopAccountsChart
           moneyMode={MoneyMode.MoneyOut}
           totalAmount={transactionTotals.moneyOutAmount}
-          groupedDataByAmount={topAccountsSentToByAmt.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-          }))}
-          groupedDataByCount={topAccountsSentToByCount.map((t) => ({
-            name: t.name,
-            amount: t.amount,
-            count: t.count,
-          }))}
+          groupedDataByAmount={topAccountsSentToByAmt}
+          groupedDataByCount={topAccountsSentToByCount}
+          onItemClick={handlePieChartClick}
         />
       </div>
       <div>
