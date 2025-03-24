@@ -1,21 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Transaction } from "@/types/Transaction";
 import { formatDate } from "date-fns";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
-import { ScrollArea } from "./ui/scroll-area";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
   newCategory: string;
+  mode?: "single" | "multiple";
 }
 
 const SimilarTransactionsAccordion = ({
   selectedTransaction,
   newCategory,
+  mode = "single",
 }: SimilarTransactionsAccordionProps) => {
   const [similarTransactions, setSimilarTransactions] = useState<Transaction[]>(
     []
@@ -23,14 +24,24 @@ const SimilarTransactionsAccordion = ({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { getRelatedTransactions, bulkUpdateTransactions } = useTransactionContext();
+  const { getRelatedTransactions, bulkUpdateTransactions } =
+    useTransactionContext();
+
+  const isSame = useMemo(() => {
+    return  similarTransactions.every(tr => tr.category === newCategory)
+  }, [similarTransactions, newCategory])
 
   useEffect(() => {
-    getRelatedTransactions(selectedTransaction.account, selectedTransaction.category).then((trs => {
-      const filtered = trs.filter((tx) => tx.id !== selectedTransaction.id);
-      setTimeout(() => setSimilarTransactions(filtered), 100)
-    }));
-  }, [getRelatedTransactions, selectedTransaction]);
+    getRelatedTransactions(
+      selectedTransaction.account,
+      selectedTransaction.category
+    ).then((trs) => {
+      const filtered = trs.filter(
+        (tx) => mode === "multiple" || tx.id !== selectedTransaction.id
+      );
+      setSimilarTransactions(filtered);
+    });
+  }, [getRelatedTransactions, mode, selectedTransaction]);
 
   const categorizeTransactions = async () => {
     const updated = similarTransactions.map((tx) => ({
@@ -51,14 +62,28 @@ const SimilarTransactionsAccordion = ({
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex items-center gap-2">
-            <div className="flex items-start gap-2">
-              <Checkbox className="mt-[2px] border-2 cursor-pointer" onClick={(e) => {
-                categorizeTransactions();
-                e.stopPropagation();
-              } } />
-              <span className="text-green-600 font-xs text-sm">
-                {newCategory  !== UNCATEGORIZED ? `Match this category for ${similarTransactions.length} similar/uncategorized transactions.` : `${similarTransactions.length} similar transactions found.`}
-              </span>
+            <div className="flex items-start gap-3">
+              {newCategory !== UNCATEGORIZED && (
+                <Checkbox
+                  checked={isSame}
+                  className="mt-[2px] border-2 cursor-pointer"
+                  onClick={(e) => {
+                    categorizeTransactions();
+                    e.stopPropagation();
+                  }}
+                />
+              )}
+              {mode === "multiple" ? (
+                <span className="font-sm text-sm px-2">
+                  {newCategory === UNCATEGORIZED  ? `${similarTransactions.length} Transactions Found` : `Apply To All (${similarTransactions.length} Transactions)`}
+                </span>
+              ) : (
+                <span className="text-green-600 font-xs text-sm">
+                  {newCategory !== UNCATEGORIZED
+                    ? `Match this category for ${similarTransactions.length} similar/uncategorized transactions.`
+                    : `${similarTransactions.length} similar transactions found.`}
+                </span>
+              )}
             </div>
           </div>
           <div>
@@ -71,7 +96,7 @@ const SimilarTransactionsAccordion = ({
         </div>
 
         {isOpen && (
-          <ScrollArea className="px-4 pt-2 h-64 overflow-y-auto">
+          <div className="px-4 pt-2 max-h-64 overflow-y-auto">
             {similarTransactions.map((tx) => (
               <div key={tx.id} className="px-2 py-3 hover:bg-slate-50">
                 <div className="flex justify-between items-center">
@@ -103,7 +128,7 @@ const SimilarTransactionsAccordion = ({
                 </div>
               </div>
             ))}
-          </ScrollArea>
+          </div>
         )}
       </div>
     </div>

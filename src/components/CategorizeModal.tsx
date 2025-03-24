@@ -10,17 +10,22 @@ import {
 } from "@/hooks/useTransactions";
 import SimilarTransactionsAccordion from "./SimilarTransactionsAccordion";
 import { useTransactionContext } from "@/context/TransactionDataContext";
+import { formatCurrency } from "@/lib/utils";
 
 interface CategoryModalProps {
   isOpen: boolean;
+  mode?: "single" | "multiple";
   onClose: () => void;
   transaction: Transaction;
+  transactions?: Transaction[];
 }
 
 const CategorizeModal = ({
   isOpen,
+  mode,
   onClose,
   transaction,
+  transactions,
 }: CategoryModalProps) => {
   const [category, setCategory] = useState<string>("");
   const [subcategory, setSubcategory] = useState<string>("");
@@ -79,6 +84,7 @@ const CategorizeModal = ({
   if (!transaction) {
     return null;
   }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
@@ -86,11 +92,15 @@ const CategorizeModal = ({
         aria-describedby="category-modal-description"
       >
         <DialogHeader>
-          <DialogTitle>Categorize Transaction</DialogTitle>
+          <DialogTitle>{mode === 'single' ? 'Categorize Transaction' : 'Categorize Transactions'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <TransactionDetails transaction={transaction} />
+          {mode === "multiple" ? (
+            <MultipleTransactionDetails transactions={transactions || [transaction]} />
+          ) : (
+            <TransactionDetails mode={mode} transaction={transaction} />
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             {/* Category dropdown */}
@@ -114,10 +124,11 @@ const CategorizeModal = ({
           </div>
         </div>
 
-          <SimilarTransactionsAccordion
-            newCategory={formatTrCategory(category, subcategory)}
-            selectedTransaction={transaction}
-          />
+        <SimilarTransactionsAccordion
+          mode={mode}
+          newCategory={formatTrCategory(category, subcategory)}
+          selectedTransaction={transaction}
+        />
       </DialogContent>
     </Dialog>
   );
@@ -125,7 +136,12 @@ const CategorizeModal = ({
 
 export default CategorizeModal;
 
-const TransactionDetails = ({ transaction }: { transaction: Transaction }) => (
+const TransactionDetails = ({
+  transaction,
+}: {
+  mode?: "single" | "multiple";
+  transaction: Transaction;
+}) => (
   <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50 ">
     <p className="text-sm font-medium px-2">Transaction Details:</p>
     <div className="px-2 rounded-md">
@@ -136,15 +152,13 @@ const TransactionDetails = ({ transaction }: { transaction: Transaction }) => (
             transaction.amount < 0 ? "text-red-600" : "text-green-600"
           }`}
         >
-          {transaction.amount < 0
-            ? `-Ksh ${Math.abs(transaction.amount)}`
-            : `Ksh ${transaction.amount}`}
+          {formatCurrency(transaction.amount)}
         </span>
       </p>
       <p className="text-sm">
         <span className="font-medium">
           {transaction.amount > 0 ? "Sender" : "Receiver"}:
-        </span>{" "}
+        </span>
         {transaction.account}
       </p>
       <p className="text-sm">
@@ -155,6 +169,20 @@ const TransactionDetails = ({ transaction }: { transaction: Transaction }) => (
         <span className="font-medium">Description:</span>{" "}
         {transaction.description}
       </p>
+    </div>
+  </div>
+);
+
+const MultipleTransactionDetails = ({
+  transactions,
+}: {
+  transactions: Transaction[];
+}) => (
+  <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50">
+    <div className="px-2 rounded-md space-y-2 py-1">
+      <div className="text-sm">
+        <span>{transactions[0]?.account || "N/A"}</span>
+      </div>
     </div>
   </div>
 );

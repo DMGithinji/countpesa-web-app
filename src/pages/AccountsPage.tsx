@@ -1,17 +1,27 @@
-import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
-import TransactionsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
-import { TransactionSearch } from "@/components/SearchInput";
-import TopAccountsChart from "@/components/TopAccountsChart";
+import { useCallback, useMemo, useState } from "react";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import {
   GroupByField,
   GroupByTrxSortBy,
   groupedTrxByField,
+  TransactionSummary,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
-import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/stores/sidepanel.store";
-import { MoneyMode } from "@/types/Transaction";
-import { useCallback, useMemo, useState } from "react";
+import useSidepanelStore, {
+  SidepanelMode,
+  SidepanelTransactions,
+} from "@/stores/sidepanel.store";
+import { MoneyMode, Transaction } from "@/types/Transaction";
+import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
+import { TransactionSearch } from "@/components/SearchInput";
+import TopAccountsChart from "@/components/TopAccountsChart";
+import GroupedTrsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
+import {
+  ActionItem,
+  TableRowActions,
+} from "@/components/GroupedTrsTable/RowAction";
+import CategorizeModal from "@/components/CategorizeModal";
+import { Badge } from "@/components/ui/badge";
 
 const AccountsPage = () => {
   const { transactions, calculatedData } = useTransactionContext();
@@ -24,28 +34,94 @@ const AccountsPage = () => {
     topAccountsSentToByCount,
   } = calculatedData;
 
-  const setSidepanelMode = useSidepanelStore((state) => state.setMode)
-  const setTransactionsData = useSidepanelStore((state) => state.setTransactionsData)
+  const setSidepanelMode = useSidepanelStore((state) => state.setMode);
+  const setTransactionsData = useSidepanelStore(
+    (state) => state.setTransactionsData
+  );
 
-  const columnDefProps = { title: "Sender/Receiver" };
-  const columnDef = transactionGroupSummaryColumns(columnDefProps);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] =
+    useState<Transaction | null>(null);
 
   const [sortingState, setSortingState] = useState<SortBy>({
     desc: false,
     id: GroupByTrxSortBy.MoneyOut,
-  })
+  });
 
   const groupedTrs = useMemo(() => {
-    const filteredTrs = filterTransactions(transactions, searchQuery)
+    const filteredTrs = filterTransactions(transactions, searchQuery);
     const groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Account);
-    return sortBy(groupedTrx, sortingState.id, sortingState.desc ? 'desc' : 'asc');
+    return sortBy(
+      groupedTrx,
+      sortingState.id,
+      sortingState.desc ? "desc" : "asc"
+    );
   }, [searchQuery, transactions, sortingState]);
 
+  const handlePieChartClick = useCallback(
+    (summary: SidepanelTransactions) => {
+      setTransactionsData(summary);
+      setSidepanelMode(SidepanelMode.Transactions);
+    },
+    [setSidepanelMode, setTransactionsData]
+  );
 
-  const handlePieChartClick = useCallback((summary: SidepanelTransactions) => {
-    setTransactionsData(summary)
-    setSidepanelMode(SidepanelMode.Transactions)
-  }, [setSidepanelMode, setTransactionsData])
+  const handleCategoryClick = useCallback((group: TransactionSummary) => {
+    setSelectedTransaction(group.transactions[0]);
+    setIsModalOpen(true);
+  }, []);
+
+  const actions: ActionItem[] = [
+    {
+      title: "Categorize All",
+      onClick: handleCategoryClick,
+    },
+    {
+      title: "Show Similar",
+      onClick: (row) => console.log(`Editing card for ${row.name}`),
+    },
+    {
+      title: "Exclude Similar",
+      onClick: (row) => console.log(`Editing card for ${row.name}`),
+    },
+    {
+      title: "View Transactions",
+      onClick: (row) => {
+        setTransactionsData(row);
+        setSidepanelMode(SidepanelMode.Transactions);
+      },
+    },
+  ];
+  const columnsWithActions = transactionGroupSummaryColumns({
+    title: "Sender/Receiver",
+    rows: [
+      {
+        headerTitle: "Main Category",
+        rowElement: (row) => {
+          const groups = groupedTrxByField(
+            row.transactions,
+            GroupByField.Category
+          );
+          const mainCateg = groups[0];
+          return (
+            <Badge
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCategoryClick(row);
+              }}
+              className="bg-primary/20 font-semibold text-primary"
+            >
+              {mainCateg.name}
+            </Badge>
+          );
+        },
+      },
+      {
+        headerTitle: "Actions",
+        rowElement: (row) => <TableRowActions row={row} actions={actions} />,
+      },
+    ],
+  });
 
   return (
     <>
@@ -69,13 +145,21 @@ const AccountsPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
         </div>
-        <TransactionsTable
+        <GroupedTrsTable
           transactions={groupedTrs}
-          columnDef={columnDef}
+          columnDef={columnsWithActions}
           onSortingChange={setSortingState}
           sortBy={sortingState}
         />
       </div>
+      {selectedTransaction && (
+        <CategorizeModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          transaction={selectedTransaction}
+          mode={"multiple"}
+        />
+      )}
     </>
   );
 };

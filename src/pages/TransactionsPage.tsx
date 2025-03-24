@@ -141,14 +141,12 @@ function Table({
       });
 
       return (
-        <div className="container mx-auto max-w-5xl">
-          <GroupedTransactionsTable
-            transactions={summary}
-            columnDef={columnDef}
-            sortBy={groupedSortingState}
-            onSortingChange={setGroupedSortingState}
-          />
-        </div>
+        <GroupedTransactionsTable
+          transactions={summary}
+          columnDef={columnDef}
+          sortBy={groupedSortingState}
+          onSortingChange={setGroupedSortingState}
+        />
       );
     }
   }
