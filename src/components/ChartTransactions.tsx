@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
+import IconButton from "./ui/IconButton";
 
 const ChartTransactions = ({
   selected,
@@ -60,7 +61,13 @@ const ChartTransactions = ({
       sortByField as keyof Transaction,
       sortDirection
     );
-  }, [selected?.transactions, sortByField, sortDirection, showDisplayMode, display]);
+  }, [
+    selected?.transactions,
+    sortByField,
+    sortDirection,
+    showDisplayMode,
+    display,
+  ]);
 
   const toggleSort = (type: "amount" | "date") => {
     if (sortByField === type) {
@@ -79,55 +86,45 @@ const ChartTransactions = ({
     <Card className="w-full mx-auto !gap-0 pb-0">
       <CardHeader className="!pb-2 shadow-xs px-3">
         <div className="flex flex-row items-center justify-between space-y-0">
-          <div className="text-sm font-medium">
+          <div className="text-md font-medium">
             {selected?.title
               ? `"${selected?.title}" Transactions`
               : "Chart Transactions"}
           </div>
-          {showDisplayMode && <div className="flex space-x-2">
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "all" ? "bg-green-100" : ""
-              }`}
-              onClick={() => toggleDisplayMode("all")}
-            >
-              <ArrowUpDown size={16} />
-            </div>
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "moneyIn" ? "bg-green-100" : ""
-              }`}
-              onClick={() => toggleDisplayMode("moneyIn")}
-            >
-              <ArrowUp size={16} />
-            </div>
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "moneyOut" ? "bg-green-100" : ""
-              }`}
-              onClick={() => toggleDisplayMode("moneyOut")}
-            >
-              <ArrowDown size={16} />
-            </div>
-          </div>}
         </div>
-        <div className="flex gap-2 items-center">
-          <div
-            className={`flex items-center cursor-pointer ${
-              sortByField === "date" ? "text-green-600" : ""
-            }`}
-            onClick={() => toggleSort("date")}
-          >
-            <Calendar size={16} className="mr-1" />
+        <div className="flex flex-row items-center justify-between space-y-0">
+          <div className="flex gap-2 items-center">
+            <IconButton
+              isActive={sortByField === "date"}
+              onClick={() => toggleSort("date")}
+              Icon={Calendar}
+            />
+            <IconButton
+              isActive={sortByField === "amount"}
+              onClick={() => toggleSort("amount")}
+              Icon={Banknote}
+              size={18}
+            />
           </div>
-          <div
-            className={`flex items-center cursor-pointer ${
-              sortByField === "amount" ? "text-green-600" : ""
-            }`}
-            onClick={() => toggleSort("amount")}
-          >
-            <Banknote size={22} className="mr-1" />
-          </div>
+          {showDisplayMode && (
+            <div className="flex space-x-2">
+              <IconButton
+                isActive={display === "all"}
+                onClick={() => toggleDisplayMode("all")}
+                Icon={ArrowUpDown}
+              />
+              <IconButton
+                isActive={display === "moneyIn"}
+                onClick={() => toggleDisplayMode("moneyIn")}
+                Icon={ArrowUp}
+              />
+              <IconButton
+                isActive={display === "moneyOut"}
+                onClick={() => toggleDisplayMode("moneyOut")}
+                Icon={ArrowDown}
+              />
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="pt-2 px-2">
@@ -171,7 +168,7 @@ const ChartTransactions = ({
             })}
           </ScrollArea>
         ) : (
-          <div className="flex flex-col space-y-4 h-80 mx-auto opacity-50 pt-8">
+          <div className="flex flex-col space-y-4 h-84 mx-auto opacity-50 pt-8">
             <MousePointerClick size={24} className="text-center mx-auto" />
             <span className="text-center text-sm">
               Click an item on the chart to view transactions under it.

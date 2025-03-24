@@ -16,26 +16,29 @@ import { formatDate } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import { Button } from "./ui/button";
+import IconButton from "./ui/IconButton";
 
 const SidepanelTransactions = () => {
-  const [sortByField, setSortByField] = useState<"amount" | "date">('date');
+  const [sortByField, setSortByField] = useState<"amount" | "date">("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [display, setDisplayMode] = useState<"all" | "moneyIn" | "moneyOut">(
     "all"
   );
-  const transactionSummary = useSidepanelStore(state => state.transactionsData);
-  const setSidepanel = useSidepanelStore(state => state.setMode);
+  const transactionSummary = useSidepanelStore(
+    (state) => state.transactionsData
+  );
+  const setSidepanel = useSidepanelStore((state) => state.setMode);
 
   const sortedTransactions = useMemo(() => {
     if (!transactionSummary?.transactions) return [];
-    const filteredTransactions = (transactionSummary?.transactions || []).filter(
-      (transaction) => {
-        if (display === "all") return true;
-        if (display === "moneyIn") return transaction.amount > 0;
-        if (display === "moneyOut") return transaction.amount < 0;
-        return true;
-      }
-    );
+    const filteredTransactions = (
+      transactionSummary?.transactions || []
+    ).filter((transaction) => {
+      if (display === "all") return true;
+      if (display === "moneyIn") return transaction.amount > 0;
+      if (display === "moneyOut") return transaction.amount < 0;
+      return true;
+    });
 
     return sortBy(
       filteredTransactions,
@@ -62,7 +65,9 @@ const SidepanelTransactions = () => {
       <CardHeader className="bg-slate-900 text-white sticky top-0 z-50 pt-2 pb-2 pl-4 pr-0">
         <div className="flex flex-row items-start justify-between space-y-0">
           <div className="text-lg font-medium">
-            {transactionSummary?.name ? `${transactionSummary.name} Transactions` :'No Data Selected'}
+            {transactionSummary?.name
+              ? `${transactionSummary.name} Transactions`
+              : "No Data Selected"}
           </div>
           <Button
             variant={"ghost"}
@@ -71,57 +76,43 @@ const SidepanelTransactions = () => {
           >
             <X size={16} />
           </Button>
-
         </div>
         <div className="flex flex-row items-center justify-between space-y-0">
-        <div className="flex gap-3 items-center py-1">
-          <div
-            className={`flex items-center cursor-pointer ${
-              sortByField === "date" ? "text-green-600" : ""
-            }`}
-            onClick={() => toggleSort("date")}
-          >
-            <Calendar size={16} className="mr-1" />
+          <div className="flex gap-3 items-center py-1">
+            <IconButton
+              isActive={sortByField === "date"}
+              onClick={() => toggleSort("date")}
+              Icon={Calendar}
+            />
+            <IconButton
+              isActive={sortByField === "amount"}
+              onClick={() => toggleSort("amount")}
+              Icon={Banknote}
+              size={18}
+            />
           </div>
-          <div
-            className={`flex items-center cursor-pointer ${
-              sortByField === "amount" ? "text-green-600" : ""
-            }`}
-            onClick={() => toggleSort("amount")}
-          >
-            <Banknote size={22} className="mr-1" />
-          </div>
-        </div>
-        {
-          !!(transactionSummary?.moneyInTrs?.length &&
-          transactionSummary?.moneyOutTrs?.length) &&
-          <div className="flex space-x-2">
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "all" ? "text-green-600" : ""
-              }`}
-              onClick={() => toggleDisplayMode("all")}
-            >
-              <ArrowUpDown size={16} />
+          {!!(
+            transactionSummary?.moneyInTrs?.length &&
+            transactionSummary?.moneyOutTrs?.length
+          ) && (
+            <div className="flex space-x-2">
+              <IconButton
+                isActive={display === "all"}
+                onClick={() => toggleDisplayMode("all")}
+                Icon={ArrowUpDown}
+              />
+              <IconButton
+                isActive={display === "moneyIn"}
+                onClick={() => toggleDisplayMode("moneyIn")}
+                Icon={ArrowUp}
+              />
+              <IconButton
+                isActive={display === "moneyOut"}
+                onClick={() => toggleDisplayMode("moneyOut")}
+                Icon={ArrowDown}
+              />
             </div>
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "moneyIn" ? "text-green-600" : ""
-              }`}
-              onClick={() => toggleDisplayMode("moneyIn")}
-            >
-              <ArrowUp size={16} />
-            </div>
-            <div
-              className={`p-1 rounded cursor-pointer ${
-                display === "moneyOut" ? "text-green-600" : ""
-              }`}
-              onClick={() => toggleDisplayMode("moneyOut")}
-            >
-              <ArrowDown size={16} />
-            </div>
-          </div>
-        }
+          )}
         </div>
       </CardHeader>
       <CardContent className="pt-2 px-2">
