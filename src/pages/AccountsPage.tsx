@@ -71,7 +71,7 @@ const AccountsPage = () => {
     setIsModalOpen(true);
   }, []);
 
-  const actions: ActionItem[] = [
+  const actions: ActionItem[] = useMemo(() => [
     {
       title: "Categorize All",
       onClick: handleCategoryClick,
@@ -91,8 +91,11 @@ const AccountsPage = () => {
         setSidepanelMode(SidepanelMode.Transactions);
       },
     },
-  ];
-  const columnsWithActions = transactionGroupSummaryColumns({
+  ]
+  , [handleCategoryClick, setTransactionsData, setSidepanelMode]
+  );
+
+  const columnsWithActions = useMemo(() => transactionGroupSummaryColumns({
     title: "Sender/Receiver",
     rows: [
       {
@@ -121,7 +124,8 @@ const AccountsPage = () => {
         rowElement: (row) => <TableRowActions row={row} actions={actions} />,
       },
     ],
-  });
+  })
+  , [actions, handleCategoryClick]);
 
   return (
     <>

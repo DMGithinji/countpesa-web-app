@@ -11,8 +11,15 @@ import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode } from "@/types/Transaction";
 import CategoriesChart from "@/components/CategoriesChart";
 import { Button } from "@/components/ui/button";
-import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/stores/sidepanel.store";
+import useSidepanelStore, {
+  SidepanelMode,
+  SidepanelTransactions,
+} from "@/stores/sidepanel.store";
 import { useTransactionContext } from "@/context/TransactionDataContext";
+import {
+  ActionItem,
+  TableRowActions,
+} from "@/components/GroupedTrsTable/RowAction";
 
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -24,13 +31,11 @@ const CategoriesPage = () => {
     topCategoriesMoneyOutByAmt,
   } = calculatedData;
 
-  const setSidepanel = useSidepanelStore(state => state.setMode);
-  const setSidepanelMode = useSidepanelStore((state) => state.setMode)
-  const setTransactionsData = useSidepanelStore((state) => state.setTransactionsData)
-
-
-  const columnDefProps = { title: "Categories" };
-  const columnDef = transactionGroupSummaryColumns(columnDefProps);
+  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setSidepanelMode = useSidepanelStore((state) => state.setMode);
+  const setTransactionsData = useSidepanelStore(
+    (state) => state.setTransactionsData
+  );
   const [sortingState, setSortingState] = useState<SortBy>({
     desc: false,
     id: GroupByTrxSortBy.MoneyOut,
@@ -46,10 +51,50 @@ const CategoriesPage = () => {
     );
   }, [searchQuery, sortingState, transactions]);
 
-  const handlePieChartClick = useCallback((summary: SidepanelTransactions) => {
-    setTransactionsData(summary)
-    setSidepanelMode(SidepanelMode.Transactions)
-  }, [setSidepanelMode, setTransactionsData])
+  const handlePieChartClick = useCallback(
+    (summary: SidepanelTransactions) => {
+      setTransactionsData(summary);
+      setSidepanelMode(SidepanelMode.Transactions);
+    },
+    [setSidepanelMode, setTransactionsData]
+  );
+
+  const actions: ActionItem[] = useMemo(
+    () => [
+      {
+        title: "Show Similar",
+        onClick: (row) => console.log(`Editing card for ${row.name}`),
+      },
+      {
+        title: "Exclude Similar",
+        onClick: (row) => console.log(`Editing card for ${row.name}`),
+      },
+      {
+        title: "View Transactions",
+        onClick: (row) => {
+          setTransactionsData(row);
+          setSidepanelMode(SidepanelMode.Transactions);
+        },
+      },
+    ],
+    [setTransactionsData, setSidepanelMode]
+  );
+
+  const columnsWithActions = useMemo(
+    () =>
+      transactionGroupSummaryColumns({
+        title: "Categories",
+        rows: [
+          {
+            headerTitle: "Actions",
+            rowElement: (row) => (
+              <TableRowActions row={row} actions={actions} />
+            ),
+          },
+        ],
+      }),
+    [actions]
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -72,13 +117,17 @@ const CategoriesPage = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <TransactionSearch onSearch={setSearchQuery} />
-          <Button variant={'outline'} className="cursor-pointer" onClick={() => setSidepanel(SidepanelMode.Categories)}>
+          <Button
+            variant={"outline"}
+            className="cursor-pointer"
+            onClick={() => setSidepanel(SidepanelMode.Categories)}
+          >
             Manage Categories
           </Button>
         </div>
         <TransactionsTable
           transactions={groupedTrs}
-          columnDef={columnDef}
+          columnDef={columnsWithActions}
           onSortingChange={setSortingState}
           sortBy={sortingState}
         />
