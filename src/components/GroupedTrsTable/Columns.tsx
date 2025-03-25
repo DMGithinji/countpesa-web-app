@@ -2,12 +2,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "../ui/table/data-table-column-header";
 import { TransactionSummary } from "@/lib/groupByField";
 import { formatCurrency } from "@/lib/utils";
+import HoverableActionText from "../HoverableActionText";
+import { Filter } from "@/types/Filters";
 
 type TrGroupProps = {
   title: string;
+  filters?: (value: string) => Filter[];
   rows?: Array<{
     headerTitle: string;
-    rowElement: (row: TransactionSummary) => React.ReactElement
+    rowElement: (row: TransactionSummary) => React.ReactElement;
   }>;
 };
 
@@ -20,11 +23,25 @@ export const transactionGroupSummaryColumns = (
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title={props.title} />
       ),
-      cell: ({ row }) => (
-        <div className="font-medium text-gray-700 max-w-[250px] truncate">
-          {row.getValue("name")}
-        </div>
-      ),
+      cell: ({ row }) => {
+        return !props.filters ? (
+          row.getValue("name")
+        ) : (
+          <div className="w-[240px] max-w-[240px]">
+            <HoverableActionText
+              className="max-w-[200px]"
+              actions={props.filters(row.getValue("name"))}
+            >
+              <span
+                title={row.getValue("name")}
+                className="block truncate max-w-full capitalize"
+              >
+                {row.getValue("name")}
+              </span>
+            </HoverableActionText>
+          </div>
+        );
+      },
       enableSorting: true,
       enableHiding: false,
     },
@@ -38,7 +55,7 @@ export const transactionGroupSummaryColumns = (
         />
       ),
       cell: ({ row }) => (
-        <div className="text-center w-[100px] font-semibold">
+        <div className="px-6 w-[150px] font-semibold">
           {row.getValue("totalCount")}
         </div>
       ),
@@ -53,7 +70,7 @@ export const transactionGroupSummaryColumns = (
       cell: ({ row }) => {
         const amount = row.getValue("moneyOutAmount") as number;
         return (
-          <div className="text-red-600 w-[120px] font-semibold">
+          <div className="text-red-600 w-[150px] font-semibold">
             {formatCurrency(amount)}
           </div>
         );
@@ -69,7 +86,7 @@ export const transactionGroupSummaryColumns = (
       cell: ({ row }) => {
         const amount = row.getValue("moneyInAmount") as number;
         return (
-          <div className="text-green-600 w-[120px] font-semibold">
+          <div className="text-green-600 w-[150px] font-semibold">
             {formatCurrency(amount)}
           </div>
         );
@@ -80,20 +97,17 @@ export const transactionGroupSummaryColumns = (
   ];
 
   // Add actions column only if actions prop is provided
-  props.rows?.forEach((val) => {
+  props.rows?.forEach((val, i) => {
     items.push({
-      id: "actions",
+      id: `actions-${i}`,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={val.headerTitle}
-        />
+        <DataTableColumnHeader column={column} title={val.headerTitle} />
       ),
       cell: ({ row }) => val.rowElement(row.original), // Use the actions function with row data
       enableSorting: false,
       enableHiding: false,
     });
-  })
+  });
 
   return items;
 };

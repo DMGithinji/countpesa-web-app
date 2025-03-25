@@ -87,7 +87,7 @@ export function getCalculatedData(transactions: Transaction[]) {
   const balance =
     sortedTxs.length > 0 ? sortedTxs[sortedTxs.length - 1].balance : 0;
   const balanceTrend = sortedTxs.map((tx) => ({
-    date: formatDate(new Date(tx.date), "dd-MM-yyyy HH:mm"),
+    date: formatDate(new Date(tx.date), "EEE, MM-yyyy HH:mm"),
     balance: tx.balance,
   }));
 

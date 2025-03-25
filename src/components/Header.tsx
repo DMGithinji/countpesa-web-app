@@ -58,7 +58,7 @@ export const HeaderWithFilters = () => {
   const { currentFilters } = useTransactionContext();
 
   return (
-    <div className="sticky top-0 container mx-auto max-w-8xl pt-2 z-[9999]">
+    <div className="sticky top-0 container mx-auto max-w-8xl pt-2 z-[10]">
       {currentFilters?.length ? <FilterChips /> : null}
     </div>
   );

@@ -29,7 +29,6 @@ enum MoneyFilter {
   out = "out",
 }
 
-
 const PeriodicTransactionsChart = ({
   transactions,
   defaultPeriod,
@@ -45,13 +44,18 @@ const PeriodicTransactionsChart = ({
     transactions: [],
   });
 
-  const handleBarClick = useCallback((activePayload: {payload: {dateRange: string, trs: Transaction[]}}[]) => {
-    const selectedTrs = activePayload.at(0)?.payload?.trs || [];
-    setSelectedTransactions({
-      title: activePayload.at(0)?.payload.dateRange || "Chart Transactions",
-      transactions: selectedTrs,
-    });
-  }, [])
+  const handleBarClick = useCallback(
+    (
+      activePayload: { payload: { dateRange: string; trs: Transaction[] } }[]
+    ) => {
+      const selectedTrs = activePayload.at(0)?.payload?.trs || [];
+      setSelectedTransactions({
+        title: activePayload.at(0)?.payload.dateRange || "Chart Transactions",
+        transactions: selectedTrs,
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     setPeriod(defaultPeriod);
@@ -67,7 +71,7 @@ const PeriodicTransactionsChart = ({
         dateRange: g,
         moneyIn: totals.moneyInAmount,
         moneyOut: Math.abs(totals.moneyOutAmount),
-        trs
+        trs,
       };
     });
     return totals;
@@ -120,7 +124,13 @@ const PeriodicTransactionsChart = ({
                 data={groupedTrs}
                 margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 barGap={0}
-                onClick={(val) => {handleBarClick(val.activePayload as {payload: {trs: Transaction[], dateRange: string}}[])}}
+                onClick={(val) => {
+                  handleBarClick(
+                    val.activePayload as {
+                      payload: { trs: Transaction[]; dateRange: string };
+                    }[]
+                  );
+                }}
               >
                 <CartesianGrid
                   horizontal={true}
@@ -172,7 +182,12 @@ const PeriodicTransactionsChart = ({
         <ChartTransactions
           selected={selectedTransactions}
           defaultSortBy="date"
-          defaultDisplayMode={{all: "all", in: "moneyIn", out: "moneyOut"}[filter] as 'all' | 'moneyIn' | 'moneyOut'}
+          defaultDisplayMode={
+            { all: "all", in: "moneyIn", out: "moneyOut" }[filter] as
+              | "all"
+              | "moneyIn"
+              | "moneyOut"
+          }
           defaultSortDirection="desc"
         />
       </div>
@@ -189,7 +204,7 @@ const CustomTooltip = ({
 }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-zinc-100 p-2 rounded-md shadow-sm text-sm">
+      <div className="bg-white p-2 rounded-md shadow text-sm">
         <p className="mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p

@@ -35,3 +35,18 @@ export interface Query {
 }
 
 export type FilterMode = 'and' | 'or';
+
+
+// Dictionary to translate operators to readable text
+export const OperatorTranslations: Record<FilterOperator, string> = {
+  "==": "is",
+  "!=": "is not",
+  "<": "less than",
+  "<=": "at most",
+  ">": "greater than",
+  ">=": "at least",
+  contains: "contains",
+  "contains-any": "contains any of",
+  in: "in",
+  "not-in": "not in",
+};

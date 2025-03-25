@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { FieldGroupSummary, GroupByField } from "@/lib/groupByField";
 import { MoneyMode, Transaction } from "@/types/Transaction";
@@ -12,6 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import HoverableActionText from "./HoverableActionText";
+import { Filter } from "@/types/Filters";
 
 interface TopTrsGroupedByFieldProps {
   groupedBy: GroupByField;
@@ -20,8 +22,8 @@ interface TopTrsGroupedByFieldProps {
   moneyInSummaryByCount: FieldGroupSummary[];
   moneyOutSummaryByCount: FieldGroupSummary[];
   onSelectGroup: (selected: {
-    title: string,
-    transactions: Transaction[],
+    title: string;
+    transactions: Transaction[];
   }) => void;
 }
 
@@ -57,6 +59,22 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
           { label: "(Money Out)", value: MoneyMode.MoneyOut },
           { label: "(Money In)", value: MoneyMode.MoneyIn },
         ];
+
+  const getFilters = useCallback(
+    (value: string): Filter[] => [
+      {
+        field: groupedBy,
+        operator: "==",
+        value,
+      },
+      {
+        field: groupedBy,
+        operator: "!=",
+        value,
+      },
+    ],
+    [groupedBy]
+  );
 
   return (
     <Card>
@@ -98,9 +116,18 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
         {summary.map((item) => (
           <div key={item.name} className="space-y-1 mb-4">
             <div className="flex items-center justify-between">
-              <span className="text-gray-700 text-sm max-w-[60%] truncate">
-                {item.name}
-              </span>
+              <HoverableActionText
+                className="max-w-[80%] truncate"
+                actions={getFilters(item.name)}
+              >
+                <span
+                  title={item.name}
+                  className="text-gray-700 text-sm max-w-[60%] truncate"
+                >
+                  {item.name}
+                </span>
+              </HoverableActionText>
+
               <span className="text-gray-900 text-sm font-medium">
                 {summaryMode === "amount"
                   ? formatCurrency(item.amount)
@@ -110,10 +137,12 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
             <div>
               <Progress
                 className="cursor-pointer"
-                onClick={() => onSelectGroup({
-                  title: item.name,
-                  transactions: item.transactions
-                })}
+                onClick={() =>
+                  onSelectGroup({
+                    title: item.name,
+                    transactions: item.transactions,
+                  })
+                }
                 color={
                   moneyMode === MoneyMode.MoneyIn
                     ? "bg-green-600"

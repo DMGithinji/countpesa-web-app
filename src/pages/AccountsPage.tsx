@@ -25,7 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Filter } from "@/types/Filters";
 
 const AccountsPage = () => {
-  const { transactions, calculatedData, validateAndAddFilters } = useTransactionContext();
+  const { transactions, calculatedData, validateAndAddFilters } =
+    useTransactionContext();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,
@@ -72,79 +73,104 @@ const AccountsPage = () => {
     setIsModalOpen(true);
   }, []);
 
-  const actions: ActionItem[] = useMemo(() => [
-    {
-      title: "Categorize All",
-      onClick: handleCategoryClick,
-    },
-    {
-      title: "Show Similar",
-      onClick: (row) => {
-        console.log(`Editing card for ${row.name}`)
-        const filter: Filter = {
-          field: "account",
-          operator: "==",
-          value: row.name,
-          mode: 'and',
-        };
-        validateAndAddFilters(filter);
-      },
-    },
-    {
-      title: "Exclude Similar",
-      onClick: (row) => {
-        console.log(`Editing card for ${row.name}`)
-        const filter: Filter = {
-          field: "account",
-          operator: "!=",
-          value: row.name,
-          mode: 'and',
-        };
-        validateAndAddFilters(filter);
-      },
-    },
-    {
-      title: "View Transactions",
-      onClick: (row) => {
-        setTransactionsData(row);
-        setSidepanelMode(SidepanelMode.Transactions);
-      },
-    },
-  ]
-  , [handleCategoryClick, validateAndAddFilters, setTransactionsData, setSidepanelMode]
-  );
-
-  const columnsWithActions = useMemo(() => transactionGroupSummaryColumns({
-    title: "Sender/Receiver",
-    rows: [
+  const actions: ActionItem[] = useMemo(
+    () => [
       {
-        headerTitle: "Main Category",
-        rowElement: (row) => {
-          const groups = groupedTrxByField(
-            row.transactions,
-            GroupByField.Category
-          );
-          const mainCateg = groups[0];
-          return (
-            <Badge
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCategoryClick(row);
-              }}
-              className="bg-primary/20 font-semibold text-primary"
-            >
-              {mainCateg.name}
-            </Badge>
-          );
+        title: "Categorize All",
+        onClick: handleCategoryClick,
+      },
+      {
+        title: "Show Similar",
+        onClick: (row) => {
+          console.log(`Editing card for ${row.name}`);
+          const filter: Filter = {
+            field: "account",
+            operator: "==",
+            value: row.name,
+            mode: "and",
+          };
+          validateAndAddFilters(filter);
         },
       },
       {
-        headerTitle: "Actions",
-        rowElement: (row) => <TableRowActions row={row} actions={actions} />,
+        title: "Exclude Similar",
+        onClick: (row) => {
+          console.log(`Editing card for ${row.name}`);
+          const filter: Filter = {
+            field: "account",
+            operator: "!=",
+            value: row.name,
+            mode: "and",
+          };
+          validateAndAddFilters(filter);
+        },
+      },
+      {
+        title: "View Transactions",
+        onClick: (row) => {
+          setTransactionsData(row);
+          setSidepanelMode(SidepanelMode.Transactions);
+        },
       },
     ],
-  })
-  , [actions, handleCategoryClick]);
+    [
+      handleCategoryClick,
+      validateAndAddFilters,
+      setTransactionsData,
+      setSidepanelMode,
+    ]
+  );
+
+  const columnsWithActions = useMemo(
+    () =>
+      transactionGroupSummaryColumns({
+        title: "Sender/Receiver",
+        filters: (value: string) => [
+          {
+            field: "account",
+            operator: "==",
+            value,
+          },
+          {
+            field: "account",
+            operator: "!=",
+            value,
+          },
+        ],
+        rows: [
+          {
+            headerTitle: "Main Category",
+            rowElement: (row) => {
+              const groups = groupedTrxByField(
+                row.transactions,
+                GroupByField.Category
+              );
+              const mainCateg = groups[0];
+              return (
+                <div className="w-[180px]">
+                  <Badge
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCategoryClick(row);
+                    }}
+                    className="bg-primary/20 font-semibold text-primary"
+                  >
+                    {mainCateg.name}
+                  </Badge>
+                </div>
+              );
+            },
+          },
+          {
+            headerTitle: "Actions",
+            rowElement: (row) => (
+              <TableRowActions row={row} actions={actions} />
+            ),
+          },
+        ],
+      }),
+    [actions, handleCategoryClick]
+  );
 
   return (
     <>

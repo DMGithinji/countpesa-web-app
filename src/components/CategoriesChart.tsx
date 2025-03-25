@@ -2,13 +2,7 @@ import { useMemo, useState } from "react";
 import { MoneyMode } from "@/types/Transaction";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { formatCurrency } from "@/lib/utils";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import { SidepanelTransactions } from "@/stores/sidepanel.store";
@@ -37,7 +31,7 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     return groupedDataByAmount.map((item) => ({
       ...item,
       value: item.amount,
-      color: getCategoryColor(item.name)
+      color: getCategoryColor(item.name),
     }));
   }, [groupedDataByAmount]);
 
@@ -51,7 +45,7 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-zinc-100 p-2 border rounded-md shadow-sm">
+        <div className="bg-white p-2 border rounded-md shadow-sm">
           <p className="font-medium">{data.name}</p>
           <p>
             <span className="text-gray-600">Amount: </span>
@@ -63,15 +57,15 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
           </p>
           <p>
             <span className="text-gray-600">Percentage: </span>
-            <span className="font-medium">{data.amountPercentage.toFixed(1)}%</span>
+            <span className="font-medium">
+              {data.amountPercentage.toFixed(1)}%
+            </span>
           </p>
         </div>
       );
     }
     return null;
   };
-
-
 
   // Custom legend component
   const CustomLegend = () => {
@@ -95,14 +89,28 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
           <div className="flex items-center justify-center gap-2 mt-1">
             <ChevronLeft
               size={16}
-              className={`cursor-pointer ${currentPage === 1 ? 'text-gray-300' : 'text-gray-600 hover:text-gray-900'}`}
-              onClick={() => currentPage > 1 && setCurrentPage(prev => prev - 1)}
+              className={`cursor-pointer ${
+                currentPage === 1
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+              onClick={() =>
+                currentPage > 1 && setCurrentPage((prev) => prev - 1)
+              }
             />
-            <span className="text-xs text-gray-600">{currentPage}/{totalPages}</span>
+            <span className="text-xs text-gray-600">
+              {currentPage}/{totalPages}
+            </span>
             <ChevronRight
               size={16}
-              className={`cursor-pointer ${currentPage === totalPages ? 'text-gray-300' : 'text-gray-600 hover:text-gray-900'}`}
-              onClick={() => currentPage < totalPages && setCurrentPage(prev => prev + 1)}
+              className={`cursor-pointer ${
+                currentPage === totalPages
+                  ? "text-gray-300"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+              onClick={() =>
+                currentPage < totalPages && setCurrentPage((prev) => prev + 1)
+              }
             />
           </div>
         )}
@@ -114,8 +122,17 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     <Card className="w-full h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          <CardTitle className={`text-base font-medium ${moneyMode === MoneyMode.MoneyIn ? 'text-green-600' : 'text-red-600'}`}>
-          <span >Total {moneyMode === MoneyMode.MoneyIn ? 'Money' : 'Expenses'}:</span> ({formatCurrency(Math.abs(totalAmount))})
+          <CardTitle
+            className={`text-base font-medium ${
+              moneyMode === MoneyMode.MoneyIn
+                ? "text-green-600"
+                : "text-red-600"
+            }`}
+          >
+            <span>
+              Total {moneyMode === MoneyMode.MoneyIn ? "Money" : "Expenses"}:
+            </span>{" "}
+            ({formatCurrency(Math.abs(totalAmount))})
           </CardTitle>
         </div>
       </CardHeader>
@@ -133,7 +150,8 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
                 fill="#8884d8"
                 paddingAngle={1}
                 dataKey="value"
-                animationDuration={0}
+                animationDuration={500}
+                animationEasing="ease-in-out"
               >
                 {chartData.map((entry, index) => (
                   <Cell

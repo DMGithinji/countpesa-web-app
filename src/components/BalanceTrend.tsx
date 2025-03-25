@@ -64,9 +64,11 @@ export default BalanceTrendCard;
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-zinc-800 p-2 rounded-md shadow-md text-sm">
-        <p className="text-zinc-300">{`Date: ${payload[0].payload.date}`}</p>
-        <p className="text-emerald-400 font-medium">{`Balance: Ksh ${payload[0].value?.toLocaleString()}`}</p>
+      <div className="bg-white p-2 rounded-md shadow-md text-sm">
+        <p className="font-mono">{`Date: ${payload[0].payload.date}`}</p>
+        <p className="font-medium">{`Balance: ${formatCurrency(
+          payload[0].value || 0
+        )}`}</p>
       </div>
     );
   }

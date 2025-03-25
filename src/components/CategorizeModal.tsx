@@ -92,12 +92,18 @@ const CategorizeModal = ({
         aria-describedby="category-modal-description"
       >
         <DialogHeader>
-          <DialogTitle>{mode === 'single' ? 'Categorize Transaction' : 'Categorize Transactions'}</DialogTitle>
+          <DialogTitle>
+            {mode === "single"
+              ? "Categorize Transaction"
+              : "Categorize Transactions"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           {mode === "multiple" ? (
-            <MultipleTransactionDetails transactions={transactions || [transaction]} />
+            <MultipleTransactionDetails
+              transactions={transactions || [transaction]}
+            />
           ) : (
             <TransactionDetails mode={mode} transaction={transaction} />
           )}
@@ -143,8 +149,9 @@ const TransactionDetails = ({
   transaction: Transaction;
 }) => (
   <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50 ">
-    <p className="text-sm font-medium px-2">Transaction Details:</p>
-    <div className="px-2 rounded-md">
+    <div className="px-2 rounded-md space-y-1">
+      <p className="text-sm font-medium">Transaction Details</p>
+
       <p className="text-sm">
         <span className="font-medium">Amount:</span>{" "}
         <span
@@ -158,15 +165,15 @@ const TransactionDetails = ({
       <p className="text-sm">
         <span className="font-medium">
           {transaction.amount > 0 ? "Sender" : "Receiver"}:
-        </span>
-        {transaction.account}
+        </span>{" "}
+        {transaction.account || "Unknown"}
       </p>
       <p className="text-sm">
         <span className="font-medium">Date:</span>{" "}
         {new Date(transaction.date).toLocaleString()}
       </p>
       <p className="text-sm">
-        <span className="font-medium">Description:</span>{" "}
+        <span className="font-medium">Description:</span> {transaction.code}{" "}
         {transaction.description}
       </p>
     </div>

@@ -74,7 +74,7 @@ const AmtSummaryCard = ({
                 : "text-red-600 bg-red-600/20"
             } px- mx-1`}
           >
-            {formatCurrency(Math.floor((amount) / count) || 0)}
+            {formatCurrency(Math.floor(amount / count) || 0)}
           </span>
           <span>Avg {type}</span>
         </div>
@@ -147,7 +147,7 @@ const CustomTooltip = ({
 }: { mode: MoneyMode } & TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-zinc-100 p-2 rounded-md shadow-sm text-sm">
+      <div className="bg-white p-2 rounded-md shadow-sm text-sm">
         <p className="">{`${payload[0].payload.date}`}</p>
         <p
           className={cn(

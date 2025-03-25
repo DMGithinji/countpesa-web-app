@@ -35,7 +35,6 @@ const CategoriesManager = () => {
     reloadCategories,
   } = useCategories();
 
-
   // Transform combinedCategories into local UI state with isExpanded property
   const [categories, setCategories] = useState<UiCategory[]>([]);
 
@@ -49,7 +48,7 @@ const CategoriesManager = () => {
           return {
             ...category,
             isExpanded: existingCategory?.isExpanded || false,
-          };
+          } as UiCategory;
         });
       });
     }

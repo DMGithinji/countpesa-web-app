@@ -5,22 +5,59 @@ import { Transaction } from "@/types/Transaction";
 import { cn } from "@/lib/utils";
 import { Badge } from "../ui/badge";
 import { UNCATEGORIZED } from "@/types/Categories";
+import HoverableActionText from "../HoverableActionText";
+import { Filter } from "@/types/Filters";
 
 type TransactionColumnProps = {
   onCategoryClick?: (transaction: Transaction) => void;
 };
 
-export const createTransactionColumns = ({ onCategoryClick }: TransactionColumnProps = {}): ColumnDef<Transaction>[] => [
+const getFilters = (tr: Transaction) => {
+  return [
+    {
+      field: "account",
+      operator: "==",
+      value: tr.account,
+    },
+    {
+      field: "account",
+      operator: "!=",
+      value: tr.account,
+    },
+    {
+      field: "code",
+      operator: "==",
+      value: tr.code,
+    },
+  ] as Filter[];
+};
+
+export const createTransactionColumns = ({
+  onCategoryClick,
+}: TransactionColumnProps = {}): ColumnDef<Transaction>[] => [
   {
     accessorKey: "account",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Sender/Receiver" />
     ),
-    cell: ({ row }) => (
-      <div className="font-medium text-gray-700 max-w-[250px] truncate">
-        {row.getValue("account")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const transaction = row.original;
+      return (
+        <div className="w-[250px] max-w-[250px]">
+          <HoverableActionText
+            className="max-w-[240px]"
+            actions={getFilters(transaction)}
+          >
+            <span
+              title={transaction.account}
+              className="block truncate max-w-full"
+            >
+              {transaction.account}
+            </span>
+          </HoverableActionText>
+        </div>
+      );
+    },
     enableSorting: true,
     enableHiding: false,
   },
@@ -84,7 +121,9 @@ export const createTransactionColumns = ({ onCategoryClick }: TransactionColumnP
           )}
           onClick={() => onCategoryClick && onCategoryClick(transaction)}
         >
-          <span className="truncate">{category === UNCATEGORIZED ? "Categorize" : category}</span>
+          <span className="truncate">
+            {category === UNCATEGORIZED ? "Categorize" : category}
+          </span>
         </Badge>
       );
     },

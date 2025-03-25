@@ -208,7 +208,7 @@ const CustomTooltip = ({
 >) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-zinc-100 p-2 rounded-md shadow-sm text-sm">
+      <div className="bg-white p-2 rounded-md shadow-sm text-sm">
         <p className="mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p

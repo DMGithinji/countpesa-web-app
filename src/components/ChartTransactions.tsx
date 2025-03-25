@@ -85,8 +85,8 @@ const ChartTransactions = ({
   return (
     <Card className="w-full mx-auto !gap-0 pb-0">
       <CardHeader className="!pb-2 shadow-xs px-3">
-        <div className="flex flex-row items-center justify-between space-y-0">
-          <div className="text-md font-medium">
+        <div className="flex flex-row items-center truncate justify-between space-y-0">
+          <div className="text-md font-medium truncate text-ellipsis">
             {selected?.title
               ? `"${selected?.title}" Transactions`
               : "Chart Transactions"}

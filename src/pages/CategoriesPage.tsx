@@ -66,7 +66,6 @@ const CategoriesPage = () => {
       {
         title: "Show Similar",
         onClick: (row) => {
-          console.log(`Editing card for ${row.name}`);
           const filter: Filter = {
             field: "category",
             operator: "==",
@@ -79,7 +78,6 @@ const CategoriesPage = () => {
       {
         title: "Exclude Similar",
         onClick: (row) => {
-          console.log(`Editing card for ${row.name}`);
           const filter: Filter = {
             field: "category",
             operator: "!=",
@@ -104,6 +102,18 @@ const CategoriesPage = () => {
     () =>
       transactionGroupSummaryColumns({
         title: "Categories",
+        filters: (value: string) => [
+          {
+            field: 'category',
+            operator: '==',
+            value,
+          },
+          {
+            field: 'category',
+            operator: '!=',
+            value,
+          },
+        ],
         rows: [
           {
             headerTitle: "Actions",
