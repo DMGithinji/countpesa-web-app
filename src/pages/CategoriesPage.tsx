@@ -5,7 +5,6 @@ import {
   GroupByTrxSortBy,
   groupedTrxByField,
 } from "@/lib/groupByField";
-import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { TransactionSearch } from "@/components/SearchInput";
 import { MoneyMode } from "@/types/Transaction";
@@ -16,11 +15,8 @@ import useSidepanelStore, {
   SidepanelTransactions,
 } from "@/stores/sidepanel.store";
 import { useTransactionContext } from "@/context/TransactionDataContext";
-import {
-  ActionItem,
-  TableRowActions,
-} from "@/components/GroupedTrsTable/RowAction";
-import { Filter } from "@/types/Filters";
+import { useTransactionActions } from "@/hooks/useTransactionActions";
+import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -61,70 +57,18 @@ const CategoriesPage = () => {
     [setSidepanelMode, setTransactionsData]
   );
 
-  const actions: ActionItem[] = useMemo(
-    () => [
-      {
-        title: "Show Similar",
-        onClick: (row) => {
-          const filter: Filter = {
-            field: "category",
-            operator: "==",
-            value: row.name,
-            mode: 'and',
-          };
-          validateAndAddFilters(filter);
-        },
-      },
-      {
-        title: "Exclude Similar",
-        onClick: (row) => {
-          const filter: Filter = {
-            field: "category",
-            operator: "!=",
-            value: row.name,
-            mode: 'and',
-          };
-          validateAndAddFilters(filter);
-        },
-      },
-      {
-        title: "View Transactions",
-        onClick: (row) => {
-          setTransactionsData(row);
-          setSidepanelMode(SidepanelMode.Transactions);
-        },
-      },
-    ],
-    [validateAndAddFilters, setTransactionsData, setSidepanelMode]
-  );
+  const actions = useTransactionActions({
+    groupByField: GroupByField.Category,
+    validateAndAddFilters,
+    setTransactionsData,
+    setSidepanelMode,
+  });
 
-  const columnsWithActions = useMemo(
-    () =>
-      transactionGroupSummaryColumns({
-        title: "Categories",
-        filters: (value: string) => [
-          {
-            field: 'category',
-            operator: '==',
-            value,
-          },
-          {
-            field: 'category',
-            operator: '!=',
-            value,
-          },
-        ],
-        rows: [
-          {
-            headerTitle: "Actions",
-            rowElement: (row) => (
-              <TableRowActions row={row} actions={actions} />
-            ),
-          },
-        ],
-      }),
-    [actions]
-  );
+  const columnsWithActions = useTransactionColumns({
+    groupByField: GroupByField.Category,
+    actions,
+    title: "Categories",
+  });
 
   return (
     <div className="flex flex-col gap-8">

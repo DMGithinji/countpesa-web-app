@@ -4,14 +4,12 @@ import { Transaction } from "@/types/Transaction";
 import { removeFilters, validateAndAddFilters } from "@/lib/manageFilters";
 
 
-// Store interface - minimal version that just holds state
 interface TransactionState {
   loading: boolean;
   transactions: Transaction[];
   currentFilters: undefined | Filter[];
   error: string;
 
-  // Simple setters
   setTransactions: (transactions: Transaction[]) => void;
   setCurrentFilters: (filters: undefined | Filter[]) => void;
   setLoading: (loading: boolean) => void;
@@ -21,15 +19,12 @@ interface TransactionState {
   validateAndAddFilters: (newFilters: Filter | Filter[]) => void;
 }
 
-// Create the minimal Zustand store
 const useTransactionStore = create<TransactionState>((set) => ({
-  // Initial state
   transactions: [],
   currentFilters: undefined,
   loading: true,
   error: '',
 
-  // Simple setters
   setTransactions: (transactions) => set({ transactions }),
   setCurrentFilters: (currentFilters) => set({ currentFilters }),
   setLoading: (loading) => set({ loading }),
@@ -42,7 +37,6 @@ const useTransactionStore = create<TransactionState>((set) => ({
 
   validateAndAddFilters: (newFilter) => set(state => {
     const updatedFilters = validateAndAddFilters(state.currentFilters, newFilter);
-    console.log({updatedFilters});
     return { ...state, currentFilters: updatedFilters };
   })
 

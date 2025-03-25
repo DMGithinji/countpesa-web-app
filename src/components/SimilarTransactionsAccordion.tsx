@@ -32,9 +32,11 @@ const SimilarTransactionsAccordion = ({
   }, [similarTransactions, newCategory])
 
   useEffect(() => {
+    const getAll = mode === "multiple";
     getRelatedTransactions(
       selectedTransaction.account,
-      selectedTransaction.category
+      selectedTransaction.category,
+      getAll
     ).then((trs) => {
       const filtered = trs.filter(
         (tx) => mode === "multiple" || tx.id !== selectedTransaction.id

@@ -3,7 +3,7 @@ import { Filter, FilterField, Query } from '@/types/Filters';
 import { Transaction } from '@/types/Transaction';
 import { deconstructTrCategory } from '@/hooks/useTransactions';
 
-export abstract class BaseRepository {
+export abstract class AbstractQuery {
   /**
    * The database table/collection to query
    */

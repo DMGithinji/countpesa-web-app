@@ -1,12 +1,12 @@
 import { ExtractedTransaction, Transaction } from "../types/Transaction";
 import db from "./schema";
 import Dexie from "dexie";
-import { BaseRepository } from "./BaseRepository";
+import { AbstractQuery } from "./AbstractQuery";
 import { Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { deconstructTrCategory, formatTrCategory } from "@/hooks/useTransactions";
 
-export class TransactionRepository extends BaseRepository {
+export class TransactionRepository extends AbstractQuery {
   /**
    * Return the Dexie table for transactions
    */
@@ -96,8 +96,14 @@ export class TransactionRepository extends BaseRepository {
 
   async getRelatedTransactions(
     account: string,
-    category = UNCATEGORIZED
+    category = UNCATEGORIZED,
+    getAll = false
   ) {
+    if (getAll) {
+      return await db.transactions
+        .where({ account })
+        .toArray();
+    }
     return await db.transactions
       .where({ account, category })
       .toArray();

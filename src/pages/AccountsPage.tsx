@@ -12,17 +12,13 @@ import useSidepanelStore, {
   SidepanelTransactions,
 } from "@/stores/sidepanel.store";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { TransactionSearch } from "@/components/SearchInput";
 import TopAccountsChart from "@/components/TopAccountsChart";
 import GroupedTrsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
-import {
-  ActionItem,
-  TableRowActions,
-} from "@/components/GroupedTrsTable/RowAction";
+
 import CategorizeModal from "@/components/CategorizeModal";
-import { Badge } from "@/components/ui/badge";
-import { Filter } from "@/types/Filters";
+import { useTransactionActions } from "@/hooks/useTransactionActions";
+import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 
 const AccountsPage = () => {
   const { transactions, calculatedData, validateAndAddFilters } =
@@ -60,7 +56,7 @@ const AccountsPage = () => {
     );
   }, [searchQuery, transactions, sortingState]);
 
-  const handlePieChartClick = useCallback(
+  const handleChartClick = useCallback(
     (summary: SidepanelTransactions) => {
       setTransactionsData(summary);
       setSidepanelMode(SidepanelMode.Transactions);
@@ -68,109 +64,25 @@ const AccountsPage = () => {
     [setSidepanelMode, setTransactionsData]
   );
 
-  const handleCategoryClick = useCallback((group: TransactionSummary) => {
+  const handleFilterByAccount = useCallback((group: TransactionSummary) => {
     setSelectedTransaction(group.transactions[0]);
     setIsModalOpen(true);
   }, []);
 
-  const actions: ActionItem[] = useMemo(
-    () => [
-      {
-        title: "Categorize All",
-        onClick: handleCategoryClick,
-      },
-      {
-        title: "Show Similar",
-        onClick: (row) => {
-          console.log(`Editing card for ${row.name}`);
-          const filter: Filter = {
-            field: "account",
-            operator: "==",
-            value: row.name,
-            mode: "and",
-          };
-          validateAndAddFilters(filter);
-        },
-      },
-      {
-        title: "Exclude Similar",
-        onClick: (row) => {
-          console.log(`Editing card for ${row.name}`);
-          const filter: Filter = {
-            field: "account",
-            operator: "!=",
-            value: row.name,
-            mode: "and",
-          };
-          validateAndAddFilters(filter);
-        },
-      },
-      {
-        title: "View Transactions",
-        onClick: (row) => {
-          setTransactionsData(row);
-          setSidepanelMode(SidepanelMode.Transactions);
-        },
-      },
-    ],
-    [
-      handleCategoryClick,
-      validateAndAddFilters,
-      setTransactionsData,
-      setSidepanelMode,
-    ]
-  );
+  const actions = useTransactionActions({
+    groupByField: "account",
+    validateAndAddFilters,
+    setTransactionsData,
+    setSidepanelMode,
+    onCategorizeClick: handleFilterByAccount,
+  });
 
-  const columnsWithActions = useMemo(
-    () =>
-      transactionGroupSummaryColumns({
-        title: "Sender/Receiver",
-        filters: (value: string) => [
-          {
-            field: "account",
-            operator: "==",
-            value,
-          },
-          {
-            field: "account",
-            operator: "!=",
-            value,
-          },
-        ],
-        rows: [
-          {
-            headerTitle: "Main Category",
-            rowElement: (row) => {
-              const groups = groupedTrxByField(
-                row.transactions,
-                GroupByField.Category
-              );
-              const mainCateg = groups[0];
-              return (
-                <div className="w-[180px]">
-                  <Badge
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCategoryClick(row);
-                    }}
-                    className="bg-primary/20 font-semibold text-primary"
-                  >
-                    {mainCateg.name}
-                  </Badge>
-                </div>
-              );
-            },
-          },
-          {
-            headerTitle: "Actions",
-            rowElement: (row) => (
-              <TableRowActions row={row} actions={actions} />
-            ),
-          },
-        ],
-      }),
-    [actions, handleCategoryClick]
-  );
+  const columnsWithActions = useTransactionColumns({
+    groupByField: "account",
+    actions,
+    title: "Sender/Receiver",
+    onCategoryClick: handleFilterByAccount,
+  });
 
   return (
     <>
@@ -180,14 +92,14 @@ const AccountsPage = () => {
           totalAmount={transactionTotals.moneyInAmount}
           groupedDataByAmount={topAccountsReceivedFromByAmt}
           groupedDataByCount={topAccountsReceivedFromByCount}
-          onItemClick={handlePieChartClick}
+          onItemClick={handleChartClick}
         />
         <TopAccountsChart
           moneyMode={MoneyMode.MoneyOut}
           totalAmount={transactionTotals.moneyOutAmount}
           groupedDataByAmount={topAccountsSentToByAmt}
           groupedDataByCount={topAccountsSentToByCount}
-          onItemClick={handlePieChartClick}
+          onItemClick={handleChartClick}
         />
       </div>
       <div>

@@ -18,7 +18,7 @@ interface TransactionDataContextType {
   // Actions
   loadTransactions: () => Promise<void>;
   categorizeTransaction: (trId: string, categoryToSet: string) => Promise<void>;
-  getRelatedTransactions: (account: string, category?: string) => Promise<Transaction[]>
+  getRelatedTransactions: (account: string, category?: string, getAll?: boolean) => Promise<Transaction[]>;
   bulkUpdateTransactions: (updatedTrs: Transaction[]) => Promise<void>;
   validateAndAddFilters: (newFilters: Filter | Filter[]) => void;
   removeFilter: (filter: Filter) => void;

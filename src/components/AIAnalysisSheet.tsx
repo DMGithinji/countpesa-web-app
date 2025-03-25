@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import useSidepanelStore from "@/stores/sidepanel.store";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
 import {
@@ -38,12 +38,6 @@ const BottomDrawer = () => {
   const [copied, setCopied] = useState(false);
 
   const { transactions, calculatedData, dateRangeData } = useTransactionContext();
-
-  const { dateRange, defaultPeriod } = dateRangeData;
-  const formattedDateRange = {
-    ...dateRange,
-    to: dateRange.to.getTime() > new Date().getTime() ? endOfDay(new Date()) : dateRange.to,
-  }
   const {
     transactionTotals,
     topAccountsSentToByAmt,
@@ -55,6 +49,14 @@ const BottomDrawer = () => {
     topCategoriesMoneyInByCount,
     topCategoriesMoneyOutByCount,
   } = calculatedData;
+
+  const { dateRange, defaultPeriod } = dateRangeData;
+  const formattedDateRange = useMemo(() => {
+    return {
+      ...dateRange,
+      to: dateRange.to.getTime() > new Date().getTime() ? endOfDay(new Date()) : dateRange.to,
+    }
+  }, [dateRange]);
 
   const calculationResults = useMemo(() => {
     // Extract top 15 items and map to consistent format
@@ -91,14 +93,7 @@ const BottomDrawer = () => {
     transactions
   ]);
 
-  useEffect(() => {
-
-    if (isOpen && calculationResults) {
-      generateAssessment(calculationResults);
-    }
-  }, [isOpen, calculationResults]);
-
-  const generateAssessment = async (data) => {
+  const generateAssessment = useCallback(async (data: unknown) => {
 
     setIsLoading(true);
     const reportId = getReportAnalysisId(formattedDateRange, assessmentMode)
@@ -136,7 +131,15 @@ const BottomDrawer = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [assessmentMode, formattedDateRange, setStreamingResponse]);
+
+
+  useEffect(() => {
+    if (isOpen && calculationResults) {
+      generateAssessment(calculationResults);
+    }
+  }, [isOpen, calculationResults, generateAssessment]);
+
 
   const handleOnClose = async () => {
     const reportId = getReportAnalysisId(formattedDateRange, assessmentMode)
