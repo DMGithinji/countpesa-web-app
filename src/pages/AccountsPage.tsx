@@ -22,9 +22,10 @@ import {
 } from "@/components/GroupedTrsTable/RowAction";
 import CategorizeModal from "@/components/CategorizeModal";
 import { Badge } from "@/components/ui/badge";
+import { Filter } from "@/types/Filters";
 
 const AccountsPage = () => {
-  const { transactions, calculatedData } = useTransactionContext();
+  const { transactions, calculatedData, validateAndAddFilters } = useTransactionContext();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,
@@ -78,11 +79,29 @@ const AccountsPage = () => {
     },
     {
       title: "Show Similar",
-      onClick: (row) => console.log(`Editing card for ${row.name}`),
+      onClick: (row) => {
+        console.log(`Editing card for ${row.name}`)
+        const filter: Filter = {
+          field: "account",
+          operator: "==",
+          value: row.name,
+          mode: 'and',
+        };
+        validateAndAddFilters(filter);
+      },
     },
     {
       title: "Exclude Similar",
-      onClick: (row) => console.log(`Editing card for ${row.name}`),
+      onClick: (row) => {
+        console.log(`Editing card for ${row.name}`)
+        const filter: Filter = {
+          field: "account",
+          operator: "!=",
+          value: row.name,
+          mode: 'and',
+        };
+        validateAndAddFilters(filter);
+      },
     },
     {
       title: "View Transactions",
@@ -92,7 +111,7 @@ const AccountsPage = () => {
       },
     },
   ]
-  , [handleCategoryClick, setTransactionsData, setSidepanelMode]
+  , [handleCategoryClick, validateAndAddFilters, setTransactionsData, setSidepanelMode]
   );
 
   const columnsWithActions = useMemo(() => transactionGroupSummaryColumns({

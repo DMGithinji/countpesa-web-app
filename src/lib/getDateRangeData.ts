@@ -6,7 +6,7 @@ import {
   startOfMonth,
   endOfMonth,
 } from "date-fns";
-import { CompositeFilter, Filter } from "@/types/Filters";
+import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 
 export enum Period {
@@ -32,10 +32,10 @@ export function getDateRangeData({
   currentFilters,
 }: {
   transactions: Transaction[];
-  currentFilters: CompositeFilter | Filter | undefined;
+  currentFilters: Filter[] | undefined;
 }) {
   // Find date range filter if it exists
-  const dateRangeFilter = (currentFilters as CompositeFilter)?.filters.find(
+  const dateRangeFilter = currentFilters?.find(
     (fl) => fl.field === "date"
   );
 
@@ -44,10 +44,10 @@ export function getDateRangeData({
 
   if (dateRangeFilter) {
     // Extract dates from filter
-    const startFilter = (currentFilters as CompositeFilter).filters.find(
+    const startFilter = currentFilters?.find(
       (f) => f.field === "date" && f.operator === ">="
     );
-    const endFilter = (currentFilters as CompositeFilter).filters.find(
+    const endFilter = currentFilters?.find(
       (f) => f.field === "date" && f.operator === "<="
     );
 

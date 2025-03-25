@@ -2,16 +2,15 @@ import { useCallback } from "react";
 import { startOfMonth, endOfMonth } from "date-fns";
 import useTransactionStore from "@/stores/transactions.store";
 import transactionRepository from "@/database/TransactionRepository";
-import { CompositeFilter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 import useCategoriesStore from "@/stores/categories.store";
 import categoryRepository from "@/database/CategoryRepository";
 import useCategories from "./useCategories";
+import { Filter } from "@/types/Filters";
 
 export function useTransactions() {
   const currentFilters = useTransactionStore(state => state.currentFilters);
   const setTransactions = useTransactionStore(state => state.setTransactions);
-  const setCurrentFilters = useTransactionStore(state => state.setCurrentFilters);
 
   const categoriesWithSubcategories = useCategoriesStore(state => state.categoriesWithSubcategories);
   const { reloadCategories } = useCategories();
@@ -50,7 +49,6 @@ export function useTransactions() {
 
   return {
     loadTransactions,
-    setCurrentFilters,
     categorizeTransaction: handleCategorizeTransactions,
     getRelatedTransactions: transactionRepository.getRelatedTransactions,
     bulkUpdateTransactions: handleBulkUpdateTransactions
@@ -82,21 +80,20 @@ export function useLoadInitialTransactions() {
       const startDate = startOfMonth(latestTrDate).getTime();
       const endDate = endOfMonth(latestTrDate).getTime();
 
-      const dateRangeFilter: CompositeFilter = {
-        type: "and",
-        filters: [
+      const dateRangeFilter: Filter[] = [
           {
             field: "date",
             operator: ">=",
             value: startDate,
+            mode: "and",
           },
           {
             field: "date",
             operator: "<=",
             value: endDate,
+            mode: "and",
           },
-        ],
-      };
+        ];
 
       setCurrentFilters(dateRangeFilter);
       setLoading(false);

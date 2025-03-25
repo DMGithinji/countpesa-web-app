@@ -2,7 +2,7 @@
 import React, { createContext, useMemo, ReactNode, useContext, useEffect } from 'react';
 import useTransactionStore from '@/stores/transactions.store';
 import { Transaction } from '@/types/Transaction';
-import { CompositeFilter, Filter } from '@/types/Filters';
+import { Filter } from '@/types/Filters';
 import { DateRangeData, getDateRangeData } from '@/lib/getDateRangeData';
 import { useLoadInitialTransactions, useTransactions } from '@/hooks/useTransactions';
 import { CalculatedData, getCalculatedData } from '@/lib/getCalculatedData';
@@ -10,17 +10,18 @@ import { CalculatedData, getCalculatedData } from '@/lib/getCalculatedData';
 interface TransactionDataContextType {
   // Raw data
   transactions: Transaction[];
-  currentFilters: Filter | CompositeFilter | undefined;
+  currentFilters: Filter[] | undefined;
 
   dateRangeData: DateRangeData;
   calculatedData: CalculatedData;
 
   // Actions
   loadTransactions: () => Promise<void>;
-  setCurrentFilters: (filters: Filter | CompositeFilter | undefined) => void;
   categorizeTransaction: (trId: string, categoryToSet: string) => Promise<void>;
   getRelatedTransactions: (account: string, category?: string) => Promise<Transaction[]>
-  bulkUpdateTransactions: (updatedTrs: Transaction[]) => Promise<void>
+  bulkUpdateTransactions: (updatedTrs: Transaction[]) => Promise<void>;
+  validateAndAddFilters: (newFilters: Filter | Filter[]) => void;
+  removeFilter: (filter: Filter) => void;
 }
 
 // Create context
@@ -31,18 +32,16 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
   const loading = useTransactionStore(state => state.loading);
   const transactions = useTransactionStore(state => state.transactions);
   const currentFilters = useTransactionStore(state => state.currentFilters);
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
+  const removeFilter = useTransactionStore(state => state.removeFilter);
 
   const { fetchTransactions } = useLoadInitialTransactions();
   const {
     loadTransactions,
-    setCurrentFilters,
     categorizeTransaction,
     getRelatedTransactions,
     bulkUpdateTransactions,
   } = useTransactions();
-
-  const calculatedData = getCalculatedData(transactions);
-  const dateRangeData = getDateRangeData({transactions, currentFilters});
 
   // memoize to prevent unnecessary rerenders
   const contextValue = useMemo(() => ({
@@ -51,16 +50,17 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
     currentFilters,
 
     // Derived data
-    dateRangeData,
-    calculatedData,
+    dateRangeData: getDateRangeData({transactions, currentFilters}),
+    calculatedData: getCalculatedData(transactions),
 
     // Actions
     loadTransactions,
-    setCurrentFilters,
     categorizeTransaction,
     getRelatedTransactions,
     bulkUpdateTransactions,
-  }), [bulkUpdateTransactions, calculatedData, categorizeTransaction, currentFilters, dateRangeData, getRelatedTransactions, loadTransactions, setCurrentFilters, transactions]);
+    validateAndAddFilters,
+    removeFilter,
+  }), [bulkUpdateTransactions, categorizeTransaction, currentFilters, getRelatedTransactions, loadTransactions, removeFilter, transactions, validateAndAddFilters]);
 
   useEffect(() => {
     fetchTransactions();

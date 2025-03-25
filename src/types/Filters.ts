@@ -1,5 +1,6 @@
 import { Transaction } from "./Transaction";
 
+export type FilterField = keyof Transaction | 'subcategory';
 // Basic operator types for queries
 export type FilterOperator =
   | '=='
@@ -15,20 +16,16 @@ export type FilterOperator =
 
 // A single filter condition
 export interface Filter {
-  field: keyof Transaction;         // Document field to filter on
+  field: FilterField;               // Document field to filter on
   operator: FilterOperator;         // Comparison operator
   value: string | number;           // Value to compare against
+  mode?: FilterMode;                 // Logical operator to use
 }
 
-// Composite filters with logical operations
-export interface CompositeFilter {
-  type: 'and' | 'or';    // Logical operator type
-  filters: (Filter | CompositeFilter)[];  // Nested filters
-}
 
 // Query definition with filters, ordering and limits
 export interface Query {
-  filters?: Filter | CompositeFilter;
+  filters?: Filter[];
   orderBy?: {
     field: string;
     direction: 'asc' | 'desc';
@@ -36,3 +33,5 @@ export interface Query {
   limit?: number;
   offset?: number;
 }
+
+export type FilterMode = 'and' | 'or';

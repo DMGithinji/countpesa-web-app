@@ -20,11 +20,13 @@ import {
   ActionItem,
   TableRowActions,
 } from "@/components/GroupedTrsTable/RowAction";
+import { Filter } from "@/types/Filters";
 
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const { transactions, calculatedData } = useTransactionContext();
+  const { transactions, calculatedData, validateAndAddFilters } =
+    useTransactionContext();
   const {
     transactionTotals,
     topCategoriesMoneyInByAmt,
@@ -63,11 +65,29 @@ const CategoriesPage = () => {
     () => [
       {
         title: "Show Similar",
-        onClick: (row) => console.log(`Editing card for ${row.name}`),
+        onClick: (row) => {
+          console.log(`Editing card for ${row.name}`);
+          const filter: Filter = {
+            field: "category",
+            operator: "==",
+            value: row.name,
+            mode: 'and',
+          };
+          validateAndAddFilters(filter);
+        },
       },
       {
         title: "Exclude Similar",
-        onClick: (row) => console.log(`Editing card for ${row.name}`),
+        onClick: (row) => {
+          console.log(`Editing card for ${row.name}`);
+          const filter: Filter = {
+            field: "category",
+            operator: "!=",
+            value: row.name,
+            mode: 'and',
+          };
+          validateAndAddFilters(filter);
+        },
       },
       {
         title: "View Transactions",
@@ -77,7 +97,7 @@ const CategoriesPage = () => {
         },
       },
     ],
-    [setTransactionsData, setSidepanelMode]
+    [validateAndAddFilters, setTransactionsData, setSidepanelMode]
   );
 
   const columnsWithActions = useMemo(

@@ -2,11 +2,11 @@ import { ExtractedTransaction, Transaction } from "../types/Transaction";
 import db from "./schema";
 import Dexie from "dexie";
 import { BaseRepository } from "./BaseRepository";
-import { CompositeFilter, Filter, Query } from "@/types/Filters";
+import { Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { deconstructTrCategory, formatTrCategory } from "@/hooks/useTransactions";
 
-export class TransactionRepository extends BaseRepository<Transaction, number> {
+export class TransactionRepository extends BaseRepository {
   /**
    * Return the Dexie table for transactions
    */
@@ -27,7 +27,7 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
    * Maintained for backward compatibility
    */
   async getTransactions(
-    compositeFilter?: Filter | CompositeFilter | undefined,
+    filters?: Filter[] | undefined,
     options: {
       sortBy?: keyof Transaction;
       sortDirection?: "asc" | "desc";
@@ -43,7 +43,7 @@ export class TransactionRepository extends BaseRepository<Transaction, number> {
     } = options;
 
     return this.query({
-      filters: compositeFilter,
+      filters: filters,
       orderBy: [{ field: sortBy as string, direction: sortDirection }],
       limit,
       offset,

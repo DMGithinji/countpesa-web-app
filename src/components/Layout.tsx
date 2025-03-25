@@ -8,7 +8,7 @@ import {
   Tags,
 } from "lucide-react";
 import { Button } from "./ui/button";
-import Header from "./Header";
+import Header, { HeaderWithFilters } from "./Header";
 import { Sidepanel } from "./Sidepanel";
 import AIAnalysisSheet from "./AIAnalysisSheet";
 
@@ -127,10 +127,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <Header />
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
-        <main className="flex-1 overflow-y-auto p-6 py-8 pb-20 sm:pb- mt-2">
-          <div className="container mx-auto max-w-8xl"> {children}</div>
+        <Header />
+        <main className="flex-1 overflow-y-auto ">
+          <div className="container mx-auto max-w-[80rem] p-6 pb-20 pt-0 sm:pb-8 relative">
+            <HeaderWithFilters />
+            <div className="pt-2">{children}</div>
+          </div>
         </main>
 
         {/* Mobile Bottom Navigation */}

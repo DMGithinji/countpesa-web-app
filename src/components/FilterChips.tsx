@@ -7,9 +7,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import useTransactionStore from "@/stores/transactions.store";
-import { CompositeFilter, Filter, FilterOperator } from "@/types/Filters";
+import { Filter, FilterField, FilterOperator } from "@/types/Filters";
 import { format } from "date-fns";
 import { UNCATEGORIZED } from "@/types/Categories";
+import { useMemo } from "react";
 
 // Dictionary to translate operators to readable text
 const operatorTranslations: Record<FilterOperator, string> = {
@@ -26,10 +27,10 @@ const operatorTranslations: Record<FilterOperator, string> = {
 };
 
 // Format values based on field type
-const formatValue = (field: string, value: string | number) => {
+const formatValue = (field: FilterField, value: string | number): string => {
   // Handle date fields
   if (field === "date" && typeof value === "number") {
-    return format(new Date(value), "EEE MMM dd yyyy");
+    return format(new Date(value), "EEE, MMM dd yyyy");
   }
 
   // Handle categories with 'Uncategorized' default
@@ -37,153 +38,88 @@ const formatValue = (field: string, value: string | number) => {
     return UNCATEGORIZED;
   }
 
+  // Handle 'in' operator with array values
+  if (Array.isArray(value)) {
+    return value.map((v) => formatValue(field, v)).join(" or ");
+  }
+
   // Standard string formatting
   return String(value);
 };
 
-// Extract all filters from a composite filter recursively
-const extractFilters = (filter: Filter | CompositeFilter): Filter[] => {
-  if ("field" in filter) {
-    return [filter];
+const formatDateFilter = (filters: Filter[]) => {
+  const startFilter = filters.find((f) => f.operator === ">=");
+  const endFilter = filters.find((f) => f.operator === "<=");
+
+  if (startFilter && endFilter) {
+    const startDate = formatValue("date", startFilter.value);
+    const endDate = formatValue("date", endFilter.value);
+    return `Date between ${startDate} - ${endDate}`;
   }
 
-  return filter.filters.flatMap((f) => {
-    if ("field" in f) {
-      return [f];
-    }
-    return extractFilters(f);
-  });
+  return null;
 };
 
-// Group filters by field for display
-const getFilterGroups = (filters: Filter | CompositeFilter | undefined) => {
-  if (!filters) return [];
+const getFilterGroups = (filters: Filter[] | undefined) => {
+  if (!filters || filters.length === 0) return [];
 
-  // Extract all simple filters
-  const allFilters = extractFilters(filters);
+  const groups: Record<string, { field: FilterField; filters: Filter[] }> = {};
 
-  // Group by field
-  const groups: Record<string, { field: string; filters: Filter[] }> = {};
+  const rangeFilters = filters.filter((f) => ['date'].includes(f.field) && filters.find(fl => fl.field === f.field && fl.operator === '>=') && filters.find(fl => fl.field === f.field && fl.operator === '<='));
+  const otherFilters = filters.filter(f => !rangeFilters.includes(f));
 
-  allFilters.forEach((filter) => {
+  rangeFilters.forEach((filter) => {
     if (!groups[filter.field]) {
       groups[filter.field] = { field: filter.field, filters: [] };
     }
     groups[filter.field].filters.push(filter);
   });
+  otherFilters.forEach((filter, i) => {
+    groups[i] = { field: filter.field, filters: [filter] };
+  });
 
-  return Object.values(groups);
+  return Object.values(groups).reverse();
 };
 
-// Format filter group into readable text
-const formatFilterGroup = (group: { field: string; filters: Filter[] }) => {
-  const { field, filters } = group;
+const formatFilter = (filter: Filter) => {
+  const { field, operator, value } = filter;
+  const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
+  const parsedVal = formatValue(field, value);
+  const operatorText = operatorTranslations[operator];
 
-  // Special case for date ranges
-  if (field === "date") {
-    const startFilter = filters.find((f) => f.operator === ">=");
-    const endFilter = filters.find((f) => f.operator === "<=");
-
-    if (startFilter && endFilter) {
-      const startDate = formatValue("date", startFilter.value);
-      const endDate = formatValue("date", endFilter.value);
-      return (
-        <span className="chip-text">
-          Date between{" "}
-          <b>
-            "{startDate} - {endDate}"
-          </b>
-        </span>
-      );
-    }
-  }
-
-  // Standard equality filter
-  if (filters.length === 1) {
-    const filter = filters[0];
-    const operator = operatorTranslations[filter.operator];
-    const fieldName = field.charAt(0).toUpperCase() + field.slice(1);
-    const value = formatValue(field, filter.value);
-
-    return (
-      <span className="chip-text">
-        {fieldName} {operator} <b>"{value}"</b>
-      </span>
-    );
-  }
-
-  // Default fallback for complex filters
-  return <span className="chip-text">{field}: Multiple conditions</span>;
+  return (
+    <span className="chip-text">
+      <span className="capitalize">{fieldName}</span> {operatorText}{" "}
+      <b className="capitalize">
+        "{parsedVal.length > 10 ? parsedVal.slice(0, 10) + "..." : parsedVal}"
+      </b>
+    </span>
+  );
 };
 
 export function FilterChips() {
-  const { currentFilters, setCurrentFilters } = useTransactionStore();
-
-  const filterGroups = getFilterGroups(currentFilters);
-
-  if (filterGroups.length === 0) {
-    return null;
-  }
-
-  const removeFilter = (fieldName: string) => {
-    if (!currentFilters) return;
-
-    // Handle simple filter
-    if ("field" in currentFilters) {
-      if (currentFilters.field === fieldName) {
-        setCurrentFilters(undefined);
-      }
-      return;
-    }
-
-    // For composite filters
-    if (currentFilters.type === "and") {
-      // Create new filters array without the removed field
-      const newFilters = currentFilters.filters.filter((filter) => {
-        if ("field" in filter) {
-          return filter.field !== fieldName;
-        }
-
-        // For nested composites, keep them (simplification)
-        return true;
-      });
-
-      if (newFilters.length === 0) {
-        setCurrentFilters(undefined);
-      } else if (newFilters.length === 1 && "field" in newFilters[0]) {
-        // If only one filter left, simplify to single filter
-        setCurrentFilters(newFilters[0]);
-      } else {
-        // Otherwise update the composite filter
-        setCurrentFilters({
-          ...currentFilters,
-          filters: newFilters,
-        });
-      }
-    } else {
-      // For OR filters, this is a simplification
-      // A real implementation might need more complex logic
-      setCurrentFilters(undefined);
-    }
-  };
+  const { currentFilters, setCurrentFilters, removeFilter } = useTransactionStore();
+  const filterGroups = useMemo(() => getFilterGroups(currentFilters), [currentFilters]);
 
   const clearAllFilters = () => {
     setCurrentFilters(undefined);
   };
 
+  if (!currentFilters?.length) return null;
+
   return (
-    <div className="py-4 flex gap-2 flex-wrap mb-4">
-      {filterGroups.map((group) => (
+    <div className="flex gap-2 flex-nowrap overflow-x-auto w-full">
+      {filterGroups.map((group, i) => (
         <Badge
-          key={group.field}
+          key={group.field + i}
           variant="outline"
-          className="px-2 pt--.5 pb-1 rounded-full bg-slate-800 text-white cursor-pointerflex items-center text-xs"
+          className="px-2 pt--.5 pb-1 rounded-full border-primary text-primary bg-background cursor-pointer flex items-center text-xs"
         >
-          {formatFilterGroup(group)}
+          {group.field === 'date' ? formatDateFilter(group.filters) : formatFilter(group.filters[0])}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
-                onClick={() => removeFilter(group.field)}
+                onClick={() => removeFilter(group.filters)}
                 size="icon"
                 variant="ghost"
                 className="h-5 w-5 rounded-full cursor-pointer"
@@ -199,26 +135,25 @@ export function FilterChips() {
         </Badge>
       ))}
 
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {!!currentFilters &&
-            Array.isArray(currentFilters) &&
-            currentFilters.length > 1 && (
-              <Button
-                onClick={clearAllFilters}
-                variant="outline"
-                size="sm"
-                className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center"
-              >
-                <span className="font-semibold">Clear All Filters</span>
-                <X size={14} className="ml-1.5" />
-              </Button>
-            )}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Remove all filters</p>
-        </TooltipContent>
-      </Tooltip>
+      {/* Clear all filters button, shown if multiple filters exist */}
+      {filterGroups.length > 1 && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              onClick={clearAllFilters}
+              variant="outline"
+              size="sm"
+              className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center"
+            >
+              <span className="font-semibold">Clear All Filters</span>
+              <X size={14} className="ml-1.5" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Remove all filters</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
     </div>
   );
 }

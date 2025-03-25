@@ -1,38 +1,41 @@
 import DateRangePicker from "./DateRangePicker";
 import UploadStatementButton from "./UploadStatementButton";
 import { DateRange } from "react-day-picker";
-import { CompositeFilter } from "@/types/Filters";
+import { Filter } from "@/types/Filters";
 import { FilterChips } from "./FilterChips";
 import AnalysisInitiator from "./AnalysisInitiator";
 import { useTransactionContext } from "@/context/TransactionDataContext";
+import { useCallback } from "react";
 
 const Header = () => {
-  const { dateRangeData, setCurrentFilters } = useTransactionContext();
+  const { dateRangeData, validateAndAddFilters } = useTransactionContext();
 
-  const handleDateChange = (dateRange: DateRange | undefined) => {
-    if (!dateRange?.from || !dateRange?.to) return;
+  const handleDateChange = useCallback(
+    (dateRange: DateRange | undefined) => {
+      if (!dateRange?.from || !dateRange?.to) return;
 
-    const dateRangeFilter: CompositeFilter = {
-      type: "and",
-      filters: [
+      const dateRangeFilter: Filter[] = [
         {
           field: "date",
           operator: ">=",
           value: dateRange.from.getTime(),
+          mode: "and",
         },
         {
           field: "date",
           operator: "<=",
           value: dateRange.to.getTime(),
+          mode: "and",
         },
-      ],
-    };
+      ];
 
-    setCurrentFilters(dateRangeFilter);
-  };
+      validateAndAddFilters(dateRangeFilter);
+    },
+    [validateAndAddFilters]
+  );
 
   return (
-    <header className="sticky top-0 w-full bg-white shadow-xs py-4 px-6 h-16 z-50">
+    <header className="sticky top-0 w-full bg-white shadow-sm pt-2 pb-4 px-6 h-14 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <DateRangePicker
@@ -45,11 +48,18 @@ const Header = () => {
           <UploadStatementButton />
         </div>
       </div>
-      <div className="container mx-auto max-w-8xl">
-        <FilterChips />
-      </div>
     </header>
   );
 };
 
 export default Header;
+
+export const HeaderWithFilters = () => {
+  const { currentFilters } = useTransactionContext();
+
+  return (
+    <div className="sticky top-0 container mx-auto max-w-8xl pt-2 z-[9999]">
+      {currentFilters?.length ? <FilterChips /> : null}
+    </div>
+  );
+};
