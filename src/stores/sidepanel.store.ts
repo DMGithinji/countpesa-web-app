@@ -6,6 +6,8 @@ export enum SidepanelMode {
   Closed = 'Closed',
   Categories = 'Categories',
   Transactions = 'Transactions',
+  Filters = 'Filters',
+  ChatPesa = 'ChatPesa',
 }
 
 export interface SidepanelTransactions {

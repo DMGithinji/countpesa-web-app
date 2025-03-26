@@ -5,6 +5,7 @@ import {
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import CategoriesManager from "./CategoriesManager";
 import SidepanelTransactions from "./SidepanelTransactions";
+import ChatPesa from "./ChatPesa";
 
 export function Sidepanel() {
   const mode = useSidepanelStore((state) => state.mode);
@@ -24,6 +25,10 @@ const Display = ({mode}: {mode: SidepanelMode}) => {
       return <CategoriesManager />
     case SidepanelMode.Transactions:
       return <SidepanelTransactions />
+    case SidepanelMode.Filters:
+      return null
+    case SidepanelMode.ChatPesa:
+      return <ChatPesa />
     default:
       return null
   }

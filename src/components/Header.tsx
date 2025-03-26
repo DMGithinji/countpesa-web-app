@@ -6,9 +6,13 @@ import { FilterChips } from "./FilterChips";
 import AnalysisInitiator from "./AnalysisInitiator";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useCallback } from "react";
+import { Button } from "./ui/button";
+import { Bot } from "lucide-react";
+import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 
 const Header = () => {
   const { dateRangeData, validateAndAddFilters } = useTransactionContext();
+  const setSidepanel = useSidepanelStore((state) => state.setMode);
 
   const handleDateChange = useCallback(
     (dateRange: DateRange | undefined) => {
@@ -42,6 +46,10 @@ const Header = () => {
             range={dateRangeData.dateRange}
             onDateChange={handleDateChange}
           />
+          <Button variant="outline" className="ml-2" onClick={() => setSidepanel(SidepanelMode.ChatPesa)}>
+            ChatPesa
+            <Bot size={8} />
+          </Button>
         </div>
         <div className="flex items-center space-x-4">
           <AnalysisInitiator />
