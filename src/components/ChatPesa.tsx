@@ -6,11 +6,8 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
-interface Message {
-  text: string;
-  sender: "user" | "bot";
-}
+import promptText from "@/configs/prompt.txt?raw"
+import useAIMessageStore from "@/stores/aiMessages.store";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -22,6 +19,20 @@ const defaultStarters = [
 const ChatPanel = () => {
   const setSidepanel = useSidepanelStore((state) => state.setMode);
 
+  const messages = useAIMessageStore(state => state.messages);
+  const setMessage = useAIMessageStore(state => state.setMessage);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages.length]);
+
   const AIChat = useMemo(() => {
     const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -30,30 +41,25 @@ const ChatPanel = () => {
     })
     return chat;
   }, [])
-  const [messages, setMessages] = useState<Message[]>([{ sender: 'bot', text: "Hey 👋🏾, ChatPesa here. How can I help you today?"}]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   const handleSendMessage = async (message: string) => {
+    const isFirst = messages.length === 1;
+    const context = promptText;
+    let additionalContext = '';
+    additionalContext += `${context}. This is the USER_PROMPT: ${message}`;
+    const prompt = isFirst ? `${context}. ${additionalContext}` : message;
     setInput("")
-    setMessages((prev) => [...prev, { sender: "user", text: message }]);
-    setIsLoading(true);
-    const result = await AIChat.sendMessage(message);
-    const response = result.response.text();
-    setIsLoading(false);
-    setMessages((prev) => [...prev, { sender: "bot", text: response }]);
+    setMessage({ sender: "user", text: message });
+    setTimeout(async () => {
+      setIsLoading(true);
+      const history = await AIChat.getHistory();
+      console.log({history});
+      const result = await AIChat.sendMessage(prompt);
+      const response = result.response.text();
+      setIsLoading(false);
+      setMessage({ sender: "bot", text: response });
+    }, 600);
   };
-
 
   return (
     <div className="flex flex-col h-full">
@@ -74,7 +80,7 @@ const ChatPanel = () => {
         className="flex-1 px-4 pt-4 overflow-y-auto relative"
         ref={scrollAreaRef}
       >
-        <div className="space-y-4">
+        <div className="space-y-4 mb-16">
           {messages.map((message, i) => (
             <div
               key={i}
@@ -119,7 +125,7 @@ const ChatPanel = () => {
         )}
       </ScrollArea>
 
-      <CardFooter className="border-t shadow px-4 pb-6">
+      <CardFooter className="border border-t-1 shadow pt-4 px-4 pb-4">
         <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto">
           <div className="flex w-full gap-2 flex-col sm:flex-row items-end">
             <Textarea

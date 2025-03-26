@@ -1,7 +1,6 @@
 import { SetDateRange } from "@/lib/getDateRangeData";
 import db from "./schema";
-import { AnalysisReport } from "@/types/AnalysisReport";
-import { AssessmentMode } from "@/types/PromptTemplate";
+import { AnalysisReport, AssessmentMode } from "@/types/AITools";
 
 export class AnalysisRepository {
 

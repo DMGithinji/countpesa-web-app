@@ -7,7 +7,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Sparkle } from "lucide-react";
 import useSidepanelStore from "@/stores/sidepanel.store";
-import { AssessmentMode } from "@/types/PromptTemplate";
+import { AssessmentMode } from "@/types/AITools";
 
 const AnalysisInitiator = () => {
   const openDrawer = useSidepanelStore((state) => state.setDrawerOpen);

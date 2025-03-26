@@ -14,11 +14,7 @@ import useSidepanelStore from "@/stores/sidepanel.store";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
-import {
-  AssessmentMode,
-  GetPromptTemplate,
-  GetRoastPromptTemplate,
-} from "@/types/PromptTemplate";
+
 import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "@/lib/getTotal";
@@ -27,12 +23,17 @@ import { FieldGroupSummary } from "@/lib/groupByField";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { SetDateRange } from "@/lib/getDateRangeData";
 import analysisRepository, { getReportAnalysisId } from "@/database/AnalysisRepository";
-import { AnalysisReport } from "@/types/AnalysisReport";
+import { AnalysisReport, AssessmentMode } from "@/types/AITools";
+import {
+  GetPromptTemplate,
+  GetRoastPromptTemplate,
+} from "@/configs/PromptTemplate";
+import useAIMessageStore from "@/stores/aiMessages.store";
 
 const BottomDrawer = () => {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
   const setDrawerOpen = useSidepanelStore((state) => state.setDrawerOpen);
-  const assessmentMode = useSidepanelStore((state) => state.assessmentMode);
+  const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
   const [streamingResponse, setStreamingResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);

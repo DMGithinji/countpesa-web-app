@@ -1,11 +1,6 @@
 import { SetDateRange } from "@/lib/getDateRangeData";
 
-export enum AssessmentMode {
-  SERIOUS = "SERIOUS",
-  ROAST = "ROAST",
-};
-
-export const GetPromptTemplate = (financialData: any, dateRange: SetDateRange) => (`
+export const GetPromptTemplate = (financialData: unknown, dateRange: SetDateRange) => (`
         You are a financial advisor in a expense tracking web app.
         The web app tracks M-Pesa transactions (KSH) where a user can visualise their spending patterns
         by period, people or places they transacted and categories.
@@ -24,7 +19,7 @@ export const GetPromptTemplate = (financialData: any, dateRange: SetDateRange) =
       `);
 
 export const GetRoastPromptTemplate = (
-  financialData: any,
+  financialData: unknown,
   dateRange: SetDateRange
 ) => `
 You are a brutally honest financial advisor reviewing M-Pesa transactions (KSH) who balances tough love with actual help.

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { AssessmentMode } from '@/types/PromptTemplate';
 import { Transaction } from '@/types/Transaction';
+import { AssessmentMode } from '@/types/AITools';
 
 export enum SidepanelMode {
   Closed = 'Closed',
@@ -28,7 +28,6 @@ interface SidepanelState {
   selectAssessmentMode: (mode: AssessmentMode) => void;
 }
 
-// Create the minimal Zustand store
 const useSidepanelStore = create<SidepanelState>((set) => ({
   mode: SidepanelMode.Closed,
   setMode: (mode) => set({ mode }),

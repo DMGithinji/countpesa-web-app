@@ -1,7 +1,7 @@
 import Dexie, { Table }  from "dexie";
 import { Transaction } from "../types/Transaction";
 import { Category, Subcategory } from "../types/Categories";
-import { AnalysisReport } from "@/types/AnalysisReport";
+import { AnalysisReport } from "@/types/AITools";
 
 class CheckPesa extends Dexie {
   // Tables
