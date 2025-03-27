@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Send, X } from "lucide-react";
+import { Bot, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import promptText from "@/configs/prompt.txt?raw"
+import promptText from "@/configs/prompt.txt?raw";
 import useAIMessageStore from "@/stores/aiMessages.store";
 
 const defaultStarters = [
@@ -19,8 +19,8 @@ const defaultStarters = [
 const ChatPanel = () => {
   const setSidepanel = useSidepanelStore((state) => state.setMode);
 
-  const messages = useAIMessageStore(state => state.messages);
-  const setMessage = useAIMessageStore(state => state.setMessage);
+  const messages = useAIMessageStore((state) => state.messages);
+  const setMessage = useAIMessageStore((state) => state.setMessage);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,22 +38,22 @@ const ChatPanel = () => {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const chat = model.startChat({
       history: [],
-    })
+    });
     return chat;
-  }, [])
+  }, []);
 
   const handleSendMessage = async (message: string) => {
     const isFirst = messages.length === 1;
     const context = promptText;
-    let additionalContext = '';
+    let additionalContext = "";
     additionalContext += `${context}. This is the USER_PROMPT: ${message}`;
     const prompt = isFirst ? `${context}. ${additionalContext}` : message;
-    setInput("")
+    setInput("");
     setMessage({ sender: "user", text: message });
     setTimeout(async () => {
       setIsLoading(true);
       const history = await AIChat.getHistory();
-      console.log({history});
+      console.log({ history });
       const result = await AIChat.sendMessage(prompt);
       const response = result.response.text();
       setIsLoading(false);
@@ -63,9 +63,11 @@ const ChatPanel = () => {
 
   return (
     <div className="flex flex-col h-full">
-      <CardHeader className="bg-slate-900 text-white sticky top-0 z-50 pl-4 pr-0">
+      <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="py-4 text-white">ChatPesa</CardTitle>
+          <CardTitle className="flex items-center py-4 text-white">
+            ChatPesa <Bot size={20} className="ml-2 text-primary" />
+          </CardTitle>
           <Button
             variant={"ghost"}
             onClick={() => setSidepanel(SidepanelMode.Closed)}
@@ -89,20 +91,25 @@ const ChatPanel = () => {
               }`}
             >
               <div
-                className={`max-w-[80%] p-3 rounded-lg text-sm ${
+                className={`max-w-[80%] flex flex-col p-3 space-y-1 rounded-lg text-sm ${
                   message.sender === "user"
-                    ? "bg-green-500 text-white"
-                    : "bg-gray-700 text-gray-200"
+                    ? "bg-gray-300/30 text-foreground"
+                    : "bg-green-300/15 text-foreground"
                 }`}
               >
-                {message.text}
+                <span className="font-semibold">
+                  {message.sender === "user" ? "Me" : "ChatPesa"}
+                </span>
+                <span>{message.text}</span>
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="max-w-[80%] p-3 rounded-lg text-sm bg-gray-700 text-gray-200">
-                Typing...
+              <div className="flex items-center space-x-1">
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite]"></span>
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.2s]"></span>
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.4s]"></span>
               </div>
             </div>
           )}
@@ -131,8 +138,8 @@ const ChatPanel = () => {
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Message ChatPesa..."
-              className="flex-1 border-gray-400 w-full min-h-[60px] max-h-[150px] resize-y text-sm sm:text-base"
+              placeholder="Ask ChatPesa..."
+              className="flex-1 border-gray-400 w-full min-h-[20px] max-h-[150px] resize-y text-sm sm:text-base"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -143,10 +150,10 @@ const ChatPanel = () => {
             />
             <Button
               onClick={() => handleSendMessage(input)}
-              className="bg-green-500 hover:bg-green-600 shrink-0 w-full sm:w-auto px-4 py-2 sm:px-6 sm:py-2"
+              className="bg-primary hover:bg-primary/90 shrink-0 w-full sm:w-auto px-4 py-2"
               disabled={isLoading}
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
             </Button>
           </div>
         </div>

@@ -99,7 +99,7 @@ export default function CalendarWithPopover({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 hover:text-foreground"
             onClick={() => navigateToPeriod(-1)}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -108,7 +108,7 @@ export default function CalendarWithPopover({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-[240px] justify-start text-left font-normal"
+            className="w-[240px] justify-start text-left font-normal hover:text-foreground"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {formatDateRange()}
@@ -118,7 +118,7 @@ export default function CalendarWithPopover({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 hover:text-foreground"
             onClick={() => navigateToPeriod(1)}
           >
             <ChevronRight className="h-4 w-4" />
@@ -150,6 +150,7 @@ export default function CalendarWithPopover({
               onSelect={handleRangeSelection}
               numberOfMonths={2}
               defaultMonth={date?.from}
+              weekStartsOn={1}
             />
           </div>
         </div>

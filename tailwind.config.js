@@ -12,7 +12,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        excalifont: ['Excalifont-Regular', 'sans-serif'],
+        inter: ['Inter', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

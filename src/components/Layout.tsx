@@ -3,14 +3,16 @@ import { Link, useLocation } from "react-router-dom";
 import {
   ChevronLeft,
   LayoutDashboard,
-  BarChart2,
   Users,
   Tags,
+  AlignJustify,
 } from "lucide-react";
+import logoLg from "../assets/logo-lg.svg";
 import { Button } from "./ui/button";
 import Header, { HeaderWithFilters } from "./Header";
 import { Sidepanel } from "./Sidepanel";
 import AIAnalysisSheet from "./AIAnalysisSheet";
+import AppPromo from "./AppPromo";
 
 type MainLayoutProps = {
   children: React.ReactNode;
@@ -51,7 +53,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { path: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
     {
       path: "/transactions",
-      icon: <BarChart2 size={20} />,
+      icon: <AlignJustify size={20} />,
       label: "Transactions",
     },
     {
@@ -63,37 +65,35 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   ];
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden text-gray-800 sm:flex-row">
+    <div className="flex flex-col h-screen overflow-hidden sm:flex-row font-font-inter">
       {/* Sidebar - Hidden on mobile, minimized on md */}
       {!isMobile && (
         <div
-          className={`bg-gray-800 flex-col border-r border-gray-800 transition-all duration-300 hidden sm:flex ${
+          className={`bg-secondary flex-col border-r  transition-all duration-300 hidden sm:flex ${
             collapsed ? "w-16" : "w-56"
           }`}
         >
           {/* Logo */}
-          <div className="p-4 flex items-center justify-between border-b border-gray-800 h-16">
+          <div className="p-4 flex items-center justify-between h-16">
             <Link to="/" className="flex items-center">
               {!collapsed && (
-                <div className="bg-green-primary text-white font-bold px-2 py-1 rounded">
-                  CheckPesa
-                </div>
+                <img src={logoLg} alt="CheckPesa" className="w-36 h-16 mr-4" />
               )}
               {collapsed && (
-                <div className="bg-green-primary text-white font-bold px-2 py-1 rounded">
+                <div className="text-primary font-bold px-2 py-1 rounded">
                   CP
                 </div>
               )}
             </Link>
             <Button
-              variant="link"
+              variant="outline"
               size="sm"
               onClick={toggleSidebar}
-              className="bg-gray-600 text-white cursor-pointer w-6 h-6 z-[9999]"
+              className="bg-secondary shadow cursor-pointer w-5 h-5 z-[60] mr-[-26px] mb-[-48px] hover:text-background-foreground"
             >
               <ChevronLeft
                 size={20}
-                className={`transform transition-transform ${
+                className={`transform transition-transform text-foreground/60 ${
                   collapsed ? "rotate-180" : ""
                 }`}
               />
@@ -107,10 +107,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`flex items-center px-3 py-2 rounded-lg transition-colors ${
+                    className={`flex items-center px-3 py-2 rounded-lg transition-colors text-[15px] text-foreground/90 font-[500] ${
                       location.pathname === item.path
-                        ? "bg-gray-700 text-white"
-                        : "text-gray-400 hover:bg-gray-700 hover:text-white"
+                        ? "text-primary"
+                        : "hover:text-primary"
                     }`}
                   >
                     <span className={collapsed ? "mx-auto" : "mr-3"}>
@@ -121,6 +121,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </li>
               ))}
             </ul>
+            {!collapsed && <AppPromo />}
           </div>
         </div>
       )}
@@ -130,7 +131,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
         <Header />
         <main className="flex-1 overflow-y-auto ">
-          <div className="container mx-auto max-w-[80rem] p-6 pb-20 pt-0 sm:pb-8 relative">
+          <div className="container mx-auto max-w-[88rem] p-6 pb-20 pt-0 sm:pb-8 relative">
             <HeaderWithFilters />
             <div className="pt-2">{children}</div>
           </div>

@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import { SidepanelTransactions } from "@/stores/sidepanel.store";
+import NoData from "./NoData";
 
 interface CategoriesDonutChartProps {
   title?: string;
@@ -130,7 +131,8 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
             }`}
           >
             <span>
-              Total {moneyMode === MoneyMode.MoneyIn ? "Money" : "Expenses"}:
+              Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}
+              :
             </span>{" "}
             ({formatCurrency(Math.abs(totalAmount))})
           </CardTitle>
@@ -139,32 +141,36 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
 
       <CardContent className="pt-0">
         <div className="flex flex-col h-64 relative">
-          <ResponsiveContainer width="100%" height="75%">
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                innerRadius={31}
-                outerRadius={90}
-                fill="#8884d8"
-                paddingAngle={1}
-                dataKey="value"
-                animationDuration={500}
-                animationEasing="ease-in-out"
-              >
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.color}
-                    className="cursor-pointer"
-                    onClick={() => onItemClick && onItemClick(entry)}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="75%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={31}
+                  outerRadius={90}
+                  fill="#8884d8"
+                  paddingAngle={1}
+                  dataKey="value"
+                  animationDuration={500}
+                  animationEasing="ease-in-out"
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      className="cursor-pointer"
+                      onClick={() => onItemClick && onItemClick(entry)}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <NoData />
+          )}
 
           <CustomLegend />
         </div>

@@ -211,7 +211,7 @@ const CategoriesManager = () => {
 
   return (
     <div>
-      <CardHeader className="bg-slate-900 text-white sticky top-0 z-50 pl-4 pr-0">
+      <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
           <CardTitle className="py-4 text-white">Manage Categories</CardTitle>
           <Button
@@ -227,12 +227,11 @@ const CategoriesManager = () => {
         {categories.map((category) => (
           <div key={category.id} className="group">
             <div className="py-2 flex items-center justify-between hover:bg-gray-50">
-              <div className="flex-1 flex items-center">
+              <div  className="flex-1 flex items-center cursor-pointer" onClick={() => toggleCategory(category.id)}>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="p-1 mr-2"
-                  onClick={() => toggleCategory(category.id)}
                 >
                   {category.isExpanded ? (
                     <ChevronUp size={16} />
@@ -275,7 +274,10 @@ const CategoriesManager = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => startEditingCategory(category)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startEditingCategory(category)
+                    }}
                     className="h-8 w-8 p-0"
                   >
                     <Pencil size={16} />
@@ -283,7 +285,10 @@ const CategoriesManager = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDeleteCategory(category.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteCategory(category.id)
+                    }}
                     className="h-8 w-8 p-0 text-red-500"
                   >
                     <Trash size={16} />

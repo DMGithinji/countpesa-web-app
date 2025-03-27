@@ -14,6 +14,7 @@ import {
 import { formatDate } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
 import IconButton from "./ui/IconButton";
+import NoData from "./NoData";
 
 const ChartTransactions = ({
   selected,
@@ -168,12 +169,10 @@ const ChartTransactions = ({
             })}
           </ScrollArea>
         ) : (
-          <div className="flex flex-col space-y-4 h-84 mx-auto opacity-50 pt-8">
-            <MousePointerClick size={24} className="text-center mx-auto" />
-            <span className="text-center text-sm">
-              Click an item on the chart to view transactions under it.
-            </span>
-          </div>
+          <NoData
+            text='Click an item on the chart to view transactions'
+            Icon={MousePointerClick}
+          />
         )}
       </CardContent>
     </Card>

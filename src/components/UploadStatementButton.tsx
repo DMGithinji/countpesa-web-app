@@ -73,21 +73,21 @@ const UploadStatementButton = () => {
   return (
     <>
       <Button
-        size="icon"
+        variant="outline"
         onClick={() => setOpen(true)}
-        className="w-10 h-10 rounded-md cursor-pointer"
+        className="cursor-pointer rounded-lg"
       >
         <FileDown className="h-4 w-4" />
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md bg-gray-800 text-white border-gray-800">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-semibold text-white">Upload M-Pesa Statement</DialogTitle>
+            <DialogTitle className="text-xl font-semibold">Upload M-Pesa Statement</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 pt-2 pb-2">
-            <div className="text-gray-300 space-y-4 pb-2">
+          <div className="space-y-8 pt-2 pb-2">
+            <div className="space-y-4 pb-2">
               <h3 className="font-medium">Below are steps to follow:</h3>
               <ol className="list-decimal pl-5 space-y-2">
                 <li>Get your full mpesa statement from <span className="font-medium">MySafaricom</span> app
@@ -99,16 +99,16 @@ const UploadStatementButton = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="statement" className="text-gray-300">Mpesa Statement PDF</Label>
+                <Label htmlFor="statement">Mpesa Statement PDF</Label>
                 <div className="flex">
                   <Label
                     htmlFor="statement"
-                    className="flex items-center justify-between w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded cursor-pointer hover:bg-gray-700"
+                    className="flex items-center justify-between w-full px-4 py-1 rounded cursor-pointer  border border-foreground/20 text-foreground/60"
                   >
-                    <span className="text-gray-400">
+                    <span>
                       {file ? file.name : "No file chosen"}
                     </span>
-                    <span className="bg-gray-700 px-3 py-1 rounded text-sm">Choose File</span>
+                    <span className="px-3 py-1 rounded text-sm">Choose File</span>
                   </Label>
                   <Input
                     id="statement"
@@ -121,7 +121,7 @@ const UploadStatementButton = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-300">Password</Label>
+                <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -129,12 +129,12 @@ const UploadStatementButton = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter password"
-                    className="w-full bg-gray-800 border-gray-700 text-white pr-10"
+                    className="w-full pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                   </button>
@@ -144,7 +144,7 @@ const UploadStatementButton = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 mt-2"
+                className="w-fullfont-medium py-2 mt-2"
               >
                 {isLoading ? (
                   <div className="flex items-center">

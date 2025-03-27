@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "../table"
 import { DataTablePagination } from "./data-table-pagination";
+import NoData from "@/components/NoData";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -169,7 +170,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns?.length || 0}
                   className="h-24 text-center"
                 >
-                  No data received.
+                  <NoData />
                 </TableCell>
               </TableRow>
             )}

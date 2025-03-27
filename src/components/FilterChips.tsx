@@ -34,7 +34,7 @@ export function FilterChips() {
           key={group.field + i}
           variant="outline"
           title={FormatDateFilter(group.filters)}
-          className="px-2 pt--.5 pb-1 rounded-full border-primary text-primary bg-background cursor-pointer flex items-center text-xs"
+          className="px-2 pt--.5 pb-1 rounded-full border-foreground text-foreground bg-background cursor-pointer flex items-center text-xs"
         >
           {group.field === "date"
             ? FormatDateFilter(group.filters)
@@ -66,7 +66,7 @@ export function FilterChips() {
               onClick={clearAllFilters}
               variant="outline"
               size="sm"
-              className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-600 hover:bg-red-50 flex items-center border-primary"
+              className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-700 hover:bg-red-50 flex items-center border-red-600"
             >
               <span className="font-semibold">Clear All Filters</span>
               <X size={14} className="ml-1.5" />

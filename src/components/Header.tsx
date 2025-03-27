@@ -39,7 +39,7 @@ const Header = () => {
   );
 
   return (
-    <header className="sticky top-0 w-full bg-white shadow-sm pt-2 pb-4 px-6 h-14 z-50">
+    <header className="sticky top-0 w-full bg-white shadow-xs pt-2 pb-4 px-2 sm:px-6 h-14 z-50">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <DateRangePicker
@@ -47,7 +47,7 @@ const Header = () => {
             onDateChange={handleDateChange}
           />
           <Button variant="outline" className="ml-2" onClick={() => setSidepanel(SidepanelMode.ChatPesa)}>
-            ChatPesa
+          <span className="hidden sm:block">ChatPesa</span>
             <Bot size={8} />
           </Button>
         </div>
@@ -66,7 +66,7 @@ export const HeaderWithFilters = () => {
   const { currentFilters } = useTransactionContext();
 
   return (
-    <div className="sticky top-0 container mx-auto max-w-8xl pt-2 z-[10]">
+    <div className="sticky top-0 container mx-auto max-w-[88rem] pt-2 z-[10]">
       {currentFilters?.length ? <FilterChips /> : null}
     </div>
   );

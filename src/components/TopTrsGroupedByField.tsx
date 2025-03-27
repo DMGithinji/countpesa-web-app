@@ -14,6 +14,7 @@ import {
 } from "./ui/select";
 import HoverableActionText from "./HoverableActionText";
 import { Filter } from "@/types/Filters";
+import NoData from "./NoData";
 
 interface TopTrsGroupedByFieldProps {
   groupedBy: GroupByField;
@@ -113,50 +114,54 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
         </ToggleGroup>
       </CardHeader>
       <CardContent className="px-4">
-        {summary.map((item) => (
-          <div key={item.name} className="space-y-1 mb-4">
-            <div className="flex items-center justify-between">
-              <HoverableActionText
-                className="max-w-[80%] truncate"
-                actions={getFilters(item.name)}
-              >
-                <span
-                  title={item.name}
-                  className="text-gray-700 text-sm max-w-[60%] truncate"
+        {!summary.length ? (
+          <NoData />
+        ) : (
+          summary.map((item) => (
+            <div key={item.name} className="space-y-1 mb-4">
+              <div className="flex items-center justify-between">
+                <HoverableActionText
+                  className="max-w-[80%] truncate"
+                  actions={getFilters(item.name)}
                 >
-                  {item.name}
-                </span>
-              </HoverableActionText>
+                  <span
+                    title={item.name}
+                    className="text-gray-700 text-sm max-w-[60%] truncate"
+                  >
+                    {item.name}
+                  </span>
+                </HoverableActionText>
 
-              <span className="text-gray-900 text-sm font-medium">
-                {summaryMode === "amount"
-                  ? formatCurrency(item.amount)
-                  : item.count}
-              </span>
+                <span className="text-gray-900 text-sm font-medium">
+                  {summaryMode === "amount"
+                    ? formatCurrency(item.amount)
+                    : item.count}
+                </span>
+              </div>
+              <div>
+                <Progress
+                  className="cursor-pointer"
+                  onClick={() =>
+                    onSelectGroup({
+                      title: item.name,
+                      transactions: item.transactions,
+                    })
+                  }
+                  color={
+                    moneyMode === MoneyMode.MoneyIn
+                      ? "bg-green-600"
+                      : "bg-red-600"
+                  }
+                  value={
+                    summaryMode === "count"
+                      ? item.countPercentage
+                      : item.amountPercentage
+                  }
+                />
+              </div>
             </div>
-            <div>
-              <Progress
-                className="cursor-pointer"
-                onClick={() =>
-                  onSelectGroup({
-                    title: item.name,
-                    transactions: item.transactions,
-                  })
-                }
-                color={
-                  moneyMode === MoneyMode.MoneyIn
-                    ? "bg-green-600"
-                    : "bg-red-600"
-                }
-                value={
-                  summaryMode === "count"
-                    ? item.countPercentage
-                    : item.amountPercentage
-                }
-              />
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </CardContent>
     </Card>
   );

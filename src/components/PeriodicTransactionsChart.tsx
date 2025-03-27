@@ -16,6 +16,7 @@ import { calculateTransactionTotals } from "@/lib/getTotal";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Transaction } from "@/types/Transaction";
 import ChartTransactions from "./ChartTransactions";
+import NoData from "./NoData";
 
 type PeriodicTransactionsChartProps = {
   transactions: Transaction[];
@@ -119,62 +120,67 @@ const PeriodicTransactionsChart = ({
 
         <CardContent>
           <div className="h-80 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={groupedTrs}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                barGap={0}
-                onClick={(val) => {
-                  handleBarClick(
-                    val.activePayload as {
-                      payload: { trs: Transaction[]; dateRange: string };
-                    }[]
-                  );
-                }}
-              >
-                <CartesianGrid
-                  horizontal={true}
-                  vertical={false}
-                  strokeDasharray="3 3"
-                  stroke="#e5e7eb"
-                />
-                <XAxis
-                  dataKey="dateRange"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "#9CA3AF", fontSize: 12 }}
-                  tickFormatter={formatCurrency}
-                  dx={-10}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                {(filter === MoneyFilter.all || filter === MoneyFilter.in) && (
-                  <Bar
-                    dataKey="moneyIn"
-                    name="Money In"
-                    fill="#00A63E"
-                    radius={[8, 8, 0, 0]}
-                    barSize={40}
-                    className="cursor-pointer"
+            {
+              !groupedTrs.length ? (
+                <NoData />
+              ) : (<ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={groupedTrs}
+                  margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  barGap={0}
+                  onClick={(val) => {
+                    handleBarClick(
+                      val.activePayload as {
+                        payload: { trs: Transaction[]; dateRange: string };
+                      }[]
+                    );
+                  }}
+                >
+                  <CartesianGrid
+                    horizontal={true}
+                    vertical={false}
+                    strokeDasharray="3 3"
+                    stroke="#e5e7eb"
                   />
-                )}
-                {(filter === MoneyFilter.all || filter === MoneyFilter.out) && (
-                  <Bar
-                    dataKey="moneyOut"
-                    name="Money Out"
-                    fill="#FB2C36"
-                    radius={[8, 8, 0, 0]}
-                    barSize={40}
-                    className="cursor-pointer"
+                  <XAxis
+                    dataKey="dateRange"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                    dy={10}
                   />
-                )}
-              </BarChart>
-            </ResponsiveContainer>
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fill: "#9CA3AF", fontSize: 12 }}
+                    tickFormatter={formatCurrency}
+                    dx={-10}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  {(filter === MoneyFilter.all || filter === MoneyFilter.in) && (
+                    <Bar
+                      dataKey="moneyIn"
+                      name="Money In"
+                      fill="#00A63E"
+                      radius={[8, 8, 0, 0]}
+                      barSize={40}
+                      className="cursor-pointer"
+                    />
+                  )}
+                  {(filter === MoneyFilter.all || filter === MoneyFilter.out) && (
+                    <Bar
+                      dataKey="moneyOut"
+                      name="Money Out"
+                      fill="#FB2C36"
+                      radius={[8, 8, 0, 0]}
+                      barSize={40}
+                      className="cursor-pointer"
+                    />
+                  )}
+                </BarChart>
+              </ResponsiveContainer>
+              )
+            }
           </div>
         </CardContent>
       </Card>

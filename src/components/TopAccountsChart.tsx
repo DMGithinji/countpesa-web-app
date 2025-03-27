@@ -72,11 +72,6 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
     <Card className="w-full h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
-          {moneyMode === MoneyMode.MoneyIn ? (
-            <ArrowDownCircle size={18} className="text-green-600" />
-          ) : (
-            <ArrowUpCircle size={18} className="text-red-600" />
-          )}
           <CardTitle className="text-base font-medium flex items-center gap-1">
             <span>Top</span>
             <Select
@@ -124,64 +119,70 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
       <CardContent className="pt-0">
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={chartData}
-              layout="vertical"
-              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                horizontal={true}
-                vertical={false}
-              />
-              <XAxis
-                type="number"
-                tickFormatter={formatAxisValue}
-                domain={[0, "auto"]}
-              />
-              <YAxis
-                dataKey="name"
-                type="category"
-                width={120}
-                tick={{ fontSize: 12 }}
-              />
-              <Tooltip
-                formatter={(value: number) => [
-                  `${displayMode === "amount" ? formatCurrency(value) : value}`,
-                  displayMode === "amount" ? "Amount" : "Count",
-                ]}
-                labelFormatter={(label) => `${label}`}
-                content={
-                  <CustomTooltip
-                    moneyMode={moneyMode}
-                    displayMode={displayMode}
-                  />
-                }
-              />
-              <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={barColor}
-                    className="cursor-pointer"
-                    onClick={() => onItemClick && onItemClick(entry)}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
+            {chartData.length > 0 ? (
+              <BarChart
+                data={chartData}
+                layout="vertical"
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  horizontal={true}
+                  vertical={false}
+                />
+                <XAxis
+                  type="number"
+                  tickFormatter={formatAxisValue}
+                  domain={[0, "auto"]}
+                />
+                <YAxis
+                  dataKey="name"
+                  type="category"
+                  width={120}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value: number) => [
+                    `${
+                      displayMode === "amount" ? formatCurrency(value) : value
+                    }`,
+                    displayMode === "amount" ? "Amount" : "Count",
+                  ]}
+                  labelFormatter={(label) => `${label}`}
+                  content={
+                    <CustomTooltip
+                      moneyMode={moneyMode}
+                      displayMode={displayMode}
+                    />
+                  }
+                />
+                <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={barColor}
+                      className="cursor-pointer"
+                      onClick={() => onItemClick && onItemClick(entry)}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            ) : (
+              <NoData />
+            )}
           </ResponsiveContainer>
         </div>
 
         <div className="flex justify-between items-center mt-4 text-sm">
-          <div className="font-medium">
-            Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:
+          <div className="font-medium text-base">
             <span
-              className={
+              className={` ${
                 moneyMode === MoneyMode.MoneyIn
-                  ? "text-green-600 ml-2"
-                  : "text-red-600 ml-2"
-              }
+                  ? "text-green-600"
+                  : "text-red-600"
+              }`}
             >
+              Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:{' '}
               {formatCurrency(Math.abs(totalAmount))}
             </span>
           </div>
@@ -196,6 +197,7 @@ export default TopAccountsChart;
 import { TooltipProps } from "recharts";
 import { SidepanelTransactions } from "@/stores/sidepanel.store";
 import { FieldGroupSummary } from "@/lib/groupByField";
+import NoData from "./NoData";
 
 const CustomTooltip = ({
   active,

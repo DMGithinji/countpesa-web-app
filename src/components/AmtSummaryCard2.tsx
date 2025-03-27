@@ -53,7 +53,7 @@ const AmtSummaryCard = ({
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium mb-0 pb-0">
+        <CardTitle className="font-normal mb-0 pb-0">
           Total {type} ({count} Transactions)
         </CardTitle>
       </CardHeader>
