@@ -1,57 +1,60 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage";
-import TransactionsPage from "./pages/TransactionsPage";
-import AccountsPage from "./pages/AccountsPage";
-import CategoriesPage from "./pages/CategoriesPage";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout";
 import useCategories from "./hooks/useCategories";
-import { TransactionDataProvider } from "./context/TransactionDataContext";
-import { AIContextProvider } from "./context/AIContext";
+import { AppProviders } from "./context/AppProvider";
 
-function App() {
+const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
+const TransactionsPage = React.lazy(() => import("./pages/TransactionsPage"));
+const AccountsPage = React.lazy(() => import("./pages/AccountsPage"));
+const CategoriesPage = React.lazy(() => import("./pages/CategoriesPage"));
+
+function AppRoutes() {
   useCategories();
 
   return (
-    <TransactionDataProvider>
-      <AIContextProvider>
-        <Router>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <MainLayout>
-                  <DashboardPage />
-                </MainLayout>
-              }
-            />
-            <Route
-              path="/transactions"
-              element={
-                <MainLayout>
-                  <TransactionsPage />
-                </MainLayout>
-              }
-            />
-            <Route
-              path="/accounts"
-              element={
-                <MainLayout>
-                  <AccountsPage />
-                </MainLayout>
-              }
-            />
-            <Route
-              path="/categories"
-              element={
-                <MainLayout>
-                  <CategoriesPage />
-                </MainLayout>
-              }
-            />
-          </Routes>
-        </Router>
-      </AIContextProvider>
-    </TransactionDataProvider>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <MainLayout>
+            <DashboardPage />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/transactions"
+        element={
+          <MainLayout>
+            <TransactionsPage />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/accounts"
+        element={
+          <MainLayout>
+            <AccountsPage />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/categories"
+        element={
+          <MainLayout>
+            <CategoriesPage />
+          </MainLayout>
+        }
+      />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <AppProviders>
+      <AppRoutes />
+    </AppProviders>
   );
 }
 
