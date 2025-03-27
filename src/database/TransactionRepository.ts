@@ -1,10 +1,11 @@
-import { ExtractedTransaction, Transaction } from "../types/Transaction";
+import { ExtractedTransaction, MoneyMode, Transaction } from "../types/Transaction";
 import db from "./schema";
 import Dexie from "dexie";
 import { AbstractQuery } from "./AbstractQuery";
 import { Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { deconstructTrCategory, formatTrCategory } from "@/hooks/useTransactions";
+import { format } from "date-fns";
 
 export class TransactionRepository extends AbstractQuery {
   /**
@@ -20,6 +21,10 @@ export class TransactionRepository extends AbstractQuery {
 
   async bulkUpdate(updates: Transaction[]) {
     return await db.transactions.bulkPut(updates);
+  }
+
+  getBoundaryTransaction(type: 'first' | 'last') {
+    return type === 'first' ? db.transactions.orderBy('date').first() : db.transactions.orderBy('date').last();
   }
 
   /**
@@ -50,6 +55,10 @@ export class TransactionRepository extends AbstractQuery {
     } as Query);
   }
 
+  getTrId(tr: ExtractedTransaction): string {
+    return `${tr.amount}_${tr.code}`;
+  }
+
   /**
    * Process and store transactions from MPesa statement
    * Takes API response and converts it to our transaction format
@@ -66,10 +75,11 @@ export class TransactionRepository extends AbstractQuery {
     }, {} as { [key: string]: boolean });
 
     const transactions = mpesaTransactions
-      .filter((t) => !existingIdsDict[t.code])
+      .filter((t) => !existingIdsDict[this.getTrId(t)])
       .map((t) => {
+        const trDate = new Date(t.date!);
         return {
-          id: `${t.amount}_${t.code}`,
+          id: this.getTrId(t),
           code: t.code,
           date: t.date,
           description: t.description,
@@ -80,6 +90,12 @@ export class TransactionRepository extends AbstractQuery {
           category: t.category || UNCATEGORIZED,
           transactionType: t.type,
           createdAt: now,
+          // Add more fields for more expressive querying
+          year: trDate.getFullYear(),
+          month: trDate.getMonth() + 1, // 1-12
+          dayOfWeek: trDate.toLocaleString('en-US', { weekday: 'long' }), // e.g., "Tuesday"
+          hour: format(trDate, 'HH:00'), // e.g., "14:00"
+          mode: t.amount > 0 ? MoneyMode.MoneyIn : MoneyMode.MoneyOut,
         };
       });
 

@@ -29,7 +29,7 @@ export type DateRangeData = {
 
 export function getDateRangeData({
   transactions,
-  currentFilters,
+  currentFilters
 }: {
   transactions: Transaction[];
   currentFilters: Filter[] | undefined;

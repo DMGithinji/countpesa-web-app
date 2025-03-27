@@ -39,20 +39,20 @@ const Header = () => {
   );
 
   return (
-    <header className="sticky top-0 w-full bg-white shadow-xs pt-2 pb-4 px-2 sm:px-6 h-14 z-50">
+    <header className="sticky top-0 w-full bg-white border-b pt-2 pb-4 px-2 sm:px-6 h-14">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
           <DateRangePicker
             range={dateRangeData.dateRange}
             onDateChange={handleDateChange}
           />
+          <AnalysisInitiator />
           <Button variant="outline" className="ml-2" onClick={() => setSidepanel(SidepanelMode.ChatPesa)}>
           <span className="hidden sm:block">ChatPesa</span>
             <Bot size={8} />
           </Button>
         </div>
         <div className="flex items-center space-x-4">
-          <AnalysisInitiator />
           <UploadStatementButton />
         </div>
       </div>

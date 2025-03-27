@@ -89,7 +89,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               variant="outline"
               size="sm"
               onClick={toggleSidebar}
-              className="bg-secondary shadow cursor-pointer w-5 h-5 z-[60] mr-[-26px] mb-[-48px] hover:text-background-foreground"
+              className="bg-secondary shadow cursor-pointer w-5 h-5 z-50 mr-[-26px] mb-[-48px] hover:text-background-foreground"
             >
               <ChevronLeft
                 size={20}

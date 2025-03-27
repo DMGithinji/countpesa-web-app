@@ -26,7 +26,10 @@ const useTransactionStore = create<TransactionState>((set) => ({
   error: '',
 
   setTransactions: (transactions) => set({ transactions }),
-  setCurrentFilters: (currentFilters) => set({ currentFilters }),
+  setCurrentFilters: (filters) => set(state => {
+    const updatedFilters = validateAndAddFilters(filters, []);
+    return { ...state, currentFilters: updatedFilters };
+  }),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
 

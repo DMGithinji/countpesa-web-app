@@ -6,8 +6,10 @@ import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import promptText from "@/configs/prompt.txt?raw";
 import useAIMessageStore from "@/stores/aiMessages.store";
+import { handleResponse } from "@/lib/processAIResponse";
+import useTransactionStore from "@/stores/transactions.store";
+import { getInitialPrompt } from "@/hooks/useAIContextProvider";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -18,6 +20,9 @@ const defaultStarters = [
 
 const ChatPanel = () => {
   const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setCurrentFilters = useTransactionStore(
+    (state) => state.setCurrentFilters
+  );
 
   const messages = useAIMessageStore((state) => state.messages);
   const setMessage = useAIMessageStore((state) => state.setMessage);
@@ -44,20 +49,34 @@ const ChatPanel = () => {
 
   const handleSendMessage = async (message: string) => {
     const isFirst = messages.length === 1;
-    const context = promptText;
-    let additionalContext = "";
-    additionalContext += `${context}. This is the USER_PROMPT: ${message}`;
-    const prompt = isFirst ? `${context}. ${additionalContext}` : message;
+    let prompt = message;
+    if (isFirst) {
+      const intializationPrompt = await getInitialPrompt();
+      prompt = `${intializationPrompt}. ${message}`;
+    }
+
     setInput("");
     setMessage({ sender: "user", text: message });
     setTimeout(async () => {
       setIsLoading(true);
-      const history = await AIChat.getHistory();
-      console.log({ history });
-      const result = await AIChat.sendMessage(prompt);
-      const response = result.response.text();
-      setIsLoading(false);
-      setMessage({ sender: "bot", text: response });
+      try {
+        const result = await AIChat.sendMessage(prompt);
+        const response = result.response.text();
+        const processedResponse = handleResponse(response);
+        if (processedResponse.filters?.length) {
+          setCurrentFilters(processedResponse.filters);
+        }
+        console.log({ response, processedResponse });
+        setIsLoading(false);
+        setMessage({ sender: "bot", text: processedResponse.message });
+      } catch (error) {
+        console.error("Error generating AI response:", error);
+        setIsLoading(false);
+        setMessage({
+          sender: "bot",
+          text: "Sorry, there was an error generating your financial assessment. Please try again.",
+        });
+      }
     }, 600);
   };
 
@@ -79,14 +98,14 @@ const ChatPanel = () => {
       </CardHeader>
 
       <ScrollArea
-        className="flex-1 px-4 pt-4 overflow-y-auto relative"
+        className="flex-1 px-4 pt-0 overflow-y-auto relative"
         ref={scrollAreaRef}
       >
         <div className="space-y-4 mb-16">
           {messages.map((message, i) => (
             <div
               key={i}
-              className={`flex ${
+              className={`flex pt-4 mb-0 ${
                 message.sender === "user" ? "justify-end" : "justify-start"
               }`}
             >

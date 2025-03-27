@@ -10,6 +10,13 @@ export interface Transaction {
   transactionType: TransactionTypes;
   category: string;
   createdAt: number; // Unix timestamp of when added to db
+
+  // Extra fields for more expressive querying
+  year: number;
+  month: number; // 1-12
+  dayOfWeek: string; // e.g., "Tuesday"
+  hour: string; // e.g., "14:00"
+  mode: MoneyMode;
 }
 
 export enum TransactionTypes {

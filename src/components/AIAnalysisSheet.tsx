@@ -15,7 +15,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
 
-import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
+import { getPeriodData, groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { endOfDay, formatDate } from "date-fns";
@@ -94,13 +94,13 @@ const BottomDrawer = () => {
     transactions
   ]);
 
-  const generateAssessment = useCallback(async (data: unknown) => {
+  const generateAssessment = useCallback(async (ignorePast = false) => {
 
     setIsLoading(true);
     const reportId = getReportAnalysisId(formattedDateRange, assessmentMode)
     const existingReport = await analysisRepository.getReport(reportId);
 
-    if (existingReport) {
+    if (existingReport && !ignorePast) {
       setStreamingResponse(existingReport.report);
       setIsLoading(false);
       return;
@@ -117,7 +117,7 @@ const BottomDrawer = () => {
         assessmentMode === AssessmentMode.SERIOUS
           ? GetPromptTemplate
           : GetRoastPromptTemplate;
-      const prompt = promptFunction(data, formattedDateRange as SetDateRange);
+      const prompt = promptFunction(calculatedData, formattedDateRange as SetDateRange);
       const result = await model.generateContentStream(prompt);
 
       for await (const chunk of result.stream) {
@@ -132,12 +132,12 @@ const BottomDrawer = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [assessmentMode, formattedDateRange, setStreamingResponse]);
+  }, [assessmentMode, formattedDateRange, calculatedData, setStreamingResponse]);
 
 
   useEffect(() => {
     if (isOpen && calculationResults) {
-      generateAssessment(calculationResults);
+      generateAssessment();
     }
   }, [isOpen, calculationResults, generateAssessment]);
 
@@ -207,7 +207,7 @@ const BottomDrawer = () => {
           <div className="flex justify-between w-full">
             <Button
               variant="secondary"
-              onClick={() => generateAssessment(calculationResults)}
+              onClick={() => generateAssessment(true)}
               disabled={isLoading}
               className="cursor-pointer"
             >
@@ -245,14 +245,3 @@ const BottomDrawer = () => {
 };
 
 export default BottomDrawer;
-
-const getPeriodData = (transactions: Transaction[], period: Period) => {
-  const groupedTransactions = groupTransactionsByPeriod(transactions, period);
-
-  const summed = Object.keys(groupedTransactions).map((period) => {
-    const { totalAmount, moneyInAmount, moneyOutAmount } =
-      calculateTransactionTotals(groupedTransactions[period]);
-    return { period, totalAmount, moneyInAmount, moneyOutAmount };
-  });
-  return summed;
-};

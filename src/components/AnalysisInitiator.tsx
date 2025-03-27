@@ -26,7 +26,7 @@ const AnalysisInitiator = () => {
         <DropdownMenuTrigger asChild>
           <Button variant={'outline'} className="flex items-center gap-2">
             <Sparkle className="h-4 w-4" />
-            <span className="hidden sm:block">Get AI Assessment</span>
+            <span className="hidden sm:block">Get Assessment</span>
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

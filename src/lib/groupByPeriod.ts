@@ -1,5 +1,6 @@
 import { Transaction } from "@/types/Transaction";
 import { endOfWeek, format, formatDate, startOfWeek } from "date-fns";
+import { calculateTransactionTotals } from "./getTotal";
 
 export enum Period {
   HOUR = "hour",
@@ -63,3 +64,14 @@ export function groupTransactionsByPeriod(
 
   return grouped;
 }
+
+export const getPeriodData = (transactions: Transaction[], period: Period) => {
+  const groupedTransactions = groupTransactionsByPeriod(transactions, period);
+
+  const summed = Object.keys(groupedTransactions).map((period) => {
+    const { totalAmount, moneyInAmount, moneyOutAmount } =
+      calculateTransactionTotals(groupedTransactions[period]);
+    return { period, totalAmount, moneyInAmount, moneyOutAmount };
+  });
+  return summed;
+};

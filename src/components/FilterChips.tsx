@@ -33,28 +33,22 @@ export function FilterChips() {
         <Badge
           key={group.field + i}
           variant="outline"
+          onClick={() => removeFilter(group.filters)}
           title={FormatDateFilter(group.filters)}
           className="px-2 pt--.5 pb-1 rounded-full border-foreground text-foreground bg-background cursor-pointer flex items-center text-xs"
         >
           {group.field === "date"
             ? FormatDateFilter(group.filters)
             : FormatFilter(group.filters[0])}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={() => removeFilter(group.filters)}
-                size="icon"
-                variant="ghost"
-                className="h-5 w-5 rounded-full cursor-pointer"
-              >
-                <X size={14} />
-                <span className="sr-only">Remove filter</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Remove filter</p>
-            </TooltipContent>
-          </Tooltip>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-5 w-5 rounded-full cursor-pointer"
+          >
+            <X size={14} />
+            <span className="sr-only">Remove filter</span>
+          </Button>
         </Badge>
       ))}
 
@@ -107,7 +101,7 @@ export const FormatDateFilter = (filters: Filter[]) => {
     return `Date between ${startDate} - ${endDate}`;
   }
 
-  return String(filters[0]?.value || '');
+  return String(filters[0]?.value || "");
 };
 
 const getFilterGroups = (filters: Filter[] | undefined) => {

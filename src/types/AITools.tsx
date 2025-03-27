@@ -1,3 +1,5 @@
+import { Filter } from "./Filters";
+
 export interface AnalysisReport {
   id: string;
   report: string;
@@ -12,4 +14,14 @@ export enum AssessmentMode {
 export interface Message {
   sender: "user" | "bot";
   text: string;
+}
+
+export interface GenAiOutput {
+	isPromptValid: boolean;
+	instructions?: InstructionSet[]; // provided when isPromptValid is true
+	message?: string; // provided when isPromptValid is false
+}
+
+export interface InstructionSet {
+	filters?: Filter[];
 }
