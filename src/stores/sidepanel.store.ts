@@ -24,8 +24,6 @@ interface SidepanelState {
 
   drawerOpen: boolean;
   setDrawerOpen: (open: boolean) => void;
-  assessmentMode: AssessmentMode;
-  selectAssessmentMode: (mode: AssessmentMode) => void;
 }
 
 const useSidepanelStore = create<SidepanelState>((set) => ({
@@ -37,9 +35,6 @@ const useSidepanelStore = create<SidepanelState>((set) => ({
 
   drawerOpen: false,
   setDrawerOpen: (drawerOpen) => set({ drawerOpen }),
-
-  assessmentMode: AssessmentMode.SERIOUS,
-  selectAssessmentMode: (mode) => set({ assessmentMode: mode }),
 }));
 
 export default useSidepanelStore;

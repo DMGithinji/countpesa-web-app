@@ -10,7 +10,7 @@ const AppPromo = () => {
   };
 
   return (
-    <div className="bg-purple-900/4 rounded-sm px-6 pb-4 pt-2 flex flex-col items-center text-center mt-8 mx-4">
+    <div className="bg-purple-900/4 rounded-sm px-6 pb-4 pt-2 flex flex-col items-center text-center mt-8 mx-6">
       <div className="relative">
         <img src={promoImage} alt="CheckPesa Logo" className="w-24 h-24" />
       </div>

@@ -8,17 +8,20 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, Sparkle } from "lucide-react";
 import useSidepanelStore from "@/stores/sidepanel.store";
 import { AssessmentMode } from "@/types/AITools";
+import { useCallback } from "react";
+import useAIMessageStore from "@/stores/aiMessages.store";
 
 const AnalysisInitiator = () => {
   const openDrawer = useSidepanelStore((state) => state.setDrawerOpen);
-  const selectAssessmentMode = useSidepanelStore(
-    (state) => state.selectAssessmentMode
+  const setAssessmentMode = useAIMessageStore(
+    (state) => state.setAssessmentMode
   );
 
-  const handleAssessment = (mode: AssessmentMode) => {
-    selectAssessmentMode(mode);
+  const handleAssessment = useCallback((mode: AssessmentMode) => {
+    console.log(mode)
+    setAssessmentMode(mode);
     openDrawer(true);
-  };
+  }, [openDrawer, setAssessmentMode]);
 
   return (
     <div className="flex items-center space-x-4">

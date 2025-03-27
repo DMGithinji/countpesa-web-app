@@ -1,6 +1,7 @@
 import { SetDateRange } from "@/lib/getDateRangeData";
 import db from "./schema";
 import { AnalysisReport, AssessmentMode } from "@/types/AITools";
+import { format } from "date-fns";
 
 export class AnalysisRepository {
 
@@ -17,7 +18,7 @@ export class AnalysisRepository {
   }
 }
 
-export const getReportAnalysisId = (dateRange: SetDateRange, assessmentMode: AssessmentMode) => `${dateRange.from}-${dateRange.to}_${assessmentMode}`
+export const getReportAnalysisId = (dateRange: SetDateRange, assessmentMode: AssessmentMode) => `${format(dateRange.from, 'dd-MM-yyyy')}-${format(dateRange.to, 'dd-MM-yyyy')}_${assessmentMode}`
 
 // Create a singleton instance
 const analysisRepository = new AnalysisRepository();

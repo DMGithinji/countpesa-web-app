@@ -6,48 +6,51 @@ import CategoriesPage from "./pages/CategoriesPage";
 import MainLayout from "./components/Layout";
 import useCategories from "./hooks/useCategories";
 import { TransactionDataProvider } from "./context/TransactionDataContext";
+import { AIContextProvider } from "./context/AIContext";
 
 function App() {
   useCategories();
 
   return (
     <TransactionDataProvider>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <MainLayout>
-                <DashboardPage />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/transactions"
-            element={
-              <MainLayout>
-                <TransactionsPage />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/accounts"
-            element={
-              <MainLayout>
-                <AccountsPage />
-              </MainLayout>
-            }
-          />
-          <Route
-            path="/categories"
-            element={
-              <MainLayout>
-                <CategoriesPage />
-              </MainLayout>
-            }
-          />
-        </Routes>
-      </Router>
+      <AIContextProvider>
+        <Router>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <MainLayout>
+                  <DashboardPage />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="/transactions"
+              element={
+                <MainLayout>
+                  <TransactionsPage />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="/accounts"
+              element={
+                <MainLayout>
+                  <AccountsPage />
+                </MainLayout>
+              }
+            />
+            <Route
+              path="/categories"
+              element={
+                <MainLayout>
+                  <CategoriesPage />
+                </MainLayout>
+              }
+            />
+          </Routes>
+        </Router>
+      </AIContextProvider>
     </TransactionDataProvider>
   );
 }

@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bot, Send, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import useAIMessageStore from "@/stores/aiMessages.store";
-import { handleResponse } from "@/lib/processAIResponse";
 import useTransactionStore from "@/stores/transactions.store";
-import { getInitialPrompt } from "@/hooks/useAIContextProvider";
+import { handleResponse } from "@/lib/processAIResponse";
+import { getInitialPrompt } from "@/lib/getAIPrompt";
+import { useAIContext } from "@/context/AIContext";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -19,6 +19,7 @@ const defaultStarters = [
 ];
 
 const ChatPanel = () => {
+  const { AIChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setMode);
   const setCurrentFilters = useTransactionStore(
     (state) => state.setCurrentFilters
@@ -34,18 +35,12 @@ const ChatPanel = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
   useEffect(() => {
     scrollToBottom();
   }, [messages.length]);
 
-  const AIChat = useMemo(() => {
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const chat = model.startChat({
-      history: [],
-    });
-    return chat;
-  }, []);
+
 
   const handleSendMessage = async (message: string) => {
     const isFirst = messages.length === 1;
@@ -124,7 +119,7 @@ const ChatPanel = () => {
             </div>
           ))}
           {isLoading && (
-            <div className="flex justify-start">
+            <div className="flex justify-start pt-4">
               <div className="flex items-center space-x-1">
                 <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite]"></span>
                 <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.2s]"></span>
@@ -155,6 +150,7 @@ const ChatPanel = () => {
         <div className="flex flex-col gap-2 w-full max-w-3xl mx-auto">
           <div className="flex w-full gap-2 flex-col sm:flex-row items-end">
             <Textarea
+              autoFocus
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask ChatPesa..."
