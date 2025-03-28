@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useAIMessageStore from "@/stores/aiMessages.store";
 import useTransactionStore from "@/stores/transactions.store";
 import { handleResponse } from "@/lib/processAIResponse";
@@ -20,7 +20,7 @@ const defaultStarters = [
 
 const ChatPanel = () => {
   const { AIChat } = useAIContext();
-  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const setCurrentFilters = useTransactionStore(
     (state) => state.setCurrentFilters
   );

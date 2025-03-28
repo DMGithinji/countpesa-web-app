@@ -2,18 +2,18 @@ import {
   Sheet,
   SheetContent,
 } from "@/components/ui/sheet";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useUiStore, { SidepanelMode } from "@/stores/ui.store";
 import CategoriesManager from "./CategoriesManager";
 import SidepanelTransactions from "./SidepanelTransactions";
 import ChatPesa from "./ChatPesa";
 
 export function Sidepanel() {
-  const mode = useSidepanelStore((state) => state.mode);
+  const sidepanelMode = useUiStore((state) => state.sidepanelMode);
 
   return (
-    <Sheet open={mode !== SidepanelMode.Closed}>
+    <Sheet open={sidepanelMode !== SidepanelMode.Closed}>
       <SheetContent className="p-0">
-        <Display mode={mode} />
+        <Display mode={sidepanelMode} />
       </SheetContent>
     </Sheet>
   );

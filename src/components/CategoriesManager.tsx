@@ -8,7 +8,7 @@ import useCategories from "@/hooks/useCategories";
 import { toast } from "sonner";
 import { CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 
 interface UiSubcategory {
   id: number;
@@ -23,7 +23,7 @@ interface UiCategory {
 }
 
 const CategoriesManager = () => {
-  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const combinedCategories = useCategoriesStore(
     (state) => state.categoriesWithSubcategories
   );

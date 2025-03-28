@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { DataTable } from "@/components/ui/table/DataTable";
 import { TransactionSummary } from "@/lib/groupByField";
 import { ColumnDef } from "@tanstack/react-table";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 
 const PAGE_SIZE = 10;
 export type SortBy = {
@@ -22,8 +22,8 @@ const Table = ({
   onSortingChange: (sorting: SortBy) => void;
 }) => {
   const [page, setPage] = useState(1);
-  const setSidepanelMode = useSidepanelStore((state) => state.setMode)
-  const setTransactionsData = useSidepanelStore((state) => state.setTransactionsData)
+  const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode)
+  const setTransactionsData = useSidepanelStore((state) => state.setSidepanelTransactions)
 
   const handleOnRowClick = useCallback((summary: TransactionSummary) => {
     setTransactionsData(summary)

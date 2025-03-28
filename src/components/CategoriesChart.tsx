@@ -5,7 +5,7 @@ import { formatCurrency } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { FieldGroupSummary } from "@/lib/groupByField";
-import { SidepanelTransactions } from "@/stores/sidepanel.store";
+import { SidepanelTransactions } from "@/stores/ui.store";
 import NoData from "./NoData";
 
 interface CategoriesDonutChartProps {

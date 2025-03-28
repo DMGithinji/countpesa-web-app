@@ -8,11 +8,11 @@ import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useCallback } from "react";
 import { Button } from "./ui/button";
 import { Bot } from "lucide-react";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 
 const Header = () => {
   const { dateRangeData, validateAndAddFilters } = useTransactionContext();
-  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
 
   const handleDateChange = useCallback(
     (dateRange: DateRange | undefined) => {

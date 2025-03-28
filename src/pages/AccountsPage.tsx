@@ -10,7 +10,7 @@ import { filterTransactions, sortBy } from "@/lib/utils";
 import useSidepanelStore, {
   SidepanelMode,
   SidepanelTransactions,
-} from "@/stores/sidepanel.store";
+} from "@/stores/ui.store";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import { TransactionSearch } from "@/components/SearchInput";
 import TopAccountsChart from "@/components/TopAccountsChart";
@@ -32,9 +32,9 @@ const AccountsPage = () => {
     topAccountsSentToByCount,
   } = calculatedData;
 
-  const setSidepanelMode = useSidepanelStore((state) => state.setMode);
+  const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode);
   const setTransactionsData = useSidepanelStore(
-    (state) => state.setTransactionsData
+    (state) => state.setSidepanelTransactions
   );
 
   const [isModalOpen, setIsModalOpen] = useState(false);

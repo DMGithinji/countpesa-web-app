@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import useSidepanelStore, {
   SidepanelMode,
   SidepanelTransactions,
-} from "@/stores/sidepanel.store";
+} from "@/stores/ui.store";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useTransactionActions } from "@/hooks/useTransactionActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
@@ -29,10 +29,10 @@ const CategoriesPage = () => {
     topCategoriesMoneyOutByAmt,
   } = calculatedData;
 
-  const setSidepanel = useSidepanelStore((state) => state.setMode);
-  const setSidepanelMode = useSidepanelStore((state) => state.setMode);
+  const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
+  const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode);
   const setTransactionsData = useSidepanelStore(
-    (state) => state.setTransactionsData
+    (state) => state.setSidepanelTransactions
   );
   const [sortingState, setSortingState] = useState<SortBy>({
     desc: false,

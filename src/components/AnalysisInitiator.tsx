@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, Sparkle } from "lucide-react";
-import useSidepanelStore from "@/stores/sidepanel.store";
+import useSidepanelStore from "@/stores/ui.store";
 import { AssessmentMode } from "@/types/AITools";
 import { useCallback } from "react";
 import useAIMessageStore from "@/stores/aiMessages.store";

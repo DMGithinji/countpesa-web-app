@@ -195,7 +195,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
 export default TopAccountsChart;
 
 import { TooltipProps } from "recharts";
-import { SidepanelTransactions } from "@/stores/sidepanel.store";
+import { SidepanelTransactions } from "@/stores/ui.store";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import NoData from "./NoData";
 

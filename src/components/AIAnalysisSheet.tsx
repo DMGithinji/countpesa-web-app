@@ -10,7 +10,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
-import useSidepanelStore from "@/stores/sidepanel.store";
+import useSidepanelStore from "@/stores/ui.store";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";

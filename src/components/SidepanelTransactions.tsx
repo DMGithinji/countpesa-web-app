@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "date-fns";
 import { ScrollArea } from "./ui/scroll-area";
-import useSidepanelStore, { SidepanelMode } from "@/stores/sidepanel.store";
+import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import { Button } from "./ui/button";
 import IconButton from "./ui/IconButton";
 
@@ -25,9 +25,9 @@ const SidepanelTransactions = () => {
     "all"
   );
   const transactionSummary = useSidepanelStore(
-    (state) => state.transactionsData
+    (state) => state.sidepanelTransactions
   );
-  const setSidepanel = useSidepanelStore((state) => state.setMode);
+  const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode);
 
   const sortedTransactions = useMemo(() => {
     if (!transactionSummary?.transactions) return [];
@@ -71,7 +71,7 @@ const SidepanelTransactions = () => {
           </div>
           <Button
             variant={"ghost"}
-            onClick={() => setSidepanel(SidepanelMode.Closed)}
+            onClick={() => setSidepanelMode(SidepanelMode.Closed)}
             className="hover:bg-transparent hover:text-white mt-[-6px]"
           >
             <X size={16} />

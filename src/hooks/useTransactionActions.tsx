@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { ActionItem } from "@/components/GroupedTrsTable/RowAction";
 import { TransactionSummary } from "@/lib/groupByField";
 import { Filter } from "@/types/Filters";
-import { SidepanelMode, SidepanelTransactions } from "@/stores/sidepanel.store";
+import { SidepanelMode, SidepanelTransactions } from "@/stores/ui.store";
 
 interface UseTransactionActionsProps {
   groupByField: "category" | "account";
