@@ -28,6 +28,7 @@ import {
 } from "@/configs/PromptTemplate";
 import useAIMessageStore from "@/stores/aiMessages.store";
 import { getCalculationSummary } from "@/lib/getAIPrompt";
+import useTransactionStore from "@/stores/transactions.store";
 
 const BottomDrawer = () => {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
@@ -36,8 +37,8 @@ const BottomDrawer = () => {
   const [streamingResponse, setStreamingResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  const { transactions, calculatedData, dateRangeData } =
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { calculatedData, dateRangeData } =
     useTransactionContext();
 
   const { dateRange, defaultPeriod } = dateRangeData;

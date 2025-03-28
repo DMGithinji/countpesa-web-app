@@ -15,9 +15,11 @@ import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import { useTransactionContext } from "@/context/TransactionDataContext";
+import useTransactionStore from "@/stores/transactions.store";
 
 const TransactionsPage = () => {
-  const { transactions, calculatedData, dateRangeData } = useTransactionContext();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { calculatedData, dateRangeData } = useTransactionContext();
   const { defaultPeriod, periodOptions } = dateRangeData;
   const { transactionTotals } = calculatedData;
 

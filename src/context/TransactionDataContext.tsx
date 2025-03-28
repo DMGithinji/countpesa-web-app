@@ -8,10 +8,8 @@ import { useLoadInitialTransactions, useTransactions } from '@/hooks/useTransact
 import { CalculatedData, getCalculatedData } from '@/lib/getCalculatedData';
 
 interface TransactionDataContextType {
-  // Raw data
-  transactions: Transaction[];
-  currentFilters: Filter[] | undefined;
 
+  // Derived Data
   dateRangeData: DateRangeData;
   calculatedData: CalculatedData;
 
@@ -45,10 +43,6 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   // memoize to prevent unnecessary rerenders
   const contextValue = useMemo(() => ({
-    // Raw data
-    transactions,
-    currentFilters,
-
     // Derived data
     dateRangeData: getDateRangeData({transactions, currentFilters}),
     calculatedData: getCalculatedData(transactions),

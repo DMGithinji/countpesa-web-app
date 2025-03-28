@@ -9,6 +9,7 @@ import { useCallback } from "react";
 import { Button } from "./ui/button";
 import { Bot } from "lucide-react";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
+import useTransactionStore from "@/stores/transactions.store";
 
 const Header = () => {
   const { dateRangeData, validateAndAddFilters } = useTransactionContext();
@@ -67,7 +68,7 @@ const Header = () => {
 export default Header;
 
 export const HeaderWithFilters = () => {
-  const { currentFilters } = useTransactionContext();
+  const currentFilters = useTransactionStore((state) => state.currentFilters);
 
   return (
     <div className="sticky top-0 container mx-auto max-w-[88rem] pt-2 z-[10]">

@@ -19,9 +19,11 @@ import GroupedTrsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 import CategorizeModal from "@/components/CategorizeModal";
 import { useTransactionActions } from "@/hooks/useTransactionActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
+import useTransactionStore from "@/stores/transactions.store";
 
 const AccountsPage = () => {
-  const { transactions, calculatedData, validateAndAddFilters } =
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { calculatedData, validateAndAddFilters } =
     useTransactionContext();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {

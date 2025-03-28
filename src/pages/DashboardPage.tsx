@@ -9,7 +9,8 @@ import TopGroups from "@/components/TopGroups";
 
 const DashboardPage = () => {
   const loading = useTransactionStore((state) => state.loading);
-  const { transactions, calculatedData, dateRangeData } = useTransactionContext();
+  const transactions = useTransactionStore((state) => state.transactions);
+  const { calculatedData, dateRangeData } = useTransactionContext();
   const {
     transactionTotals,
     balance,
