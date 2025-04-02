@@ -1,7 +1,8 @@
 import Dexie from 'dexie';
 import { Filter, FilterField, Query } from '@/types/Filters';
-import { Transaction } from '@/types/Transaction';
+import { MoneyMode, Transaction } from '@/types/Transaction';
 import { deconstructTrCategory } from '@/hooks/useTransactions';
+import { format, isAfter, isBefore, set } from 'date-fns';
 
 export abstract class AbstractQuery {
   /**
@@ -16,6 +17,18 @@ export abstract class AbstractQuery {
   protected evaluateFilter(item: Transaction, filter: Filter): boolean {
     const { field, operator, value } = filter;
     const fieldValue = this.getItemValue(item, field);
+
+    if (field === 'hour' && ['<=', '>=', '<', '>'].includes(operator) && typeof value === 'string') {
+      return compareTime(item.date, value, operator as '<=' | '>=' | '<' | '>');
+    }
+
+    if (field === 'mode' && ['==', '!='].includes(operator) && typeof value === 'string') {
+      return compareMode(item.amount, value as MoneyMode);
+    }
+
+    if (field === 'dayOfWeek' && ['==', '!='].includes(operator) && typeof value === 'string') {
+      return compareDayOfWeek(item.date, value, operator as '==' | '!=');
+    }
 
     switch (operator) {
       case '==': return fieldValue === value;
@@ -119,4 +132,26 @@ export abstract class AbstractQuery {
     // Execute query and return results
     return collection.toArray();
   }
+}
+
+function compareTime(trDateInSeconds: number, timeStr: string, operator: '<=' | '>=' | '<' | '>') {
+  // Destructure the start and end times from the timeRange object
+
+  // Parse the current date to reset hours and minutes to 0
+  const trDate = new Date(trDateInSeconds);
+  const currentDateStart = set(trDate, { hours: 0, minutes: 0, seconds: 0, milliseconds: 0 });
+
+  const time = set(currentDateStart, { hours: parseInt(timeStr.split(':')[0], 10), minutes: parseInt(timeStr.split(':')[1], 10) });
+
+  // Check if the current date and time is within the start and end time interval
+  return ['<=', '<'].includes(operator) ? isBefore(trDate, time) : isAfter(trDate, time);
+}
+
+function compareMode(trAmount: number, mode: MoneyMode) {
+  return mode === MoneyMode.MoneyOut ? trAmount < 0 : trAmount > 0;
+}
+
+function compareDayOfWeek(trDateInSeconds: number, dayOfWeek: string, operator: '==' | '!=') {
+  const trDate = new Date(trDateInSeconds);
+  return operator === '==' ? format(trDate, 'cccc') === dayOfWeek : format(trDate, 'cccc') !== dayOfWeek;
 }

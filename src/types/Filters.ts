@@ -1,6 +1,6 @@
 import { Transaction } from "./Transaction";
 
-export type FilterField = keyof Transaction | 'subcategory';
+export type FilterField = keyof Transaction | 'subcategory' | 'hour' | 'mode' | 'dayOfWeek';
 // Basic operator types for queries
 export type FilterOperator =
   | '=='

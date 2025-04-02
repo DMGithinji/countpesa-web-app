@@ -91,10 +91,8 @@ export class TransactionRepository extends AbstractQuery {
           transactionType: t.type,
           createdAt: now,
           // Add more fields for more expressive querying
-          year: trDate.getFullYear(),
-          month: trDate.getMonth() + 1, // 1-12
-          dayOfWeek: trDate.toLocaleString('en-US', { weekday: 'long' }), // e.g., "Tuesday"
-          hour: format(trDate, 'HH:00'), // e.g., "14:00"
+          dayOfWeek: format(trDate, 'cccc'), // e.g., "Tuesday"
+          hour: format(trDate, 'HH:mm'), // e.g. "14:35"
           mode: t.amount > 0 ? MoneyMode.MoneyIn : MoneyMode.MoneyOut,
         };
       });
