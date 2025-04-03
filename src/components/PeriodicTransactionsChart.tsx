@@ -79,8 +79,8 @@ const PeriodicTransactionsChart = ({
   }, [transactions, period]);
 
   return (
-    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
-      <Card className="w-full h-full lg:col-span-2">
+    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
+      <Card className="w-full h-full lg:col-span-3">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-1">
             <CardTitle className="text-lg font-medium">

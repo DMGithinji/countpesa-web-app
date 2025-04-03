@@ -6,6 +6,7 @@ import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
 import { MoneyMode } from "@/types/Transaction";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import TopGroups from "@/components/TopGroups";
+import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
 
 const DashboardPage = () => {
   const loading = useTransactionStore((state) => state.loading);
@@ -22,7 +23,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <AmtSummaryCard
           type="Received"
           count={transactionTotals.moneyInCount}
@@ -38,6 +39,7 @@ const DashboardPage = () => {
           Icon={ArrowUpCircle}
         />
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
+        <QuickFiltersCarousel />
       </div>
 
       <div className="py-4">
