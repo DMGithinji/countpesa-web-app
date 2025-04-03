@@ -6,67 +6,59 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import useTransactionStore from "@/stores/transactions.store";
-import { useMemo, useCallback } from "react";
-import { Filter, FilterField, OperatorTranslations } from "@/types/Filters";
-import { format } from "date-fns";
-import { UNCATEGORIZED } from "@/types/Categories";
-
-const fieldKey: Record<string, string> = {
-  dayOfWeek: 'Day'
-}
-
-// Type for grouped filters
-type FilterGroup = {
-  field: FilterField;
-  filters: Filter[];
-};
+import { useFilterChips } from "@/hooks/useFilterChips";
+import {
+  formatFilterTooltip,
+  formatDateFilter,
+  isDateOrHourFilter,
+  fieldDisplayNames,
+  formatValue
+} from "@/lib/filterUtils";
+import { Filter, OperatorTranslations } from "@/types/Filters";
 
 /**
  * FilterChips component displays active filters as interactive chips/badges
  * with the ability to remove individual filters or clear all filters.
  */
-export function FilterChips() {
-  const { currentFilters, setCurrentFilters, removeFilter } =
-    useTransactionStore();
-
-  // Memoize filter groups to prevent unnecessary recalculations
-  const filterGroups = useMemo(
-    () => groupFilters(currentFilters),
-    [currentFilters]
-  );
-
-  // Callback to clear all active filters
-  const clearAllFilters = useCallback(() => {
-    setCurrentFilters(undefined);
-  }, [setCurrentFilters]);
+export function FilterChips({
+  className
+}: {
+  className?: string;
+}) {
+  const {
+    currentFilters,
+    processedFilters,
+    clearAllFilters,
+    removeFilter
+  } = useFilterChips();
 
   // Early return if no filters are active
   if (!currentFilters?.length) return null;
 
   return (
     <div
-      className="flex gap-2 flex-nowrap overflow-x-auto w-full pb-1"
+      className={`flex gap-2 flex-wrap overflow-x-auto w-full pb-1 ${className}`}
       role="region"
       aria-label="Active filters"
     >
-      {filterGroups.map((group, i) => (
+      {processedFilters.map((filterGroup, i) => (
         <Badge
-          key={`${group.field}-${i}`}
+          key={i}
           variant="outline"
-          onClick={() => removeFilter(group.filters)}
-          title={formatDateFilter(group.filters)}
-          className="px-2 rounded-full border-foreground text-foreground bg-background cursor-pointer flex items-center text-xs"
+          onClick={() => removeFilter(filterGroup)}
+          title={filterGroup.length > 1 ? formatDateFilter(filterGroup) : formatFilterTooltip(filterGroup[0])}
+          className="px-2 py-1 rounded-full border-foreground/60 text-foreground bg-background cursor-pointer flex items-center text-xs font-medium"
         >
-          {isDateOrHourFilter(group.field)
-            ? formatDateFilter(group.filters)
-            : formatFilter(group.filters[0])}
+          {filterGroup.length > 1 && isDateOrHourFilter(filterGroup[0].field)
+            ? formatDateFilter(filterGroup)
+            : formatFilter(filterGroup[0])}
 
           <Button
             size="icon"
             variant="ghost"
             className="h-5 w-5 rounded-full cursor-pointer ml-1"
-            aria-label={`Remove ${group.field} filter`}
+            aria-label={`Remove filter`}
+            title="Remove filter"
           >
             <X size={14} />
           </Button>
@@ -74,7 +66,7 @@ export function FilterChips() {
       ))}
 
       {/* Clear all filters button, shown if multiple filters exist */}
-      {filterGroups.length > 1 && (
+      {processedFilters.length > 1 && (
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -97,120 +89,77 @@ export function FilterChips() {
   );
 }
 
-/**
- * Check if the filter field is a date or hour type
- */
-const isDateOrHourFilter = (field: FilterField): boolean => {
-  return ["date", "hour"].includes(field);
-};
 
 /**
- * Format a single filter for display
+ * Format a single filter for display in the chip using natural language format
  */
 const formatFilter = (filter: Filter): React.ReactNode => {
   const { field, operator, value } = filter;
-  let fieldName = field.charAt(0).toUpperCase() + field.slice(1);
-  if (fieldKey[field]) {
-    fieldName = fieldKey[field]
-  }
-  const parsedVal = formatValue(field, value);
-  const operatorText = OperatorTranslations[operator];
-  const displayValue = typeof parsedVal === 'string' && parsedVal.length > 10
-    ? `${parsedVal.slice(0, 10)}...`
-    : parsedVal;
 
+  // Get the display-friendly field name
+  const fieldName = fieldDisplayNames[field] || field.charAt(0).toUpperCase() + field.slice(1);
+
+  // Format the value in a user-friendly way
+  const parsedVal = formatValue(field, value);
+
+  // For the chip display, use natural language format based on operator
+  const formatMap: Record<string, (field: string, value: string) => React.ReactNode> = {
+    "==": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} is</span>
+        <b>{v}</b>
+      </span>
+    ),
+    "!=": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} is not</span>
+        <b>{v}</b>
+      </span>
+    ),
+    "contains": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} contains</span>
+        <b>{v}</b>
+      </span>
+    ),
+    ">": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} greater than</span>
+        <b>{v}</b>
+      </span>
+    ),
+    ">=": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} at least</span>
+        <b>{v}</b>
+      </span>
+    ),
+    "<": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} less than</span>
+        <b>{v}</b>
+      </span>
+    ),
+    "<=": (f, v) => (
+      <span className="chip-text">
+        <span className="mr-1">{f} at most</span>
+        <b>{v}</b>
+      </span>
+    )
+  };
+
+  // Use formatter from map or fallback to generic format
+  const formatter = formatMap[operator];
+  if (formatter) {
+    return formatter(fieldName, parsedVal);
+  }
+
+  // Fallback for other operators
+  const operatorText = OperatorTranslations[operator];
   return (
     <span className="chip-text">
-      <span className="capitalize">{fieldName}</span> {operatorText}{" "}
-      <b className="capitalize">"{displayValue}"</b>
+      <span className="mr-1">{fieldName} {operatorText}</span>
+      <b>{parsedVal}</b>
     </span>
   );
-};
-
-/**
- * Format date range filters for display
- */
-const formatDateFilter = (filters: Filter[]): string => {
-  const isDate = filters.some((f) => f.field === "date");
-  const startFilter = filters.find((f) => f.operator === ">=");
-  const endFilter = filters.find((f) => f.operator === "<=");
-
-  if (startFilter && endFilter) {
-    const startDate = formatValue("date", startFilter.value);
-    const endDate = formatValue("date", endFilter.value);
-    return `${isDate ? "Date" : "Time"} between ${startDate} - ${endDate}`;
-  }
-
-  // Fallback if not a proper range
-  return String(filters[0]?.value || "");
-};
-
-/**
- * Group filters by field, with special handling for date/time ranges
- */
-const groupFilters = (filters: Filter[] | undefined): FilterGroup[] => {
-  if (!filters || filters.length === 0) return [];
-
-  const groups: Record<string, FilterGroup> = {};
-
-  // Identify range filters (date/hour with >= and <= operators)
-  const dateFields = ["date", "hour"];
-  const rangeFilters = filters.filter(
-    (f) =>
-      dateFields.includes(f.field) &&
-      filters.some((fl) => fl.field === f.field && fl.operator === ">=") &&
-      filters.some((fl) => fl.field === f.field && fl.operator === "<=")
-  );
-
-  // Get remaining filters
-  const otherFilters = filters.filter((f) => !rangeFilters.includes(f));
-
-  // Group range filters by field
-  rangeFilters.forEach((filter) => {
-    if (!groups[filter.field]) {
-      groups[filter.field] = { field: filter.field, filters: [] };
-    }
-    groups[filter.field].filters.push(filter);
-  });
-
-  // Add other filters individually
-  otherFilters.forEach((filter, i) => {
-    const key = `other-${i}`;
-    groups[key] = { field: filter.field, filters: [filter] };
-  });
-
-  return Object.values(groups).reverse();
-};
-
-/**
- * Format values based on field type
- */
-const formatValue = (field: FilterField, value: unknown): string => {
-  // Handle null/undefined
-  if (value === null || value === undefined) {
-    return field === "category" ? UNCATEGORIZED : "";
-  }
-
-  // Handle date fields
-  if (field === "date" && typeof value === "number") {
-    try {
-      return format(new Date(value), "EEE, MMM dd yyyy");
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return String(value);
-    }
-  }
-
-  // Handle 'in' operator with array values
-  if (Array.isArray(value)) {
-    return value.map((v) => formatValue(field, v)).join(" or ");
-  }
-
-  // Handle empty category
-  if (field === "category" && (value === "" || value === null)) {
-    return UNCATEGORIZED;
-  }
-
-  // Standard string formatting
-  return String(value);
 };

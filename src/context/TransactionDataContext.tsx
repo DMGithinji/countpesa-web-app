@@ -12,6 +12,7 @@ interface TransactionDataContextType {
   // Derived Data
   dateRangeData: DateRangeData;
   calculatedData: CalculatedData;
+  accountsList: string[];
 
   // Actions
   loadTransactions: () => Promise<void>;
@@ -42,10 +43,20 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
   } = useTransactions();
 
   // memoize to prevent unnecessary rerenders
-  const contextValue = useMemo(() => ({
+  const contextValue = useMemo(() => {
+    const calculatedData = getCalculatedData(transactions);
+    // accountNames should be array of strings
+    const accountNames = new Set([
+      ...calculatedData.topAccountsReceivedFromByAmt.map(a => a.name),
+      ...calculatedData.topAccountsSentToByAmt.map(a => a.name),
+    ]).values();
+    const accountsList = Array.from(accountNames);
+
+    return {
     // Derived data
     dateRangeData: getDateRangeData({transactions, currentFilters}),
-    calculatedData: getCalculatedData(transactions),
+    calculatedData,
+    accountsList,
 
     // Actions
     loadTransactions,
@@ -54,7 +65,7 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
     bulkUpdateTransactions,
     validateAndAddFilters,
     removeFilter,
-  }), [bulkUpdateTransactions, categorizeTransaction, currentFilters, getRelatedTransactions, loadTransactions, removeFilter, transactions, validateAndAddFilters]);
+  }}, [bulkUpdateTransactions, categorizeTransaction, currentFilters, getRelatedTransactions, loadTransactions, removeFilter, transactions, validateAndAddFilters]);
 
   useEffect(() => {
     fetchTransactions();

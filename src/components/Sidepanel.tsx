@@ -6,6 +6,7 @@ import useUiStore, { SidepanelMode } from "@/stores/ui.store";
 import CategoriesManager from "./CategoriesManager";
 import SidepanelTransactions from "./SidepanelTransactions";
 import ChatPesa from "./ChatPesa";
+import FilterBuilder from "./FilterBuilder";
 
 export function Sidepanel() {
   const sidepanelMode = useUiStore((state) => state.sidepanelMode);
@@ -26,7 +27,7 @@ const Display = ({mode}: {mode: SidepanelMode}) => {
     case SidepanelMode.Transactions:
       return <SidepanelTransactions />
     case SidepanelMode.Filters:
-      return null
+      return <FilterBuilder />
     case SidepanelMode.ChatPesa:
       return <ChatPesa />
     default:

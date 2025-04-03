@@ -40,8 +40,6 @@ const ChatPanel = () => {
     scrollToBottom();
   }, [messages.length]);
 
-
-
   const handleSendMessage = async (message: string) => {
     const isFirst = messages.length === 1;
     let prompt = message;
@@ -79,8 +77,8 @@ const ChatPanel = () => {
     <div className="flex flex-col h-full">
       <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center py-4 text-white">
-            ChatPesa <Bot size={20} className="ml-2 text-primary" />
+          <CardTitle className="flex gap-2 items-center pt-4.5 pb-3 text-white">
+            <Bot size={20} className="text-primary" />ChatPesa
           </CardTitle>
           <Button
             variant={"ghost"}

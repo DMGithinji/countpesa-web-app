@@ -213,7 +213,9 @@ const CategoriesManager = () => {
     <div>
       <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="py-4 text-white">Manage Categories</CardTitle>
+          <CardTitle className="flex items-center pt-4.5 pb-4 text-white">
+            Manage Categories
+          </CardTitle>
           <Button
             variant={"ghost"}
             onClick={() => setSidepanel(SidepanelMode.Closed)}
@@ -227,12 +229,11 @@ const CategoriesManager = () => {
         {categories.map((category) => (
           <div key={category.id} className="group">
             <div className="py-2 flex items-center justify-between hover:bg-gray-50">
-              <div  className="flex-1 flex items-center cursor-pointer" onClick={() => toggleCategory(category.id)}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="p-1 mr-2"
-                >
+              <div
+                className="flex-1 flex items-center cursor-pointer"
+                onClick={() => toggleCategory(category.id)}
+              >
+                <Button variant="ghost" size="sm" className="p-1 mr-2">
                   {category.isExpanded ? (
                     <ChevronUp size={16} />
                   ) : (
@@ -276,7 +277,7 @@ const CategoriesManager = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      startEditingCategory(category)
+                      startEditingCategory(category);
                     }}
                     className="h-8 w-8 p-0"
                   >
@@ -287,7 +288,7 @@ const CategoriesManager = () => {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDeleteCategory(category.id)
+                      handleDeleteCategory(category.id);
                     }}
                     className="h-8 w-8 p-0 text-red-500"
                   >

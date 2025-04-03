@@ -78,6 +78,7 @@ const UploadStatementButton = () => {
         className="cursor-pointer rounded-lg"
       >
         <FileDown className="h-4 w-4" />
+        Load Transactions
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

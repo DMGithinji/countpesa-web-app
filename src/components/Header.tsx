@@ -7,7 +7,7 @@ import AnalysisInitiator from "./AnalysisInitiator";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useCallback } from "react";
 import { Button } from "./ui/button";
-import { Bot } from "lucide-react";
+import { Bot, ListFilter } from "lucide-react";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useTransactionStore from "@/stores/transactions.store";
 
@@ -47,17 +47,23 @@ const Header = () => {
             range={dateRangeData.dateRange}
             onDateChange={handleDateChange}
           />
-          <AnalysisInitiator />
-        </div>
-        <div className="flex items-center space-x-4">
           <Button
             variant="outline"
-            className="ml-2"
+            onClick={() => setSidepanel(SidepanelMode.Filters)}
+          >
+            <ListFilter size={8} />
+            <span className="hidden sm:block">Filter</span>
+          </Button>
+          <AnalysisInitiator />
+          <Button
+            variant="outline"
             onClick={() => setSidepanel(SidepanelMode.ChatPesa)}
           >
-            <span className="hidden sm:block">ChatPesa</span>
             <Bot size={8} />
+            <span className="hidden sm:block">Chat</span>
           </Button>
+        </div>
+        <div className="flex items-center space-x-4">
           <UploadStatementButton />
         </div>
       </div>
