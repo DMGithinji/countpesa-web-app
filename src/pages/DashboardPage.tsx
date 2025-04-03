@@ -24,7 +24,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
         <AmtSummaryCard
           type="Received"
           count={transactionTotals.moneyInCount}
@@ -52,7 +52,7 @@ const DashboardPage = () => {
       </div>
 
       <TopGroups />
-      <TransactionHeatmap transactions={transactions} year={2025} />
+      <TransactionHeatmap transactions={transactions} />
     </>
   );
 };

@@ -6,15 +6,15 @@ import { sortBy } from "@/lib/utils";
 
 export class CategoryRepository {
 
-  async addCategory(category: Omit<Category, "id">) {
+  async addCategory(category: Partial<Category>) {
     const exists = await db.categories.where({ name: category.name }).first();
     if (exists) {
-      return;
+      return exists.id;
     }
     return await db.categories.add(category as Category);
   }
 
-  async updateCategory(id: number, newName: string) {
+  async updateCategory(id: string, newName: string) {
     const oldCategory = await db.categories.get(id);
 
     if (!newName) {
@@ -36,7 +36,7 @@ export class CategoryRepository {
   /**
    * Delete a category and all its subcategories.
    */
-  async deleteCategory(id: number): Promise<void> {
+  async deleteCategory(id: string): Promise<void> {
     const oldCategory = await db.categories.get(id);
 
     if (!oldCategory) {
@@ -63,19 +63,15 @@ export class CategoryRepository {
 
   async addSubcategory(subcategory: Omit<Subcategory, "id">) {
     // Verify that the parent category exists
-    const categoryExists = await db.categories.get(subcategory.categoryId);
-    if (!categoryExists) {
-      throw new Error(`Parent category ${subcategory.categoryId} does not exist`);
-    }
     const subcategoryExists = await db.subcategories.where({ categoryId: subcategory.categoryId, name: subcategory.name }).first();
     if (subcategoryExists) {
-      return;
+      return subcategoryExists.id;
     }
 
     return db.subcategories.add(subcategory);
   }
 
-  async updateSubcategory(id: number, newSubcategory: string) {
+  async updateSubcategory(id: string, newSubcategory: string) {
     const existingSubcategory = await db.subcategories.get(id);
 
     if (!newSubcategory) {
@@ -105,7 +101,7 @@ export class CategoryRepository {
     return db.subcategories.update(id, { name: newSubcategory });
   }
 
-  async deleteSubcategory(id: number) {
+  async deleteSubcategory(id: string) {
     const subcategory = await db.subcategories.get(id);
 
     if (!subcategory) {

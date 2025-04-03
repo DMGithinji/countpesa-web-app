@@ -43,7 +43,7 @@ export function useCategories() {
 
     if (!combinedCategories || combinedCategories.length === 0) {
       // No categories found, preload defaults
-      await preloadDefaultCategories();
+      // await preloadDefaultCategories();
       // Reload after preloading
       loadCategories();
       return;

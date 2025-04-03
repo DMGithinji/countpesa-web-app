@@ -30,18 +30,18 @@ const TopGroups = () => {
       <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
         <TopTrsGroupedByField
           groupedBy={GroupByField.Account}
-          moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 6)}
-          moneyOutSummaryByAmt={topAccountsSentToByAmt.slice(0, 6)}
-          moneyInSummaryByCount={topAccountsReceivedFromByCount.slice(0, 6)}
-          moneyOutSummaryByCount={topAccountsSentToByCount.slice(0, 6)}
+          moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 5)}
+          moneyOutSummaryByAmt={topAccountsSentToByAmt.slice(0, 5)}
+          moneyInSummaryByCount={topAccountsReceivedFromByCount.slice(0, 5)}
+          moneyOutSummaryByCount={topAccountsSentToByCount.slice(0, 5)}
           onSelectGroup={setSelectedTransactions}
         />
         <TopTrsGroupedByField
           groupedBy={GroupByField.Category}
-          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, 6)}
-          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, 6)}
-          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, 6)}
-          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, 6)}
+          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, 5)}
+          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, 5)}
+          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, 5)}
+          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, 5)}
           onSelectGroup={setSelectedTransactions}
         />
       </div>

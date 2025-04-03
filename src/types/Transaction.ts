@@ -3,7 +3,7 @@ export interface Transaction {
   code: string;
   date: number; // Unix timestamp of when transaction occured
   description: string;
-  status: string;
+  status?: string;
   amount: number;
   account: string;
   balance: number;

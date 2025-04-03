@@ -11,7 +11,7 @@ export class TransactionRepository extends AbstractQuery {
   /**
    * Return the Dexie table for transactions
    */
-  protected getTable(): Dexie.Table<Transaction, number> {
+  protected getTable(): Dexie.Table<Transaction, string> {
     return db.transactions;
   }
 
@@ -55,8 +55,8 @@ export class TransactionRepository extends AbstractQuery {
     } as Query);
   }
 
-  getTrId(tr: ExtractedTransaction): string {
-    return `${tr.amount}_${tr.code}`;
+  getTrId(amount: number, code: string): string {
+    return `${amount}_${code}`;
   }
 
   /**
@@ -64,22 +64,23 @@ export class TransactionRepository extends AbstractQuery {
    * Takes API response and converts it to our transaction format
    */
   async processMpesaStatementData(
+
     mpesaTransactions: ExtractedTransaction[]
-  ): Promise<number[]> {
+  ) {
     const now = Date.now();
 
     const existingTrs = await this.getTransactions();
     const existingIdsDict = existingTrs.reduce((acc, tr) => {
-      acc[tr.code] = true;
+      acc[this.getTrId(tr.amount, tr.code)] = true;
       return acc;
     }, {} as { [key: string]: boolean });
 
     const transactions = mpesaTransactions
-      .filter((t) => !existingIdsDict[this.getTrId(t)])
+      .filter((t) => !existingIdsDict[this.getTrId(t.amount, t.code)])
       .map((t) => {
         const trDate = new Date(t.date!);
         return {
-          id: this.getTrId(t),
+          id: this.getTrId(t.amount, t.code),
           code: t.code,
           date: t.date,
           description: t.description,
@@ -105,7 +106,7 @@ export class TransactionRepository extends AbstractQuery {
     trId: string,
     category: string,
   ): Promise<void> {
-    db.transactions.update(((trId as unknown) as number), { category });
+    db.transactions.update(((trId as unknown) as string), { category });
   }
 
   async getRelatedTransactions(

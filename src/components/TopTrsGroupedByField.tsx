@@ -121,7 +121,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
             <div key={item.name} className="space-y-1 mb-4">
               <div className="flex items-center justify-between">
                 <HoverableActionText
-                  className="max-w-[80%] truncate"
+                  className="max-w-[70%] truncate"
                   actions={getFilters(item.name)}
                 >
                   <span

@@ -1,13 +1,13 @@
 
 export interface Category {
-  id?: number;
+  id?: string;
   name: string;
 }
 
 export interface Subcategory {
-  id?: number;
+  id?: string;
   name: string;
-  categoryId: number;
+  categoryId: string;
 }
 
 export interface CombinedCategory extends Category {

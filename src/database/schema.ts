@@ -5,9 +5,9 @@ import { AnalysisReport } from "@/types/AITools";
 
 class CheckPesa extends Dexie {
   // Tables
-  transactions!: Table<Transaction, number>;
-  categories!: Table<Category, number>;
-  subcategories!: Table<Subcategory, number>;
+  transactions!: Table<Transaction, string>;
+  categories!: Table<Category, string>;
+  subcategories!: Table<Subcategory, string>;
   analysisReports!: Table<AnalysisReport, string>;
 
   constructor() {
@@ -16,8 +16,8 @@ class CheckPesa extends Dexie {
     // Define tables and their schema (primary key and indexes)
     this.version(1).stores({
       transactions: 'id, code, date, description, status, amount, balance, category, account, createdAt, year, month, dayOfWeek, hour, mode',
-      categories: '++id, name',
-      subcategories: '++id, name, categoryId',
+      categories: 'id, name',
+      subcategories: 'id, name, categoryId, [categoryId+name]',
       analysisReports: 'id, report, createdAt',
     });
   }
