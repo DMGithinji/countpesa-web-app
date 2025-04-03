@@ -7,6 +7,7 @@ import { MoneyMode } from "@/types/Transaction";
 import { useTransactionContext } from "@/context/TransactionDataContext";
 import TopGroups from "@/components/TopGroups";
 import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
+import TransactionHeatmap from "@/components/TransactionHeatmap";
 
 const DashboardPage = () => {
   const loading = useTransactionStore((state) => state.loading);
@@ -51,6 +52,7 @@ const DashboardPage = () => {
       </div>
 
       <TopGroups />
+      <TransactionHeatmap transactions={transactions} year={2025} />
     </>
   );
 };

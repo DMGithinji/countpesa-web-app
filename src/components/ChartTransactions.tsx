@@ -145,7 +145,7 @@ const ChartTransactions = ({
                 >
                   <div className="flex justify-between items-center w-full mb-1">
                     <div className=" w-[70%]">
-                      <p className="font-medium text-[13px] ">
+                      <p className="font-medium text-[12px]">
                         {transaction.account}
                       </p>
                       <Badge

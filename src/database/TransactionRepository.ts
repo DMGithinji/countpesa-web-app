@@ -85,7 +85,7 @@ export class TransactionRepository extends AbstractQuery {
           description: t.description,
           status: t.status,
           amount: t.amount,
-          account: t.account,
+          account: t.account || 'Unknown',
           balance: t.balance,
           category: t.category || UNCATEGORIZED,
           transactionType: t.type,

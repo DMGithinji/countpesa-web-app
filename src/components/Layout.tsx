@@ -131,7 +131,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Content area - Add bottom padding on mobile for the navigation bar */}
         <Header />
         <main className="flex-1 overflow-y-auto ">
-          <div className="container mx-auto max-w-[88rem] p-6 pb-20 pt-0 sm:pb-8 relative">
+          <div className="mx-auto p-6 pb-20 pt-0 sm:pb-8 relative">
             <HeaderWithFilters />
             <div className="pt-2">{children}</div>
           </div>

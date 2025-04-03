@@ -156,7 +156,7 @@ const QuickFiltersCarousel = () => {
           </Button>
         </div>
 
-        <h3 className="text-base font-medium text-center mx-12 -mt-8">
+        <h3 className="text-base font-medium text-center mx-8 -mt-8">
           {slides[activeSlide]?.title || "No suggestions available"}
         </h3>
 
