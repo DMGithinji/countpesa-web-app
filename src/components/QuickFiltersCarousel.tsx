@@ -156,14 +156,14 @@ const QuickFiltersCarousel = () => {
           </Button>
         </div>
 
-        <h3 className="text-base font-medium text-center mx-8 -mt-8">
+        <h3 className="text-sm md:text-base font-medium text-center mx-8 -mt-8">
           {slides[activeSlide]?.title || "No suggestions available"}
         </h3>
 
         <Button
         variant={'outline'}
           onClick={handleShowMe}
-          className="mt-4 rounded-full border border-primary bg-white text-primary hover:bg-primary hover:text-white px-4 h-8"
+          className="mt-4 rounded-full border border-primary bg-white text-primary hover:bg-primary hover:text-white px-2 md:px-4 h-8"
         >
           Show me
         </Button>

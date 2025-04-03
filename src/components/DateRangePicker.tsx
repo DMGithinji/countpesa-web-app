@@ -94,7 +94,7 @@ export default function CalendarWithPopover({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <div className="flex gap-2 items-center">
-        <span className="hidden sm:block font-semibold">Transactions from</span>
+        <span className="hidden lg:block font-semibold">Transactions from</span>
         {showNavigationArrows && (
           <Button
             variant="ghost"
@@ -108,10 +108,10 @@ export default function CalendarWithPopover({
         <PopoverTrigger asChild>
           <Button
             variant="outline"
-            className="w-[240px] justify-start text-left font-normal hover:text-foreground"
+            className="w-[40px] md:w-[240px] justify-start text-left font-normal hover:text-foreground"
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {formatDateRange()}
+            <span className="hidden md:block">{formatDateRange()}</span>
           </Button>
         </PopoverTrigger>
         {showNavigationArrows && (

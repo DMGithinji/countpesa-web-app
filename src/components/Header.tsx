@@ -52,7 +52,7 @@ const Header = () => {
             onClick={() => setSidepanel(SidepanelMode.Filters)}
           >
             <ListFilter size={8} />
-            <span className="hidden sm:block">Filter</span>
+            <span className="hidden lg:block">Filter</span>
           </Button>
           <AnalysisInitiator />
           <Button
@@ -60,7 +60,7 @@ const Header = () => {
             onClick={() => setSidepanel(SidepanelMode.ChatPesa)}
           >
             <Bot size={8} />
-            <span className="hidden sm:block">Chat</span>
+            <span className="hidden lg:block">Chat</span>
           </Button>
         </div>
         <div className="flex items-center space-x-4">

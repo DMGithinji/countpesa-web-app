@@ -14,13 +14,13 @@ const AmtSummaryCard = ({ type, count, amount, mode, Icon }: AmtSummaryCardProps
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="font-normal">
+        <CardTitle className="text-sm md:text-base font-normal">
           {type} ({count} Transactions)
         </CardTitle>
         <Icon className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? 'text-green-600' : 'text-red-600'}`} />
       </CardHeader>
       <CardContent>
-        <div className={cn("text-2xl font-bold", mode === MoneyMode.MoneyIn ? 'text-green-600' : 'text-red-600')}>
+        <div className={cn("text-lg md:text-2xl font-bold", mode === MoneyMode.MoneyIn ? 'text-green-600' : 'text-red-600')}>
           {formatCurrency(amount)}
         </div>
       </CardContent>

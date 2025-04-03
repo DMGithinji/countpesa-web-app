@@ -26,8 +26,8 @@ const TopGroups = () => {
   } = calculatedData;
 
   return (
-    <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
-      <div className="lg:col-span-3 grid grid-cols-2 gap-4">
+    <div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
+      <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
         <TopTrsGroupedByField
           groupedBy={GroupByField.Account}
           moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 6)}

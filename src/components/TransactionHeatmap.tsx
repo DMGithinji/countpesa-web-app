@@ -165,7 +165,7 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
           </div>
         </CardContent>
       </Card>
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 hidden sm:block">
         <ChartTransactions
           selected={selectedTransactions}
           defaultSortBy="date"

@@ -21,15 +21,15 @@ const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="font-normal">Balance Trend</CardTitle>
+        <CardTitle className="font-normal text-sm md:text-base">Balance Trend</CardTitle>
         <TrendingUpDown className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="flex gap-2 items-baseline">
-          <p className="text-2xl font-semibold">
+          <p className="text-lg md:text-2xl font-semibold">
             {formatCurrency(latestBalance)}
           </p>
-          <span className="text-zinc-400">(Latest)</span>
+          <span className="text-zinc-400 text-sm md:text-base">(Latest)</span>
         </div>
 
         <div className="h-12">
