@@ -3,17 +3,12 @@ import { startOfMonth, endOfMonth } from "date-fns";
 import useTransactionStore from "@/stores/transactions.store";
 import transactionRepository from "@/database/TransactionRepository";
 import { Transaction } from "@/types/Transaction";
-import useCategoriesStore from "@/stores/categories.store";
-import categoryRepository from "@/database/CategoryRepository";
-import useCategories from "./useCategories";
 import { Filter } from "@/types/Filters";
+import { addMissingCategories } from "@/lib/categoryUtils";
 
 export function useTransactions() {
   const currentFilters = useTransactionStore(state => state.currentFilters);
   const setTransactions = useTransactionStore(state => state.setTransactions);
-
-  const categoriesWithSubcategories = useCategoriesStore(state => state.categoriesWithSubcategories);
-  const { reloadCategories } = useCategories();
 
   const loadTransactions = useCallback(async () => {
     const trs = await transactionRepository.getTransactions(currentFilters);
@@ -21,26 +16,10 @@ export function useTransactions() {
   }, [currentFilters, setTransactions]);
 
   const handleCategorizeTransactions = useCallback(async (trId: string, categoryToSet: string) => {
-    const { category, subcategory } = deconstructTrCategory(categoryToSet);
-    const categoryExists = categoriesWithSubcategories.find(c => c.name === category);
-    const subcategExists = categoryExists && categoryExists.subcategories.find(sub => sub.name === subcategory);
-
-    if (!categoryExists) {
-      const categId = await categoryRepository.addCategory({name: category});
-      if (categId && subcategory && !subcategExists) {
-        await categoryRepository.addSubcategory({name: subcategory, categoryId: categId});
-        reloadCategories()
-      }
-    }
-    if (categoryExists?.id && !subcategExists) {
-      await categoryRepository.addSubcategory({name: subcategory, categoryId: categoryExists.id});
-      reloadCategories()
-    }
-
+    await addMissingCategories(categoryToSet);
     await transactionRepository.categorizeTransaction(trId, categoryToSet);
-
     loadTransactions();
-  }, [categoriesWithSubcategories, reloadCategories, loadTransactions]);
+  }, [loadTransactions]);
 
   const handleBulkUpdateTransactions = useCallback(async (updatedTrs: Transaction[]) => {
     await transactionRepository.bulkUpdate(updatedTrs);

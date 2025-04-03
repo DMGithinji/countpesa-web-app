@@ -4,10 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { formatCurrency } from "@/lib/utils";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { FieldGroupSummary } from "@/lib/groupByField";
+import { FieldGroupSummary, GroupByField, groupTransactionsByField } from "@/lib/groupByField";
 import { SidepanelTransactions } from "@/stores/ui.store";
 import NoData from "./NoData";
-
+import { generateLivelyColor } from "@/lib/colorGenerator";
 interface CategoriesDonutChartProps {
   title?: string;
   moneyMode: MoneyMode;
@@ -28,13 +28,23 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
   const totalPages = Math.ceil(groupedDataByAmount.length / itemsPerPage);
 
   const chartData = useMemo(() => {
-    // Format data for pie chart
-    return groupedDataByAmount.map((item) => ({
+    if (groupedDataByAmount.length === 1) {
+      const groupedBySubcategories = groupTransactionsByField(groupedDataByAmount[0].transactions, GroupByField.Subcategory);
+
+
+      return groupedBySubcategories.map((item, i) => ({
+        ...item,
+        value: item.amount,
+        color: generateLivelyColor(item.name, moneyMode, i),
+      }));
+    }
+
+    return groupedDataByAmount.map((item, i) => ({
       ...item,
       value: item.amount,
-      color: getCategoryColor(item.name),
+      color: generateLivelyColor(item.name, moneyMode, i),
     }));
-  }, [groupedDataByAmount]);
+  }, [groupedDataByAmount, moneyMode]);
 
   // Get current page data for legend
   const currentLegendData = useMemo(() => {

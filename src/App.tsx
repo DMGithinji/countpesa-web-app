@@ -1,8 +1,8 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout";
-import useCategories from "./hooks/useCategories";
 import { AppProviders } from "./context/AppProvider";
+import useAppInitializer from "./hooks/useAppInitializer";
 
 const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
 const TransactionsPage = React.lazy(() => import("./pages/TransactionsPage"));
@@ -10,7 +10,7 @@ const AccountsPage = React.lazy(() => import("./pages/AccountsPage"));
 const CategoriesPage = React.lazy(() => import("./pages/CategoriesPage"));
 
 function AppRoutes() {
-  useCategories();
+  useAppInitializer();
 
   return (
     <Routes>

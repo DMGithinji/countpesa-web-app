@@ -22,8 +22,7 @@ import useTransactionStore from "@/stores/transactions.store";
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, validateAndAddFilters } =
-    useTransactionContext();
+  const { calculatedData, validateAndAddFilters } = useTransactionContext();
   const {
     transactionTotals,
     topCategoriesMoneyInByAmt,
@@ -42,7 +41,12 @@ const CategoriesPage = () => {
 
   const groupedTrs = useMemo(() => {
     const filteredTrs = filterTransactions(transactions, searchQuery);
-    const groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Category);
+    let groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Category);
+
+    if (groupedTrx.length === 1) {
+      groupedTrx = groupedTrxByField(groupedTrx[0].transactions, GroupByField.Subcategory);
+    }
+
     return sortBy(
       groupedTrx,
       sortingState.id,

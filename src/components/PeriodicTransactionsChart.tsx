@@ -119,7 +119,7 @@ const PeriodicTransactionsChart = ({
         </CardHeader>
 
         <CardContent>
-          <div className="h-80 w-full">
+          <div className="h-76 w-full">
             {
               !groupedTrs.length ? (
                 <NoData />

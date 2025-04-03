@@ -93,7 +93,7 @@ export default function CalendarWithPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-1 items-center">
         <span className="hidden lg:block font-semibold">Transactions from</span>
         {showNavigationArrows && (
           <Button

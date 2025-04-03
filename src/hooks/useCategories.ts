@@ -10,46 +10,36 @@ import { DEFAULT_CATEGORIES, Subcategory } from '@/types/Categories';
  * Handles initialization of default categories if none exist
  */
 export function useCategories() {
-  const {
-    setCombinedCategories
-  } = useCategoriesStore();
+  const setCombinedCategories = useCategoriesStore(state => state.setCombinedCategories);
 
-  const preloadDefaultCategories = async () => {
+  const preloadDefaultCategories = useCallback(async () => {
     try {
       console.log("Preloading default categories and subcategories");
       for (const category of DEFAULT_CATEGORIES) {
         // Add the category
         const categoryId = await categoryRepository.addCategory({
+          id: category.name,
           name: category.name
         });
 
         // Add subcategories for this category
         for (const subcategoryName of category.subCategories) {
           await categoryRepository.addSubcategory({
+            id: `${category.name}:${subcategoryName}`,
             name: subcategoryName,
             categoryId
           } as Subcategory);
         }
       }
-
+      loadCategories();
       console.log("Default categories and subcategories preloaded successfully");
     } catch (error) {
       console.error("Error preloading categories:", error);
     }
-  };
+  }, []);
 
   const loadCategories = useCallback(async () => {
     const combinedCategories = await categoryRepository.getCategoriesWithSubcategories();
-
-    if (!combinedCategories || combinedCategories.length === 0) {
-      // No categories found, preload defaults
-      // await preloadDefaultCategories();
-      // Reload after preloading
-      loadCategories();
-      return;
-    }
-
-    // Set the combined categories in the store
     setCombinedCategories(combinedCategories);
   }, [setCombinedCategories]);
 
@@ -59,6 +49,7 @@ export function useCategories() {
   }, [loadCategories]);
 
   return {
+    preloadDefaultCategories,
     reloadCategories: loadCategories,
     addCategory: categoryRepository.addCategory,
     updateCategory: categoryRepository.updateCategory,

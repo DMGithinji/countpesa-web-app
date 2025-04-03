@@ -11,12 +11,12 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 
 interface UiSubcategory {
-  id: number;
+  id: string;
   name: string;
 }
 
 interface UiCategory {
-  id: number;
+  id: string;
   name: string;
   subcategories: UiSubcategory[];
   isExpanded?: boolean;
@@ -55,17 +55,17 @@ const CategoriesManager = () => {
   }, [combinedCategories]);
 
   // State for tracking which category or subcategory is being edited
-  const [editingCategoryId, setEditingCategoryId] = useState<number | null>(
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
     null
   );
   const [editingSubcategoryId, setEditingSubcategoryId] = useState<{
-    categoryId: number;
-    subcategoryId: number;
+    categoryId: string;
+    subcategoryId: string;
   } | null>(null);
   const [editValue, setEditValue] = useState<string>("");
 
   // Toggle expansion of a category
-  const toggleCategory = (categoryId: number) => {
+  const toggleCategory = (categoryId: string) => {
     setCategories(
       categories.map((category) =>
         category.id === categoryId
@@ -83,7 +83,7 @@ const CategoriesManager = () => {
 
   // Start editing a subcategory
   const startEditingSubcategory = (
-    categoryId: number,
+    categoryId: string,
     subcategory: UiSubcategory
   ) => {
     setEditingSubcategoryId({ categoryId, subcategoryId: subcategory.id });
@@ -156,7 +156,7 @@ const CategoriesManager = () => {
   };
 
   // Delete a category
-  const handleDeleteCategory = async (categoryId: number) => {
+  const handleDeleteCategory = async (categoryId: string) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         // Update UI optimistically
@@ -178,8 +178,8 @@ const CategoriesManager = () => {
 
   // Delete a subcategory
   const handleDeleteSubcategory = async (
-    categoryId: number,
-    subcategoryId: number
+    categoryId: string,
+    subcategoryId: string
   ) => {
     if (window.confirm("Are you sure you want to delete this subcategory?")) {
       try {
