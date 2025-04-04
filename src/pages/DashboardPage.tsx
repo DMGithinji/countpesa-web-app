@@ -4,20 +4,22 @@ import AmtSummaryCard from "@/components/AmtSummaryCard";
 import BalanceTrendCard from "@/components/BalanceTrend";
 import PeriodicTransactionsChart from "@/components/PeriodicTransactionsChart";
 import { MoneyMode } from "@/types/Transaction";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import TopGroups from "@/components/TopGroups";
 import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
 import TransactionHeatmap from "@/components/TransactionHeatmap";
-import { useEffect, useState } from "react";
-import { Period } from "@/lib/groupByPeriod";
+import { useEffect, useMemo, useState } from "react";
+import { getPeriodAverages, Period } from "@/lib/groupByPeriod";
 
 const DashboardPage = () => {
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>();
+
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, dateRangeData, periodAverages } =
-    useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
   const { transactionTotals, balance, balanceTrend } = calculatedData;
   const { defaultPeriod, periodOptions } = dateRangeData;
-  const [selectedPeriod, setSelectedPeriod] = useState<Period>();
+
+  const periodAverages = useMemo(() => getPeriodAverages(dateRangeData, calculatedData), [calculatedData, dateRangeData]);
 
   useEffect(() => {
     setSelectedPeriod(defaultPeriod);

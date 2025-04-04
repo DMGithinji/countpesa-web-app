@@ -3,7 +3,7 @@ import { startOfMonth, endOfMonth, isAfter, endOfDay, isBefore } from "date-fns"
 import useTransactionStore from "@/stores/transactions.store";
 import transactionRepository from "@/database/TransactionRepository";
 import { Transaction } from "@/types/Transaction";
-import { Filter } from "@/types/Filters";
+import { Filter, FilterMode } from "@/types/Filters";
 import { addMissingCategories } from "@/lib/categoryUtils";
 
 export function useTransactions() {
@@ -54,7 +54,7 @@ export function useLoadInitialTransactions() {
   const setLoading = useTransactionStore(state => state.setLoading);
   const setError = useTransactionStore(state => state.setError);
 
-  const fetchTransactions = useCallback(async () => {
+  const loadDefaultFilters = useCallback(async () => {
     try {
       const trs = await transactionRepository.getTransactions();
       const earliestTrDate = trs.length ? new Date(trs[0].date) : new Date();
@@ -70,13 +70,13 @@ export function useLoadInitialTransactions() {
             field: "date",
             operator: ">=",
             value: start.getTime(),
-            mode: "and",
+            mode: FilterMode.AND,
           },
           {
             field: "date",
             operator: "<=",
             value: end.getTime(),
-            mode: "and",
+            mode: FilterMode.AND,
           },
         ];
 
@@ -88,5 +88,5 @@ export function useLoadInitialTransactions() {
     }
   }, []);
 
-  return { fetchTransactions }
+  return { loadDefaultFilters }
 }

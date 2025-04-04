@@ -130,3 +130,18 @@ export function groupTransactionsByField(
   // Sort the final result
   return result.sort((a, b) => b[sortBy] - a[sortBy]);
 }
+
+export function getAllAccountNames(transactions: Transaction[]): string[] {
+  // Use a Set to automatically handle duplicates
+  const accountNamesSet = new Set<string>();
+
+  // Iterate through transactions and add each account name to the set
+  transactions.forEach(transaction => {
+    if (transaction.account) {
+      accountNamesSet.add(transaction.account);
+    }
+  });
+
+  // Convert the Set back to an array
+  return Array.from(accountNamesSet);
+}

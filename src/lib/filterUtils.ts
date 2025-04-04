@@ -200,7 +200,7 @@ export const formatValue = (field: FilterField, value: unknown): string => {
   // Handle date fields
   if (field === "date" && typeof value === "number") {
     try {
-      return format(new Date(value), "MMM d, yyyy");
+      return format(new Date(value), "EEE, MMM d, yyyy");
     } catch (error) {
       console.error("Error formatting date:", error);
       return String(value);
@@ -285,7 +285,7 @@ export const formatDateFilter = (filters: Filter[]): string => {
     if (startFilter && endFilter) {
       const startDate = formatValue(field, startFilter.value);
       const endDate = formatValue(field, endFilter.value);
-      return `${isDate ? "Date" : "Time"} between ${startDate} and ${endDate}`;
+      return `${startDate} to ${endDate}`;
     }
   }
 

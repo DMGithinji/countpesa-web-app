@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { TransactionDataProvider } from "./TransactionDataContext";
 import { AIContextProvider } from "./AIContext";
 import {
   DefaultErrorFallback,
@@ -25,9 +24,7 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
     >
       <ThemeProvider>
         <BrowserRouter>
-          <TransactionDataProvider>
-            <AIContextProvider>{children}</AIContextProvider>
-          </TransactionDataProvider>
+          <AIContextProvider>{children}</AIContextProvider>
         </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>

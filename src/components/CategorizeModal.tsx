@@ -7,9 +7,9 @@ import { UNCATEGORIZED } from "@/types/Categories";
 import {
   deconstructTrCategory,
   formatTrCategory,
+  useTransactions,
 } from "@/hooks/useTransactions";
 import SimilarTransactionsAccordion from "./SimilarTransactionsAccordion";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import { formatCurrency } from "@/lib/utils";
 
 interface CategoryModalProps {
@@ -33,7 +33,7 @@ const CategorizeModal = ({
     (state) => state.categoriesWithSubcategories
   );
   const [subcategories, setSubcategories] = useState<string[]>([]);
-  const { categorizeTransaction } = useTransactionContext();
+  const { categorizeTransaction } = useTransactions();
 
   useEffect(() => {
     if (!isOpen) {

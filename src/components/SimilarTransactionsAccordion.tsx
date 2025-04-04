@@ -5,7 +5,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import { UNCATEGORIZED } from "@/types/Categories";
-import { useTransactionContext } from "@/context/TransactionDataContext";
+import { useTransactions } from "@/hooks/useTransactions";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -24,12 +24,11 @@ const SimilarTransactionsAccordion = ({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { getRelatedTransactions, bulkUpdateTransactions } =
-    useTransactionContext();
+  const { getRelatedTransactions, bulkUpdateTransactions } = useTransactions();
 
   const isSame = useMemo(() => {
-    return  similarTransactions.every(tr => tr.category === newCategory)
-  }, [similarTransactions, newCategory])
+    return similarTransactions.every((tr) => tr.category === newCategory);
+  }, [similarTransactions, newCategory]);
 
   useEffect(() => {
     const getAll = mode === "multiple";
@@ -77,7 +76,9 @@ const SimilarTransactionsAccordion = ({
               )}
               {mode === "multiple" ? (
                 <span className="font-sm text-sm px-2">
-                  {newCategory === UNCATEGORIZED  ? `${similarTransactions.length} Transactions Found` : `Apply To All (${similarTransactions.length} Transactions)`}
+                  {newCategory === UNCATEGORIZED
+                    ? `${similarTransactions.length} Transactions Found`
+                    : `Apply To All (${similarTransactions.length} Transactions)`}
                 </span>
               ) : (
                 <span className="text-money-in font-xs text-sm">

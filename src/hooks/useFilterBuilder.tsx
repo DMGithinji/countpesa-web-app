@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Filter, FilterField, FilterOperator } from "@/types/Filters";
+import { Filter, FilterField, FilterMode, FilterOperator } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
 import useCategoriesStore from "@/stores/categories.store";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import {
   getOperatorOptions,
   getDayOfWeekOptions,
@@ -11,18 +10,18 @@ import {
   getTransactionTypeOptions,
   getValueDisplayLabel
 } from "@/lib/filterUtils";
+import useTransactionStore from "@/stores/transactions.store";
 
 export interface UseFilterBuilderProps {
   onAddFilter: (filter: Filter) => void;
 }
 
 export const useFilterBuilder = ({ onAddFilter }: UseFilterBuilderProps) => {
-  // Access to required data from the app context
-  const { validateAndAddFilters } = useTransactionContext();
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
   const categoriesWithSubcategories = useCategoriesStore(
     (state) => state.categoriesWithSubcategories
   );
-  const accountsList = useTransactionContext().accountsList;
+  const accountsList = useTransactionStore(state => state.accountNames);
 
   // State for the current filter being built
   const [selectedField, setSelectedField] = useState<string>("");
@@ -107,7 +106,7 @@ export const useFilterBuilder = ({ onAddFilter }: UseFilterBuilderProps) => {
       field: selectedField as FilterField,
       operator: selectedOperator as FilterOperator,
       value: filterValue,
-      mode: "and",
+      mode: FilterMode.AND,
     };
 
     validateAndAddFilters(filter);

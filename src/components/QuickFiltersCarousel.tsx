@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useTransactionContext } from '@/context/TransactionDataContext';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { cn } from '@/lib/utils';
 import useTransactionStore from '@/stores/transactions.store';
-import { Filter } from '@/types/Filters';
+import { Filter, FilterMode } from '@/types/Filters';
 
 type Slide = {
   id: string;
@@ -16,7 +15,7 @@ type Slide = {
 const QuickFiltersCarousel = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const [slides, setSlides] = useState<Slide[]>([]);
-  const { calculatedData } = useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
   const { validateAndAddFilters } = useTransactionStore();
 
   useEffect(() => {
@@ -39,7 +38,7 @@ const QuickFiltersCarousel = () => {
           field: "account",
           operator: "==",
           value: item.name,
-          mode: "and"
+          mode: FilterMode.AND
         }
       });
     });
@@ -53,7 +52,7 @@ const QuickFiltersCarousel = () => {
           field: "account",
           operator: "==",
           value: item.name,
-          mode: "and"
+          mode: FilterMode.AND
         }
       });
     });
@@ -67,7 +66,7 @@ const QuickFiltersCarousel = () => {
           field: "category",
           operator: "==",
           value: item.name,
-          mode: "and"
+          mode: FilterMode.AND
         }
       });
     });
@@ -81,7 +80,7 @@ const QuickFiltersCarousel = () => {
           field: "category",
           operator: "==",
           value: item.name,
-          mode: "and"
+          mode: FilterMode.AND
         }
       });
     });

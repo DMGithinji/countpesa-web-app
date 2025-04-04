@@ -16,7 +16,6 @@ import { ScrollArea } from "./ui/scroll-area";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
 
 import { endOfDay, formatDate } from "date-fns";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import { SetDateRange } from "@/lib/getDateRangeData";
 import analysisRepository, {
   getReportAnalysisId,
@@ -38,8 +37,8 @@ const BottomDrawer = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, dateRangeData } =
-    useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
 
   const { dateRange, defaultPeriod } = dateRangeData;
   const formattedDateRange = useMemo(() => {

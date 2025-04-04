@@ -22,6 +22,13 @@ export type DateRangeData = {
   periodOptions: Period[];
 };
 
+export const DEFAULT_DATE_RANGE_DATA: DateRangeData = {
+  dateRange: { from: new Date(), to: new Date() },
+  defaultPeriod: Period.HOUR,
+  periodOptions: [Period.HOUR, Period.DATE, Period.WEEK, Period.MONTH],
+};
+
+
 export function getDateRangeData({
   transactions,
   currentFilters
@@ -80,7 +87,7 @@ export function getDateRangeData({
     defaultPeriod = Period.MONTH;
     validOptions = [Period.DATE, Period.WEEK, Period.MONTH];
   } else if (differenceInDays(end, start) <= 31) {
-    defaultPeriod = Period.WEEK;
+    defaultPeriod = Period.DATE;
     validOptions = [Period.DATE, Period.WEEK];
   } else {
     defaultPeriod = Period.DATE; // Default fallback

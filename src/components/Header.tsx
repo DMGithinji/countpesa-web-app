@@ -1,10 +1,9 @@
 import DateRangePicker from "./DateRangePicker";
 import UploadStatementButton from "./Upload/LoadDataButton";
 import { DateRange } from "react-day-picker";
-import { Filter } from "@/types/Filters";
+import { Filter, FilterMode } from "@/types/Filters";
 import { FilterChips } from "./FilterChips";
 import AnalysisInitiator from "./AnalysisInitiator";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useCallback } from "react";
 import { Button } from "./ui/button";
 import { Bot, ListFilter } from "lucide-react";
@@ -13,7 +12,8 @@ import useTransactionStore from "@/stores/transactions.store";
 import { ThemeToggle } from "./ThemeToggle";
 
 const Header = () => {
-  const { dateRangeData, validateAndAddFilters } = useTransactionContext();
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
 
   const handleDateChange = useCallback(
@@ -25,13 +25,13 @@ const Header = () => {
           field: "date",
           operator: ">=",
           value: dateRange.from.getTime(),
-          mode: "and",
+          mode: FilterMode.AND,
         },
         {
           field: "date",
           operator: "<=",
           value: dateRange.to.getTime(),
-          mode: "and",
+          mode: FilterMode.AND,
         },
       ];
 

@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useState } from "react";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import {
   GroupByField,
   GroupByTrxSortBy,
@@ -23,8 +22,9 @@ import useTransactionStore from "@/stores/transactions.store";
 
 const AccountsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, validateAndAddFilters } =
-    useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
+
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
     transactionTotals,

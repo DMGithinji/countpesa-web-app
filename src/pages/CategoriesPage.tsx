@@ -14,7 +14,6 @@ import useSidepanelStore, {
   SidepanelMode,
   SidepanelTransactions,
 } from "@/stores/ui.store";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import { useTransactionActions } from "@/hooks/useTransactionActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 import useTransactionStore from "@/stores/transactions.store";
@@ -22,7 +21,8 @@ import useTransactionStore from "@/stores/transactions.store";
 const CategoriesPage = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, validateAndAddFilters } = useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
   const {
     transactionTotals,
     topCategoriesMoneyInByAmt,

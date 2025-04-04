@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { GroupByField } from "@/lib/groupByField";
-import { useTransactionContext } from "@/context/TransactionDataContext";
 import { Transaction } from "@/types/Transaction";
 import TopTrsGroupedByField from "./TopTrsGroupedByField";
 import ChartTransactions from "./ChartTransactions";
+import useTransactionStore from "@/stores/transactions.store";
 
 const TopGroups = () => {
   const [selectedTransactions, setSelectedTransactions] = useState<{
@@ -13,7 +13,7 @@ const TopGroups = () => {
     title: "",
     transactions: [],
   });
-  const { calculatedData } = useTransactionContext();
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
   const {
     topAccountsSentToByAmt,
     topAccountsReceivedFromByAmt,

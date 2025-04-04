@@ -6,10 +6,9 @@ import {
 } from "@/lib/groupByField";
 import { Transaction, TransactionTypes } from "@/types/Transaction";
 import promptText from "@/configs/prompt.txt?raw";
-import { CalculatedData, getCalculatedData } from "@/lib/getCalculatedData";
+import { CalculatedData } from "@/lib/getCalculatedData";
 import { getPeriodData, Period } from "@/lib/groupByPeriod";
-import { Filter } from "@/types/Filters";
-import { getDateRangeData } from "@/lib/getDateRangeData";
+
 
 export async function getInitialPrompt() {
   const transactions = await transactionRepository.getTransactions();
@@ -38,70 +37,6 @@ export async function getInitialPrompt() {
   - The date today is ${new Date()}. This is the USER_PROMPT: `;
 
   return `${promptText}${promptSuffix}`;
-}
-
-async function getCalculatedOverview(filters: Filter[]) {
-  const transactions = await transactionRepository.getTransactions(filters);
-
-  const { defaultPeriod, dateRange } = getDateRangeData({
-    transactions,
-    currentFilters: filters,
-  });
-
-  const dataGroupedByPeriod = getPeriodData(transactions, defaultPeriod);
-  const calculatedData = getCalculatedData(transactions);
-  const {
-    transactionTotals,
-    topAccountsSentToByAmt,
-    topAccountsReceivedFromByAmt,
-    topCategoriesMoneyInByAmt,
-    topCategoriesMoneyOutByAmt,
-    topAccountsSentToByCount,
-    topAccountsReceivedFromByCount,
-    topCategoriesMoneyInByCount,
-    topCategoriesMoneyOutByCount,
-  } = calculatedData;
-  const topLimit = 20;
-  const getTopItems = (items: FieldGroupSummary[]) =>
-    items.slice(0, topLimit).map(({ amount, count, name }) => ({
-      amount,
-      noOfTransactions: count,
-      name,
-    }));
-  const topData = {
-    accountsSentToByAmt: getTopItems(topAccountsSentToByAmt),
-    accountsReceivedFromByAmt: getTopItems(topAccountsReceivedFromByAmt),
-    categoriesMoneyInByAmt: getTopItems(topCategoriesMoneyInByAmt),
-    categoriesMoneyOutByAmt: getTopItems(topCategoriesMoneyOutByAmt),
-    accountsSentToByCount: getTopItems(topAccountsSentToByCount),
-    accountsReceivedFromByCount: getTopItems(topAccountsReceivedFromByCount),
-    categoriesMoneyInByCount: getTopItems(topCategoriesMoneyInByCount),
-    categoriesMoneyOutByCount: getTopItems(topCategoriesMoneyOutByCount),
-  };
-  const formattedOutput = Object.entries(topData).reduce(
-    (acc, [key, value]) => ({
-      ...acc,
-      [`Top${topLimit}${key.charAt(0).toUpperCase() + key.slice(1)}`]: value,
-    }),
-    {}
-  );
-
-  const { totalCount, totalAmount, moneyInAmount, moneyOutAmount } =
-    transactionTotals;
-  const UserTransactionHistoryOverview = {
-    transactionTotals: {
-      totalCount,
-      totalAmount,
-      moneyInAmount,
-      moneyOutAmount,
-    },
-    dataGroupedByPeriod,
-    ...formattedOutput,
-  };
-
-  return `User's Transaction History ${JSON.stringify(
-    dateRange
-  )}: ${JSON.stringify(UserTransactionHistoryOverview)}.`;
 }
 
 export function getCalculationSummary(

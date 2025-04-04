@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Eye, EyeClosed, EyeOff } from "lucide-react";
 import { Filter } from "@/types/Filters";
-import { useTransactionContext } from "@/context/TransactionDataContext";
+import useTransactionStore from "@/stores/transactions.store";
 
 interface HoverableTextProps {
   children: React.ReactNode;
@@ -17,7 +17,7 @@ const HoverableActionText: React.FC<HoverableTextProps> = ({
   className = "",
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const { validateAndAddFilters } = useTransactionContext();
+  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
 
   const handleActionClick = (action: Filter) => {
     const filter: Filter = {

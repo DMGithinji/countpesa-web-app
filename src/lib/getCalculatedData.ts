@@ -23,6 +23,29 @@ export interface CalculatedData {
   topCategoriesMoneyInByCount: FieldGroupSummary[];
 }
 
+export const DEFAULT_CALCULATED_DATA: CalculatedData = {
+  transactionTotals: {
+    totalCount: 0,
+    totalAmount: 0,
+    moneyInTrs: [],
+    moneyInCount: 0,
+    moneyInAmount: 0,
+    moneyOutTrs: [],
+    moneyOutCount: 0,
+    moneyOutAmount: 0,
+  },
+  balance: 0,
+  balanceTrend: [],
+  topAccountsSentToByAmt: [],
+  topAccountsReceivedFromByAmt: [],
+  topAccountsSentToByCount: [],
+  topAccountsReceivedFromByCount: [],
+  topCategoriesMoneyOutByAmt: [],
+  topCategoriesMoneyInByAmt: [],
+  topCategoriesMoneyOutByCount: [],
+  topCategoriesMoneyInByCount: [],
+};
+
 // Optimized version of getCalculatedData
 export function getOptimizedCalculatedData(
   transactions: Transaction[],
