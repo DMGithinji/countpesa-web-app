@@ -113,10 +113,11 @@ export const createTransactionColumns = ({
 
       return (
         <Badge
+          title={category === UNCATEGORIZED ? "Categorize" : category}
           className={cn(
             "w-[120px] cursor-pointer hover:opacity-80 truncate",
             category !== UNCATEGORIZED
-              ? "bg-primary/10 text-primary"
+              ? "bg-primary/10 text-primary border border-primary/10"
               : "bg-orange-400/20 dark:bg-amber-500/10 dark:text-amber-500/80 text-orange-500"
           )}
           onClick={() => onCategoryClick && onCategoryClick(transaction)}

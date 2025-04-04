@@ -60,7 +60,7 @@ const SimilarTransactionsAccordion = ({
     <div className="border rounded-md w-full mt-4">
       <div className="flex flex-col">
         <div
-          className="flex gap-2 items-center justify-between p-2 cursor-pointer bg-slate-50 hover:bg-slate-100"
+          className="flex gap-2 items-center justify-between p-2 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex items-center gap-2">
