@@ -8,19 +8,16 @@ import { useTransactionContext } from "@/context/TransactionDataContext";
 import TopGroups from "@/components/TopGroups";
 import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
 import TransactionHeatmap from "@/components/TransactionHeatmap";
+import { useState } from "react";
+import { Period } from "@/lib/groupByPeriod";
 
 const DashboardPage = () => {
-  const loading = useTransactionStore((state) => state.loading);
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, dateRangeData } = useTransactionContext();
-  const {
-    transactionTotals,
-    balance,
-    balanceTrend,
-  } = calculatedData;
+  const { calculatedData, dateRangeData, periodAverages } =
+    useTransactionContext();
+  const { transactionTotals, balance, balanceTrend } = calculatedData;
   const { defaultPeriod, periodOptions } = dateRangeData;
-
-  if (loading) return <div>Loading...</div>;
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>(defaultPeriod);
 
   return (
     <>
@@ -31,6 +28,10 @@ const DashboardPage = () => {
           amount={transactionTotals.moneyInAmount}
           mode={MoneyMode.MoneyIn}
           Icon={ArrowDownCircle}
+          period={selectedPeriod || defaultPeriod}
+          average={
+            periodAverages[selectedPeriod || defaultPeriod].moneyInAverage
+          }
         />
         <AmtSummaryCard
           type="Sent"
@@ -38,6 +39,10 @@ const DashboardPage = () => {
           amount={transactionTotals.moneyOutAmount}
           mode={MoneyMode.MoneyOut}
           Icon={ArrowUpCircle}
+          period={selectedPeriod || defaultPeriod}
+          average={
+            periodAverages[selectedPeriod || defaultPeriod].moneyOutAverage
+          }
         />
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
         <QuickFiltersCarousel />
@@ -45,7 +50,8 @@ const DashboardPage = () => {
 
       <div className="py-4">
         <PeriodicTransactionsChart
-          defaultPeriod={defaultPeriod}
+          defaultPeriod={selectedPeriod}
+          onPeriodChange={setSelectedPeriod}
           periodOptions={periodOptions}
           transactions={transactions}
         />

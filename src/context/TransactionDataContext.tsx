@@ -1,4 +1,3 @@
-// Contains the provider that consolidates all transaction-related logic
 import React, { createContext, useMemo, ReactNode, useContext, useEffect } from 'react';
 import useTransactionStore from '@/stores/transactions.store';
 import { Transaction } from '@/types/Transaction';
@@ -6,6 +5,7 @@ import { Filter } from '@/types/Filters';
 import { DateRangeData, getDateRangeData } from '@/lib/getDateRangeData';
 import { useLoadInitialTransactions, useTransactions } from '@/hooks/useTransactions';
 import { CalculatedData, getCalculatedData } from '@/lib/getCalculatedData';
+import { getPeriodAverages } from '@/lib/groupByPeriod';
 
 interface TransactionDataContextType {
 
@@ -13,6 +13,10 @@ interface TransactionDataContextType {
   dateRangeData: DateRangeData;
   calculatedData: CalculatedData;
   accountsList: string[];
+  periodAverages: { [period: string]: {
+    moneyInAverage: number;
+    moneyOutAverage: number;
+  }};
 
   // Actions
   loadTransactions: () => Promise<void>;
@@ -44,19 +48,25 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   // memoize to prevent unnecessary rerenders
   const contextValue = useMemo(() => {
+    const dateRangeData = getDateRangeData({transactions, currentFilters});
+
     const calculatedData = getCalculatedData(transactions);
-    // accountNames should be array of strings
+
+    const periodAverages = getPeriodAverages(dateRangeData, calculatedData);
+
     const accountNames = new Set([
       ...calculatedData.topAccountsReceivedFromByAmt.map(a => a.name),
       ...calculatedData.topAccountsSentToByAmt.map(a => a.name),
     ]).values();
+
     const accountsList = Array.from(accountNames);
 
     return {
     // Derived data
-    dateRangeData: getDateRangeData({transactions, currentFilters}),
+    dateRangeData,
     calculatedData,
     accountsList,
+    periodAverages,
 
     // Actions
     loadTransactions,

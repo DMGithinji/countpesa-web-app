@@ -1,6 +1,8 @@
 import { Transaction } from "@/types/Transaction";
 import { endOfWeek, format, formatDate, startOfWeek } from "date-fns";
 import { calculateTransactionTotals } from "./getTotal";
+import { CalculatedData } from "./getCalculatedData";
+import { DateRangeData } from "./getDateRangeData";
 
 export enum Period {
   HOUR = "hour",
@@ -9,6 +11,21 @@ export enum Period {
   MONTH = "month",
   YEAR = "year",
 }
+
+export const PeriodDict = {
+  [Period.HOUR]: "Hourly",
+  [Period.DATE]: "Daily",
+  [Period.WEEK]: "Weekly",
+  [Period.MONTH]: "Monthly",
+  [Period.YEAR]: "Yearly",
+};
+
+export type PeriodAverages = {
+  [period: string]: {
+    moneyInAverage: number;
+    moneyOutAverage: number;
+  };
+};
 
 export function groupTransactionsByPeriod(
   transactions: Transaction[],
@@ -34,7 +51,10 @@ export function groupTransactionsByPeriod(
         // Format: "Week W, YYYY"
         const start = startOfWeek(date, { weekStartsOn: 1 });
         const end = endOfWeek(date, { weekStartsOn: 1 });
-        groupKey = `${formatDate(start, 'MMM dd, yy')} - ${formatDate(end, 'MMM dd, yy')}`;
+        groupKey = `${formatDate(start, "MMM dd, yy")} - ${formatDate(
+          end,
+          "MMM dd, yy"
+        )}`;
         break;
       }
 
@@ -75,3 +95,43 @@ export const getPeriodData = (transactions: Transaction[], period: Period) => {
   });
   return summed;
 };
+
+export function getPeriodAverages(
+  dateRangeData: DateRangeData,
+  calculatedData: CalculatedData
+) {
+  const periodAverages = dateRangeData.periodOptions.reduce(
+    (acc, period) => {
+      const moneyInTts = calculatedData.topCategoriesMoneyInByAmt
+        .map((g) => g.transactions)
+        .flat();
+      const noOfPeriods = Object.keys(
+        groupTransactionsByPeriod(moneyInTts, period)
+      ).length;
+      const total = calculatedData.transactionTotals.moneyInAmount;
+      const average = total / noOfPeriods;
+
+      const moneyOutTts = calculatedData.topCategoriesMoneyOutByAmt
+        .map((g) => g.transactions)
+        .flat();
+      const noOfPeriodsOut = Object.keys(
+        groupTransactionsByPeriod(moneyOutTts, period)
+      ).length;
+      const totalOut = calculatedData.transactionTotals.moneyOutAmount;
+      const averageOut = totalOut / noOfPeriodsOut;
+
+      acc[period] = {
+        moneyInAverage: average,
+        moneyOutAverage: averageOut,
+      };
+      return acc;
+    },
+    {} as {
+      [period: string]: {
+        moneyInAverage: number;
+        moneyOutAverage: number;
+      };
+    }
+  );
+  return periodAverages;
+}

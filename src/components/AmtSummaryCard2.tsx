@@ -8,7 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
+import { groupTransactionsByPeriod, Period, PeriodDict } from "@/lib/groupByPeriod";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,10 @@ interface AmtSummaryCardProps {
   transactions: Transaction[];
   periodOptions: Period[];
   defaultPeriod: Period;
+  periodAverages: { [period: string]: {
+    moneyInAverage: number;
+    moneyOutAverage: number;
+  }};
 }
 const AmtSummaryCard = ({
   type,
@@ -36,6 +40,7 @@ const AmtSummaryCard = ({
   transactions,
   periodOptions,
   defaultPeriod,
+  periodAverages,
 }: AmtSummaryCardProps) => {
   const [chartPeriod, setChartPeriod] = useState<Period>(defaultPeriod);
   const chartData = useMemo(() => {
@@ -72,11 +77,11 @@ const AmtSummaryCard = ({
               mode === MoneyMode.MoneyIn
                 ? "text-money-in bg-money-in/20"
                 : "text-money-out bg-money-out/20"
-            } px- mx-1`}
+            } px- mx-1 text-sm`}
           >
-            {formatCurrency(Math.floor(amount / count) || 0)}
+            {mode === MoneyMode.MoneyIn ? formatCurrency(periodAverages[chartPeriod].moneyInAverage || 0) : formatCurrency(periodAverages[chartPeriod].moneyOutAverage || 0)}
           </span>
-          <span>Avg {type}</span>
+          <span className="text-muted-foreground">{PeriodDict[chartPeriod]} Avg </span>
         </div>
         <div className="md:mt-[-24px]">
           <div>

@@ -20,6 +20,7 @@ import {
   addWeeks,
   addMonths,
   addYears,
+  isAfter,
 } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -32,7 +33,7 @@ import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 
 type PeriodType = "day" | "week" | "month" | "year" | "custom";
 
-export default function CalendarWithPopover({
+export default function DateRangePicker({
   range,
   onDateChange,
 }: {
@@ -85,6 +86,9 @@ export default function CalendarWithPopover({
   // Handle preset selection
   const handlePresetChange = (preset: DateRange | undefined) => {
     if (!preset) return;
+    if (preset.to && isAfter(new Date(preset.to), new Date())) {
+      preset.to = endOfDay(new Date());
+    }
     const newDateRange = preset;
     setDate(newDateRange);
     onDateChange(newDateRange);
@@ -233,31 +237,41 @@ function getPeriodPresets(date: DateRange | undefined) {
 
   const fromDate = date.from;
   const toDate = date.to;
+  const toDateIsToday = isSameDay(toDate, new Date());
 
-  // Check if it's a day
-  if (isSameDay(fromDate, toDate)) {
-    return { periodType: "day" as PeriodType, showNavigationArrows: true };
-  }
-
-  // Check if it's a week
-  const weekStart = startOfWeek(fromDate, { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(fromDate, { weekStartsOn: 1 });
-  if (isEqual(fromDate, weekStart) && isEqual(toDate, weekEnd)) {
-    return { periodType: "week" as PeriodType, showNavigationArrows: true };
+  // Check if it's a year
+  const yearStart = startOfYear(fromDate);
+  const yearEnd = endOfYear(fromDate);
+  if (
+    isEqual(fromDate, yearStart) &&
+    (isEqual(toDate, yearEnd) || toDateIsToday)
+  ) {
+    return { periodType: "year" as PeriodType, showNavigationArrows: true };
   }
 
   // Check if it's a month
   const monthStart = startOfMonth(fromDate);
   const monthEnd = endOfMonth(fromDate);
-  if (isEqual(fromDate, monthStart) && isEqual(toDate, monthEnd)) {
+  if (
+    isEqual(fromDate, monthStart) &&
+    (isEqual(toDate, monthEnd) || toDateIsToday)
+  ) {
     return { periodType: "month" as PeriodType, showNavigationArrows: true };
   }
 
-  // Check if it's a year
-  const yearStart = startOfYear(fromDate);
-  const yearEnd = endOfYear(fromDate);
-  if (isEqual(fromDate, yearStart) && isEqual(toDate, yearEnd)) {
-    return { periodType: "year" as PeriodType, showNavigationArrows: true };
+  // Check if it's a week
+  const weekStart = startOfWeek(fromDate, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(fromDate, { weekStartsOn: 1 });
+  if (
+    isEqual(fromDate, weekStart) &&
+    (isEqual(toDate, weekEnd) || toDateIsToday)
+  ) {
+    return { periodType: "week" as PeriodType, showNavigationArrows: true };
+  }
+
+  // Check if it's a day
+  if (isSameDay(fromDate, toDate)) {
+    return { periodType: "day" as PeriodType, showNavigationArrows: true };
   }
 
   return { periodType: "custom" as PeriodType, showNavigationArrows: false };
@@ -275,38 +289,20 @@ function goToPeriod(
 
   switch (periodType) {
     case "day":
-      newFrom =
-        change > 0
-          ? addDays(date.from, change)
-          : subDays(date.from, Math.abs(change));
-      newTo =
-        change > 0
-          ? addDays(date.to, change)
-          : subDays(date.to, Math.abs(change));
+      newFrom = addDays(date.from, change)
+      newTo = endOfDay(newFrom);
       break;
     case "week":
-      newFrom =
-        change > 0
-          ? addWeeks(date.from, change)
-          : subWeeks(date.from, Math.abs(change));
-      newTo =
-        change > 0
-          ? addWeeks(date.to, change)
-          : subWeeks(date.to, Math.abs(change));
+      newFrom = addWeeks(date.from, change);
+      newTo = endOfWeek(newFrom, { weekStartsOn: 1 });
       break;
     case "month":
       newFrom = addMonths(date.from, change);
       newTo = endOfMonth(newFrom);
       break;
     case "year":
-      newFrom =
-        change > 0
-          ? addYears(date.from, change)
-          : subYears(date.from, Math.abs(change));
-      newTo =
-        change > 0
-          ? addYears(date.to, change)
-          : subYears(date.to, Math.abs(change));
+      newFrom = addYears(date.from, change)
+      newTo = endOfYear(newFrom);
       break;
     default:
       return;

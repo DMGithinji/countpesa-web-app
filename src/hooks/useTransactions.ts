@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { startOfMonth, endOfMonth } from "date-fns";
+import { startOfMonth, endOfMonth, isAfter, endOfDay, isBefore } from "date-fns";
 import useTransactionStore from "@/stores/transactions.store";
 import transactionRepository from "@/database/TransactionRepository";
 import { Transaction } from "@/types/Transaction";
@@ -54,22 +54,25 @@ export function useLoadInitialTransactions() {
   const fetchTransactions = useCallback(async () => {
     try {
       const trs = await transactionRepository.getTransactions();
+      const earliestTrDate = trs.length ? new Date(trs[0].date) : new Date();
       const latestTrDate = trs.length ? new Date(trs[trs.length - 1].date) : new Date();
 
-      const startDate = startOfMonth(latestTrDate).getTime();
-      const endDate = endOfMonth(latestTrDate).getTime();
+      const startDate = startOfMonth(latestTrDate);
+      const endDate = endOfMonth(latestTrDate);
+      const start = isBefore(startDate, earliestTrDate) ? earliestTrDate : startDate;
+      const end = isAfter(endDate, new Date()) ? endOfDay(new Date()) : endDate;
 
       const dateRangeFilter: Filter[] = [
           {
             field: "date",
             operator: ">=",
-            value: startDate,
+            value: start.getTime(),
             mode: "and",
           },
           {
             field: "date",
             operator: "<=",
-            value: endDate,
+            value: end.getTime(),
             mode: "and",
           },
         ];

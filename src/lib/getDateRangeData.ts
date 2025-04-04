@@ -8,13 +8,8 @@ import {
 } from "date-fns";
 import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
+import { Period } from "./groupByPeriod";
 
-export enum Period {
-  HOUR = "hour",
-  DATE = "date",
-  WEEK = "week",
-  MONTH = "month",
-}
 
 export type SetDateRange = {
   from: Date;
@@ -23,7 +18,7 @@ export type SetDateRange = {
 
 export type DateRangeData = {
   dateRange: SetDateRange;
-  defaultPeriod: Period.HOUR | Period.DATE | Period.MONTH;
+  defaultPeriod: Period;
   periodOptions: Period[];
 };
 
@@ -85,7 +80,7 @@ export function getDateRangeData({
     defaultPeriod = Period.MONTH;
     validOptions = [Period.DATE, Period.WEEK, Period.MONTH];
   } else if (differenceInDays(end, start) <= 31) {
-    defaultPeriod = Period.DATE;
+    defaultPeriod = Period.WEEK;
     validOptions = [Period.DATE, Period.WEEK];
   } else {
     defaultPeriod = Period.DATE; // Default fallback
@@ -98,3 +93,4 @@ export function getDateRangeData({
     periodOptions: validOptions,
   };
 }
+

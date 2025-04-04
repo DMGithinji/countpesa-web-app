@@ -22,6 +22,7 @@ type PeriodicTransactionsChartProps = {
   transactions: Transaction[];
   defaultPeriod: Period;
   periodOptions: Period[];
+  onPeriodChange: (period: Period) => void;
 };
 
 enum MoneyFilter {
@@ -34,9 +35,9 @@ const PeriodicTransactionsChart = ({
   transactions,
   defaultPeriod,
   periodOptions,
+  onPeriodChange
 }: PeriodicTransactionsChartProps) => {
   const [filter, setFilter] = useState<MoneyFilter>(MoneyFilter.all);
-  const [period, setPeriod] = useState<Period>(defaultPeriod);
   const [selectedTransactions, setSelectedTransactions] = useState<{
     title: string;
     transactions: Transaction[];
@@ -58,13 +59,13 @@ const PeriodicTransactionsChart = ({
     []
   );
 
-  useEffect(() => {
-    setPeriod(defaultPeriod);
-  }, [defaultPeriod]);
+  // useEffect(() => {
+  //   setPeriod(defaultPeriod);
+  // }, [defaultPeriod]);
 
   const groupedTrs = useMemo(() => {
-    if (!period) return [];
-    const trsGroups = groupTransactionsByPeriod(transactions, period);
+    if (!defaultPeriod) return [];
+    const trsGroups = groupTransactionsByPeriod(transactions, defaultPeriod);
     const totals = Object.keys(trsGroups).map((g) => {
       const trs = trsGroups[g];
       const totals = calculateTransactionTotals(trs);
@@ -76,7 +77,7 @@ const PeriodicTransactionsChart = ({
       };
     });
     return totals;
-  }, [transactions, period]);
+  }, [transactions, defaultPeriod]);
 
   return (
     <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
@@ -88,14 +89,14 @@ const PeriodicTransactionsChart = ({
             </CardTitle>
           </div>
 
-          <ToggleGroup value={period} type="single">
+          <ToggleGroup value={defaultPeriod} type="single">
             {periodOptions.map((option) => (
               <ToggleGroupItem
                 className={cn(
                   "cursor-pointer capitalize",
-                  option === period ? "opacity-100" : "opacity-50"
+                  option === defaultPeriod ? "opacity-100" : "opacity-50"
                 )}
-                onClick={() => setPeriod(option)}
+                onClick={() => onPeriodChange(option)}
                 value={option}
                 key={option}
               >
@@ -139,7 +140,7 @@ const PeriodicTransactionsChart = ({
                   <CartesianGrid
                     horizontal={true}
                     vertical={false}
-                    strokeDasharray="3 3"
+                    strokeDasharray="1 1"
                     stroke="#e5e7eb"
                   />
                   <XAxis

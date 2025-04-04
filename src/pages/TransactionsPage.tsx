@@ -19,7 +19,7 @@ import useTransactionStore from "@/stores/transactions.store";
 
 const TransactionsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
-  const { calculatedData, dateRangeData } = useTransactionContext();
+  const { calculatedData, dateRangeData, periodAverages } = useTransactionContext();
   const { defaultPeriod, periodOptions } = dateRangeData;
   const { transactionTotals } = calculatedData;
 
@@ -58,6 +58,7 @@ const TransactionsPage = () => {
           transactions={transactionTotals.moneyInTrs}
           periodOptions={periodOptions}
           defaultPeriod={defaultPeriod}
+          periodAverages={periodAverages}
         />
         <AmtSummaryCard2
           type="Sent"
@@ -67,6 +68,7 @@ const TransactionsPage = () => {
           transactions={transactionTotals.moneyOutTrs}
           periodOptions={periodOptions}
           defaultPeriod={defaultPeriod}
+          periodAverages={periodAverages}
         />
       </div>
       <div>
