@@ -27,27 +27,42 @@ export type PeriodAverages = {
   };
 };
 
+/**
+ * Groups transactions by specified time period
+ */
 export function groupTransactionsByPeriod(
   transactions: Transaction[],
   period: Period
-) {
-  const grouped = transactions.reduce((result, transaction) => {
-    // Convert Unix timestamp to Date object using date-fns
-    const date = new Date(transaction.date);
-    let groupKey;
+): Record<string, Transaction[]> {
+  const grouped: Record<string, Transaction[]> = {};
+
+  // Date cache to avoid creating redundant Date objects
+  const dateCache: Record<number, Date> = {};
+
+  for (const transaction of transactions) {
+    // Get or create Date object from timestamp
+    const timestamp = transaction.date;
+    let date = dateCache[timestamp];
+    if (!date) {
+      date = new Date(timestamp);
+      dateCache[timestamp] = date;
+    }
+
+    // Determine group key based on period
+    let groupKey: string;
 
     switch (period) {
-      case "hour":
+      case Period.HOUR:
         // Format: "dd-MM-yyyy HH:00"
         groupKey = format(date, "dd-MM-yyyy HH:00");
         break;
 
-      case "date":
+      case Period.DATE:
         // Format: "EEE, dd-MM-yyyy"
         groupKey = format(date, "EEE, dd-MM-yyyy");
         break;
 
-      case "week": {
+      case Period.WEEK: {
         // Format: "Week W, YYYY"
         const start = startOfWeek(date, { weekStartsOn: 1 });
         const end = endOfWeek(date, { weekStartsOn: 1 });
@@ -58,80 +73,74 @@ export function groupTransactionsByPeriod(
         break;
       }
 
-      case "month":
+      case Period.MONTH:
         // Format: "January 2023", "February 2023", etc.
         groupKey = format(date, "MMMM yyyy");
         break;
 
-      case "year":
+      case Period.YEAR:
         // Format: "2023", "2024", etc.
         groupKey = format(date, "yyyy");
         break;
-    }
 
-    if (!groupKey) {
-      throw new Error(`Invalid period: ${period}`);
+      default:
+        throw new Error(`Invalid period: ${period}`);
     }
 
     // Add transaction to the appropriate group
-    if (!result[groupKey]) {
-      result[groupKey] = [];
+    if (!grouped[groupKey]) {
+      grouped[groupKey] = [];
     }
-    result[groupKey].push(transaction);
-
-    return result;
-  }, {} as Record<string, Transaction[]>);
+    grouped[groupKey].push(transaction);
+  }
 
   return grouped;
 }
 
+/**
+ * Get period data with summarized amounts
+ * Optimized to reduce object creation
+ */
 export const getPeriodData = (transactions: Transaction[], period: Period) => {
   const groupedTransactions = groupTransactionsByPeriod(transactions, period);
+  const result = [];
 
-  const summed = Object.keys(groupedTransactions).map((period) => {
-    const { totalAmount, moneyInAmount, moneyOutAmount } =
-      calculateTransactionTotals(groupedTransactions[period]);
-    return { period, totalAmount, moneyInAmount, moneyOutAmount };
-  });
-  return summed;
+  for (const periodKey in groupedTransactions) {
+    if (Object.prototype.hasOwnProperty.call(groupedTransactions, periodKey)) {
+      const periodTxs = groupedTransactions[periodKey];
+      const { totalAmount, moneyInAmount, moneyOutAmount } = calculateTransactionTotals(periodTxs);
+      result.push({ period: periodKey, totalAmount, moneyInAmount, moneyOutAmount });
+    }
+  }
+
+  return result;
 };
 
+/**
+ * Get average amounts per period
+ * Optimized to reduce redundant calculations
+ */
 export function getPeriodAverages(
   dateRangeData: DateRangeData,
   calculatedData: CalculatedData
-) {
-  const periodAverages = dateRangeData.periodOptions.reduce(
-    (acc, period) => {
-      const moneyInTts = calculatedData.topCategoriesMoneyInByAmt
-        .map((g) => g.transactions)
-        .flat();
-      const noOfPeriods = Object.keys(
-        groupTransactionsByPeriod(moneyInTts, period)
-      ).length;
-      const total = calculatedData.transactionTotals.moneyInAmount;
-      const average = total / noOfPeriods;
+): PeriodAverages {
+  const { moneyInTrs, moneyOutTrs, moneyInAmount, moneyOutAmount } = calculatedData.transactionTotals;
+  const periodAverages: PeriodAverages = {};
 
-      const moneyOutTts = calculatedData.topCategoriesMoneyOutByAmt
-        .map((g) => g.transactions)
-        .flat();
-      const noOfPeriodsOut = Object.keys(
-        groupTransactionsByPeriod(moneyOutTts, period)
-      ).length;
-      const totalOut = calculatedData.transactionTotals.moneyOutAmount;
-      const averageOut = totalOut / noOfPeriodsOut;
+  for (const period of dateRangeData.periodOptions) {
+    // Get number of unique periods
+    const moneyInGroups = groupTransactionsByPeriod(moneyInTrs, period);
+    const moneyOutGroups = groupTransactionsByPeriod(moneyOutTrs, period);
 
-      acc[period] = {
-        moneyInAverage: average,
-        moneyOutAverage: averageOut,
-      };
-      return acc;
-    },
-    {} as {
-      [period: string]: {
-        moneyInAverage: number;
-        moneyOutAverage: number;
-      };
-    }
-  );
+    const inPeriodCount = Object.keys(moneyInGroups).length || 1; // Avoid division by zero
+    const outPeriodCount = Object.keys(moneyOutGroups).length || 1;
+
+    // Calculate averages
+    periodAverages[period] = {
+      moneyInAverage: moneyInAmount / inPeriodCount,
+      moneyOutAverage: moneyOutAmount / outPeriodCount,
+    };
+  }
+
   return periodAverages;
 }

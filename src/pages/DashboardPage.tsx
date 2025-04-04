@@ -8,7 +8,7 @@ import { useTransactionContext } from "@/context/TransactionDataContext";
 import TopGroups from "@/components/TopGroups";
 import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
 import TransactionHeatmap from "@/components/TransactionHeatmap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Period } from "@/lib/groupByPeriod";
 
 const DashboardPage = () => {
@@ -17,7 +17,11 @@ const DashboardPage = () => {
     useTransactionContext();
   const { transactionTotals, balance, balanceTrend } = calculatedData;
   const { defaultPeriod, periodOptions } = dateRangeData;
-  const [selectedPeriod, setSelectedPeriod] = useState<Period>(defaultPeriod);
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>();
+
+  useEffect(() => {
+    setSelectedPeriod(defaultPeriod);
+  }, [defaultPeriod]);
 
   return (
     <>
@@ -30,7 +34,7 @@ const DashboardPage = () => {
           Icon={ArrowDownCircle}
           period={selectedPeriod || defaultPeriod}
           average={
-            periodAverages[selectedPeriod || defaultPeriod].moneyInAverage
+            periodAverages[selectedPeriod || defaultPeriod]?.moneyInAverage || 0
           }
         />
         <AmtSummaryCard
@@ -41,7 +45,7 @@ const DashboardPage = () => {
           Icon={ArrowUpCircle}
           period={selectedPeriod || defaultPeriod}
           average={
-            periodAverages[selectedPeriod || defaultPeriod].moneyOutAverage
+            periodAverages[selectedPeriod || defaultPeriod]?.moneyOutAverage || 0
           }
         />
         <BalanceTrendCard latestBalance={balance} data={balanceTrend} />
@@ -50,7 +54,7 @@ const DashboardPage = () => {
 
       <div className="py-4">
         <PeriodicTransactionsChart
-          defaultPeriod={selectedPeriod}
+          defaultPeriod={selectedPeriod || defaultPeriod}
           onPeriodChange={setSelectedPeriod}
           periodOptions={periodOptions}
           transactions={transactions}

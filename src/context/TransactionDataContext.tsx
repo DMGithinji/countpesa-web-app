@@ -48,6 +48,7 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
 
   // memoize to prevent unnecessary rerenders
   const contextValue = useMemo(() => {
+    const start = performance.now();
     const dateRangeData = getDateRangeData({transactions, currentFilters});
 
     const calculatedData = getCalculatedData(transactions);
@@ -60,7 +61,8 @@ export const TransactionDataProvider: React.FC<{ children: ReactNode }> = ({ chi
     ]).values();
 
     const accountsList = Array.from(accountNames);
-
+    const end = performance.now();
+    console.log('contextValue', Math.round(end - start));
     return {
     // Derived data
     dateRangeData,

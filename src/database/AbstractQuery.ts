@@ -1,8 +1,15 @@
 import Dexie from "dexie";
-import { Filter, FilterField, Query } from "@/types/Filters";
+import { Filter, FilterField, FilterMode, Query } from "@/types/Filters";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import { deconstructTrCategory } from "@/hooks/useTransactions";
-import { format, isAfter, isBefore, isSameDay, set } from "date-fns";
+import { format, isSameDay } from "date-fns";
+
+// Define operator types for better type safety
+export type ComparisonOperator = "==" | "!=" | "<" | "<=" | ">" | ">=";
+export type TextOperator = "contains" | "contains-any";
+export type ArrayOperator = "in" | "not-in";
+export type FilterOperator = ComparisonOperator | TextOperator | ArrayOperator;
+
 
 export abstract class AbstractQuery {
   /**
@@ -16,42 +23,41 @@ export abstract class AbstractQuery {
    */
   protected evaluateFilter(item: Transaction, filter: Filter): boolean {
     const { field, operator } = filter;
-    let value = filter.value;
-    let fieldValue = this.getItemValue(item, field);
+    const value = filter.value;
 
-    if (
-      field === "hour" &&
-      ["<=", ">=", "<", ">"].includes(operator) &&
-      typeof value === "string"
-    ) {
-      return compareTime(item.date, value, operator as "<=" | ">=" | "<" | ">");
+    // Handle special field types with their own evaluation logic
+    if (field === "hour" && this.isTimeOperator(operator)) {
+      return this.evaluateTimeFilter(item.date, value as string, operator);
     }
 
-    if (
-      field === "mode" &&
-      ["==", "!="].includes(operator) &&
-      typeof value === "string"
-    ) {
-      return compareMode(item.amount, value as MoneyMode);
+    if (field === "mode" && this.isEqualityOperator(operator)) {
+      return this.evaluateModeFilter(item.amount, value as MoneyMode, operator);
     }
 
-    if (
-      field === "dayOfWeek" &&
-      ["==", "!="].includes(operator) &&
-      typeof value === "string"
-    ) {
-      return compareDayOfWeek(item.date, value, operator as "==" | "!=");
+    if (field === "dayOfWeek" && this.isEqualityOperator(operator)) {
+      return this.evaluateDayOfWeekFilter(item.date, value as string, operator);
     }
 
     if (field === "date" && operator === "==" && typeof value === "number") {
-      return compareDate(item.date, value);
+      return this.evaluateDateFilter(item.date, value);
     }
 
+    // Get field value with special handling for amount (absolute value comparison)
+    let fieldValue = this.getItemValue(item, field);
     if (field === "amount" && typeof value === "number") {
       fieldValue = Math.abs(fieldValue);
-      value = Math.abs(value);
+      const absValue = Math.abs(value);
+      return this.evaluateBasicFilter(fieldValue, absValue, operator);
     }
 
+    // Handle standard filter evaluation
+    return this.evaluateBasicFilter(fieldValue, value, operator);
+  }
+
+  /**
+   * Basic filter evaluation for standard operators
+   */
+  private evaluateBasicFilter(fieldValue: any, value: any, operator: string): boolean {
     switch (operator) {
       case "==":
         return typeof fieldValue === "string" && typeof value === "string"
@@ -70,15 +76,14 @@ export abstract class AbstractQuery {
       case "contains":
         return (
           typeof fieldValue === "string" &&
-          fieldValue.toLowerCase().includes((value as string).toLowerCase())
+          typeof value === "string" &&
+          fieldValue.toLowerCase().includes(value.toLowerCase())
         );
       case "contains-any":
-        if (typeof value === "string") {
+        if (typeof value === "string" && typeof fieldValue === "string") {
           const terms = value.toLowerCase().split(/\s+/);
-          return (
-            typeof fieldValue === "string" &&
-            terms.some((term) => fieldValue.toLowerCase().includes(term))
-          );
+          const fieldValueLower = fieldValue.toLowerCase();
+          return terms.some(term => fieldValueLower.includes(term));
         }
         return false;
       case "in":
@@ -91,7 +96,63 @@ export abstract class AbstractQuery {
   }
 
   /**
-   * Apply filters to a Dexie collection, grouping by mode
+   * Specialized filter for comparing time values
+   */
+  private evaluateTimeFilter(
+    trDateInSeconds: number,
+    timeStr: string,
+    operator: ComparisonOperator
+  ): boolean {
+    return compareTime(trDateInSeconds, timeStr, operator as "<=" | ">=" | "<" | ">");
+  }
+
+  /**
+   * Specialized filter for comparing money mode
+   */
+  private evaluateModeFilter(
+    trAmount: number,
+    mode: MoneyMode,
+    operator: ComparisonOperator
+  ): boolean {
+    const isMoneyOut = trAmount < 0;
+    const isTargetMode = mode === MoneyMode.MoneyOut ? isMoneyOut : !isMoneyOut;
+    return operator === "==" ? isTargetMode : !isTargetMode;
+  }
+
+  /**
+   * Specialized filter for comparing days of week
+   */
+  private evaluateDayOfWeekFilter(
+    trDateInSeconds: number,
+    dayOfWeek: string,
+    operator: ComparisonOperator
+  ): boolean {
+    return compareDayOfWeek(trDateInSeconds, dayOfWeek, operator as "==" | "!=");
+  }
+
+  /**
+   * Specialized filter for exact date matching
+   */
+  private evaluateDateFilter(trDateInSeconds: number, date: number): boolean {
+    return compareDate(trDateInSeconds, date);
+  }
+
+  /**
+   * Type guard for time comparison operators
+   */
+  private isTimeOperator(operator: string): operator is "<=" | ">=" | "<" | ">" {
+    return ["<=", ">=", "<", ">"].includes(operator);
+  }
+
+  /**
+   * Type guard for equality operators
+   */
+  private isEqualityOperator(operator: string): operator is "==" | "!=" {
+    return ["==", "!="].includes(operator);
+  }
+
+  /**
+   * Apply filters to a Dexie collection, optimized for AND/OR logic
    */
   protected applyFilters(
     collection: Dexie.Collection<Transaction>,
@@ -101,38 +162,45 @@ export abstract class AbstractQuery {
       return collection;
     }
 
-    // Group filters by mode, defaulting to 'and' if mode is undefined
-    const andFilters = filters.filter(
-      (f) => f.mode === "and" || f.mode === undefined
-    );
-    const orFilters = filters.filter((f) => f.mode === "or");
+    // Group filters by mode
+    const andFilters = filters.filter(f => f.mode === FilterMode.AND || f.mode === undefined);
+    const orFilters = filters.filter(f => f.mode === FilterMode.OR);
 
-    let result = collection;
+    // Apply filters using the most efficient approach
+    return collection.filter(item => {
+      // Short-circuit evaluation for AND filters
+      if (andFilters.length > 0) {
+        for (const filter of andFilters) {
+          if (!this.evaluateFilter(item, filter)) {
+            return false;
+          }
+        }
+      }
 
-    // Apply AND filters: all must be true
-    if (andFilters.length > 0) {
-      result = result.filter((item) =>
-        andFilters.every((filter) => this.evaluateFilter(item, filter))
-      );
-    }
+      // Short-circuit evaluation for OR filters
+      if (orFilters.length > 0) {
+        if (orFilters.length === 0) {
+          return true; // No OR filters, keep item if it passed AND filters
+        }
 
-    // Apply OR filters: at least one must be true
-    if (orFilters.length > 0) {
-      result = result.filter((item) =>
-        orFilters.some((filter) => this.evaluateFilter(item, filter))
-      );
-    }
+        for (const filter of orFilters) {
+          if (this.evaluateFilter(item, filter)) {
+            return true;
+          }
+        }
+        return false; // No OR filters matched
+      }
 
-    return result;
+      return true; // Passed all AND filters and no OR filters exist
+    });
   }
 
   /**
    * Helper method to safely get a value from an item by field name
    * Ensures TypeScript safety with keyof Transaction
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected getItemValue(item: Transaction, field: FilterField): any {
-    if (["category", "subcategory"].includes(field)) {
+    if (field === "category" || field === "subcategory") {
       const { category, subcategory } = deconstructTrCategory(item.category);
       return field === "category" ? category : subcategory;
     }
@@ -150,75 +218,89 @@ export abstract class AbstractQuery {
       offset = 0,
     } = query;
 
-    // Start with the table and apply primary sorting
-    const primarySort = orderBy[0];
-    let collection = this.getTable().orderBy(primarySort.field);
+    try {
+      // Start with the table and apply primary sorting
+      const primarySort = orderBy[0];
+      let collection = this.getTable().orderBy(primarySort.field);
 
-    if (primarySort.direction === "desc") {
-      collection = collection.reverse();
+      if (primarySort.direction === "desc") {
+        collection = collection.reverse();
+      }
+
+      // Apply filters if present
+      if (filters && filters.length > 0) {
+        collection = this.applyFilters(collection, filters);
+      }
+
+      // Apply offset and limit
+      let result = collection;
+      if (offset > 0) {
+        result = result.offset(offset);
+      }
+      if (limit !== undefined && limit > 0) {
+        result = result.limit(limit);
+      }
+
+      // Execute query and return results
+      return result.toArray();
+    } catch (error) {
+      console.error("Query execution failed:", error);
+      return [];
     }
-
-    // Apply filters if present
-    if (filters && filters.length > 0) {
-      collection = this.applyFilters(collection, filters);
-    }
-
-    // Apply offset
-    if (offset > 0) {
-      collection = collection.offset(offset);
-    }
-
-    // Apply limit
-    if (limit !== undefined && limit > 0) {
-      collection = collection.limit(limit);
-    }
-
-    // Execute query and return results
-    return collection.toArray();
   }
 }
-function compareDate(trDateInSeconds: number, date: number) {
+
+/**
+ * Compare if transaction date matches the specified date (same day)
+ */
+function compareDate(trDateInSeconds: number, date: number): boolean {
   return isSameDay(new Date(trDateInSeconds), new Date(date));
 }
 
+/**
+ * Compare transaction time against a specified time with operator
+ */
 function compareTime(
   trDateInSeconds: number,
   timeStr: string,
   operator: "<=" | ">=" | "<" | ">"
-) {
-  // Destructure the start and end times from the timeRange object
-
-  // Parse the current date to reset hours and minutes to 0
+): boolean {
   const trDate = new Date(trDateInSeconds);
-  const currentDateStart = set(trDate, {
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    milliseconds: 0,
-  });
 
-  const time = set(currentDateStart, {
-    hours: parseInt(timeStr.split(":")[0], 10),
-    minutes: parseInt(timeStr.split(":")[1], 10),
-  });
+  // Parse hours and minutes from the time string
+  const [hours, minutes] = timeStr.split(":").map(num => parseInt(num, 10));
 
-  // Check if the current date and time is within the start and end time interval
-  return ["<=", "<"].includes(operator)
-    ? isBefore(trDate, time)
-    : isAfter(trDate, time);
+  // Set the comparison time on the same date as the transaction
+  const currentDateStart = new Date(trDate);
+  currentDateStart.setHours(0, 0, 0, 0);
+
+  const compareTime = new Date(currentDateStart);
+  compareTime.setHours(hours, minutes, 0, 0);
+
+  // Compare based on operator
+  switch (operator) {
+    case "<":
+      return trDate < compareTime;
+    case "<=":
+      return trDate <= compareTime;
+    case ">":
+      return trDate > compareTime;
+    case ">=":
+      return trDate >= compareTime;
+    default:
+      return false;
+  }
 }
 
-function compareMode(trAmount: number, mode: MoneyMode) {
-  return mode === MoneyMode.MoneyOut ? trAmount < 0 : trAmount > 0;
-}
-
+/**
+ * Compare transaction's day of week with specified day
+ */
 function compareDayOfWeek(
   trDateInSeconds: number,
   dayOfWeek: string,
   operator: "==" | "!="
-) {
+): boolean {
   const trDate = new Date(trDateInSeconds);
-  return operator === "=="
-    ? format(trDate, "cccc") === dayOfWeek
-    : format(trDate, "cccc") !== dayOfWeek;
+  const actualDay = format(trDate, "cccc");
+  return operator === "==" ? actualDay === dayOfWeek : actualDay !== dayOfWeek;
 }

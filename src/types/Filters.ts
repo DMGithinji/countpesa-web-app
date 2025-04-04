@@ -15,7 +15,10 @@ export type FilterOperator =
   | 'in'
   | 'not-in';
 
-export type FilterMode = 'and' | 'or';
+export enum FilterMode {
+  AND = "and",
+  OR = "or",
+}
 
 // A single filter condition
 export interface Filter {

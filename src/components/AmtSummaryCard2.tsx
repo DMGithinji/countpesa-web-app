@@ -79,7 +79,7 @@ const AmtSummaryCard = ({
                 : "text-money-out bg-money-out/20"
             } px- mx-1 text-sm`}
           >
-            {mode === MoneyMode.MoneyIn ? formatCurrency(periodAverages[chartPeriod].moneyInAverage || 0) : formatCurrency(periodAverages[chartPeriod].moneyOutAverage || 0)}
+            {mode === MoneyMode.MoneyIn ? formatCurrency(periodAverages[chartPeriod]?.moneyInAverage || 0) : formatCurrency(periodAverages[chartPeriod]?.moneyOutAverage || 0)}
           </span>
           <span className="text-muted-foreground">{PeriodDict[chartPeriod]} Avg </span>
         </div>

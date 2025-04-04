@@ -31,66 +31,102 @@ export enum GroupByTrxSortBy {
   Count = "totalCount",
 }
 
+/**
+ * Get the appropriate key for grouping based on field type
+ */
+function getGroupKey(tx: Transaction, field: GroupByField): string {
+  if (field === GroupByField.Account) {
+    return tx[field];
+  }
+
+  const category = tx[GroupByField.Category];
+
+  if (field === GroupByField.Category) {
+    return category.includes(":") ? category.split(":")[0] : category;
+  }
+
+  if (field === GroupByField.Subcategory && category.includes(":")) {
+    return category.split(":")[1];
+  }
+
+  return category;
+}
+
+/**
+ * Optimized version of groupedTrxByField with reduced memory allocations
+ */
 export function groupedTrxByField(
   transactions: Transaction[],
   field: GroupByField,
   sortBy: GroupByTrxSortBy = GroupByTrxSortBy.MoneyOut
 ): TransactionSummary[] {
-  const fieldMap = new Map<string, { transactions: Transaction[] }>();
+  // Use Map for efficient grouping
+  const fieldMap = new Map<string, Transaction[]>();
 
-  // Aggregate by field
-  transactions.forEach((tx) => {
+  // Single pass to collect transactions by group
+  for (const tx of transactions) {
+    const key = getGroupKey(tx, field);
 
-    const key = field === GroupByField.Account ? tx[field] :
-      field === GroupByField.Category && tx[field].includes(":")
-        ? tx[field].split(":")[0]
-        : field === GroupByField.Subcategory &&
-          tx[GroupByField.Category].includes(":")
-        ? tx[GroupByField.Category].split(":")[1]
-        : tx[GroupByField.Category];
-    const current = fieldMap.get(key) || { transactions: [] };
-    fieldMap.set(key, {
-      transactions: [...current.transactions, tx],
-    });
+    if (!fieldMap.has(key)) {
+      fieldMap.set(key, []);
+    }
+
+    // Direct push instead of spread (more efficient)
+    fieldMap.get(key)!.push(tx);
+  }
+
+  // Pre-allocate result array for better performance
+  const result: TransactionSummary[] = new Array(fieldMap.size);
+  let index = 0;
+
+  // Create summaries
+  fieldMap.forEach((groupTransactions, name) => {
+    const trsTotals = calculateTransactionTotals(groupTransactions);
+
+    result[index++] = {
+      name,
+      transactions: groupTransactions,
+      ...trsTotals,
+    };
   });
 
-  // Convert to array and sort by amount
-  return Array.from(fieldMap.entries())
-    .map(([name, { transactions }]) => {
-      const trsTotals = calculateTransactionTotals(transactions);
-      return {
-        name,
-        transactions,
-        ...trsTotals,
-      };
-    })
-    .sort((a, b) => Math.abs(b[sortBy]) - Math.abs(a[sortBy]));
+  // Sort only once at the end
+  return result.sort((a, b) => Math.abs(b[sortBy]) - Math.abs(a[sortBy]));
 }
+
 
 export function groupTransactionsByField(
   transactions: Transaction[],
   field: GroupByField,
   sortBy: "amount" | "count" = "amount"
 ): FieldGroupSummary[] {
+  // Get totals once
   const { totalAmount, totalCount } = getTotals(transactions);
-  const groups = groupedTrxByField(transactions, field);
 
-  // Convert to array and sort by amount
-  return groups
-    .map(
-      ({
-        name,
-        transactions: trs,
-        totalAmount: amount,
-        totalCount: count,
-      }) => ({
-        name,
-        amount: Math.abs(amount),
-        count,
-        amountPercentage: Math.abs(amount / totalAmount) * 100,
-        countPercentage: (count / totalCount) * 100,
-        transactions: trs,
-      })
-    )
-    .sort((a, b) => b[sortBy] - a[sortBy]);
+  // Early return for empty transactions
+  if (totalCount === 0) {
+    return [];
+  }
+
+  // Get groups efficiently
+  const groups = groupedTrxByField(transactions, field);
+  const result: FieldGroupSummary[] = new Array(groups.length);
+
+  // Transform to summary in one pass
+  for (let i = 0; i < groups.length; i++) {
+    const { name, transactions: trs, totalAmount: amount, totalCount: count } = groups[i];
+    const absAmount = Math.abs(amount);
+
+    result[i] = {
+      name,
+      amount: absAmount,
+      count,
+      amountPercentage: (absAmount / Math.abs(totalAmount)) * 100,
+      countPercentage: (count / totalCount) * 100,
+      transactions: trs,
+    };
+  }
+
+  // Sort the final result
+  return result.sort((a, b) => b[sortBy] - a[sortBy]);
 }

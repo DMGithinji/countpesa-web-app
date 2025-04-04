@@ -20,6 +20,13 @@ class CheckPesa extends Dexie {
       subcategories: 'id, name, categoryId, [categoryId+name]',
       analysisReports: 'id, report, createdAt',
     });
+
+    this.version(2).stores({
+      transactions: 'id, date, [date+category], [date+account], amount, category, account, createdAt, dayOfWeek, hour, mode, code',
+      categories: 'id, name',
+      subcategories: 'id, name, categoryId, [categoryId+name]',
+      analysisReports: 'id, report, createdAt',
+    });
   }
 }
 

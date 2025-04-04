@@ -11,7 +11,10 @@ export function useTransactions() {
   const setTransactions = useTransactionStore(state => state.setTransactions);
 
   const loadTransactions = useCallback(async () => {
+    // time how long it takes to load transactions
+    const start = performance.now();
     const trs = await transactionRepository.getTransactions(currentFilters);
+    console.log(`Loaded ${trs.length} transactions in ${(performance.now() - start).toFixed(2)}ms`);
     setTransactions(trs);
   }, [currentFilters, setTransactions]);
 
