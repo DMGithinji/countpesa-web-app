@@ -142,7 +142,6 @@ export default function CalendarWithPopover({
             ))}
           </div>
 
-          {/* Calendar Column */}
           <div className="p-2">
             <Calendar
               mode="range"

@@ -228,7 +228,7 @@ const CategoriesManager = () => {
       <ScrollArea className="h-[calc(100vh-4rem)] overflow-y-auto mt-0">
         {categories.map((category) => (
           <div key={category.id} className="group">
-            <div className="py-2 flex items-center justify-between hover:bg-gray-50">
+            <div className="py-2 flex items-center justify-between hover:bg-gray-600/10">
               <div
                 className="flex-1 flex items-center cursor-pointer"
                 onClick={() => toggleCategory(category.id)}
@@ -253,7 +253,10 @@ const CategoriesManager = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={saveCategory}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          saveCategory();
+                        }}
                         className="ml-2"
                       >
                         <Check size={16} className="text-green-500" />
@@ -279,7 +282,7 @@ const CategoriesManager = () => {
                       e.stopPropagation();
                       startEditingCategory(category);
                     }}
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 !text-foreground"
                   >
                     <Pencil size={16} />
                   </Button>
@@ -290,7 +293,7 @@ const CategoriesManager = () => {
                       e.stopPropagation();
                       handleDeleteCategory(category.id);
                     }}
-                    className="h-8 w-8 p-0 text-red-500"
+                    className="h-8 w-8 p-0 !text-red-500"
                   >
                     <Trash size={16} />
                   </Button>

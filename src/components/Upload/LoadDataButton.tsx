@@ -34,7 +34,7 @@ const UploadStatementButton = () => {
           </DialogHeader>
 
           <Tabs defaultValue="mpesa">
-            <TabsList className="grid grid-cols-2 mb-4 bg-primary/3">
+            <TabsList className="grid grid-cols-2 mb-4 w-full mx-auto border-b border-border rounded-none bg-muted">
               <TabsTrigger value="mpesa">From M-Pesa Statement</TabsTrigger>
               <TabsTrigger value="backup">From a Backup</TabsTrigger>
             </TabsList>

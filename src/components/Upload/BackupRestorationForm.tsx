@@ -251,7 +251,7 @@ const BackupRestoreSection: React.FC<{ setOpen: (open: boolean) => void }> = ({
     <form onSubmit={handleRestore} className="space-y-4">
       <img src={backupHint} alt="Backup Guide" className="w-80 mx-auto" />
 
-      <p className="text-sm text-gray-600">
+      <p className="text-sm">
         Backups can be downloaded from:
         <br />
         <strong>1. Top Menu Section of the Web App</strong>

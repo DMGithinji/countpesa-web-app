@@ -13,7 +13,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 }) => {
   return (
     <div
-      className={`p-1 rounded cursor-pointer ${isActive ? "text-green-600" : ""}`}
+      className={`p-1 rounded cursor-pointer ${isActive ? "text-primary" : ""}`}
       onClick={onClick}
     >
       <Icon size={size} />

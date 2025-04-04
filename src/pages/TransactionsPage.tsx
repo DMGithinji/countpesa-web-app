@@ -25,6 +25,7 @@ const TransactionsPage = () => {
 
   const [groupBy, setGroupBy] = useState<"all" | Period>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [pageIndex, setPageIndex] = useState(0);
   const [sortingState, setSortingState] = useState<SortBy>({
     desc: true,
     id: "date",
@@ -87,6 +88,8 @@ const TransactionsPage = () => {
         <Table
           transactions={filteredTrs}
           groupBy={groupBy}
+          pageIndex={pageIndex}
+          setPageIndex={setPageIndex}
           sortBy={sortingState}
           onSortingChange={setSortingState}
           groupedSortingState={groupedSortingState}
@@ -102,6 +105,8 @@ export default TransactionsPage;
 function Table({
   transactions,
   groupBy,
+  pageIndex,
+  setPageIndex,
   sortBy,
   onSortingChange,
   groupedSortingState,
@@ -109,6 +114,8 @@ function Table({
 }: {
   transactions: Transaction[];
   groupBy: "all" | Period;
+  pageIndex: number;
+  setPageIndex: (index: number) => void;
   sortBy: SortBy;
   onSortingChange: (sortBy: SortBy) => void;
   groupedSortingState: GroupedSortBy;
@@ -121,6 +128,8 @@ function Table({
           transactions={transactions}
           sortBy={sortBy}
           onSortingChange={onSortingChange}
+          pageIndex={pageIndex}
+          onPageChange={setPageIndex}
         />
       );
     case Period.DATE:

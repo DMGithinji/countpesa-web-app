@@ -54,7 +54,7 @@ export function generateLivelyColor(name: string, mode: MoneyMode, i: number): s
 
 const getOverride = (category: string, mode: MoneyMode, i: number) => {
   const isUnassigned = category === UNCATEGORIZED;
-  const dominantColor = mode === MoneyMode.MoneyIn ? '#00A63E' : '#e7000b';
+  const dominantColor = mode === MoneyMode.MoneyIn ? '#2AB57D' : '#FD625E';
   const isDominant = i === 0;
   const overrideColor = isUnassigned ? '#CCCCCC' : isDominant ? dominantColor : '';
   return overrideColor;

@@ -47,7 +47,7 @@ export const useTransactionColumns = ({
                       e.stopPropagation();
                       onCategoryClick(row);
                     }}
-                    className="bg-primary/20 font-semibold text-primary"
+                    className="bg-primary/10 font-semibold text-primary"
                   >
                     {mainCateg.name}
                   </Badge>

@@ -87,7 +87,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
               value={moneyMode}
               onValueChange={(value) => setMoneyMode(value as MoneyMode)}
             >
-              <SelectTrigger className="h-7 w-auto border-none px-1 shadow-none flex gap-2 items-center focus:border-none focus:ring-none focus:outline-none">
+              <SelectTrigger className="h-7 w-auto border-none px-2 shadow-none flex gap-2 items-center focus:border-none focus:ring-none focus:outline-none">
                 <SelectValue placeholder="Direction" />
               </SelectTrigger>
               <SelectContent>
@@ -103,7 +103,7 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
         <ToggleGroup type="single" value={summaryMode}>
           {["amount", "count"].map((value) => (
             <ToggleGroupItem
-              className={"cursor-pointer capitalize text-xs"}
+              className={"text-xs"}
               onClick={() => setSummaryMode(value as "count" | "amount")}
               value={value}
               key={value}
@@ -126,13 +126,13 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
                 >
                   <span
                     title={item.name}
-                    className="text-gray-700 text-sm max-w-[60%] truncate"
+                    className="text-sm max-w-[60%] truncate"
                   >
                     {item.name}
                   </span>
                 </HoverableActionText>
 
-                <span className="text-gray-900 text-sm font-medium">
+                <span className="text-sm font-medium">
                   {summaryMode === "amount"
                     ? formatCurrency(item.amount)
                     : item.count}
@@ -149,8 +149,8 @@ const TopTrsGroupedByField: React.FC<TopTrsGroupedByFieldProps> = ({
                   }
                   color={
                     moneyMode === MoneyMode.MoneyIn
-                      ? "bg-green-600"
-                      : "bg-red-600"
+                      ? "bg-money-in"
+                      : "bg-money-out"
                   }
                   value={
                     summaryMode === "count"

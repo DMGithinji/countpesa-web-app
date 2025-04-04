@@ -1,11 +1,6 @@
 import { X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useFilterChips } from "@/hooks/useFilterChips";
 import {
   formatFilterTooltip,
@@ -67,23 +62,19 @@ export function FilterChips({
 
       {/* Clear all filters button, shown if multiple filters exist */}
       {processedFilters.length > 1 && (
-        <Tooltip>
-          <TooltipTrigger asChild>
+
             <Button
               onClick={clearAllFilters}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="px-3 py-1.5 h-auto rounded-full text-xs text-red-500 hover:text-red-700 hover:bg-red-50 flex items-center border-red-600"
+              title="Clear all filters"
+              className="px-3 py-1.5 h-auto rounded-full text-xs bg-background text-red-400 border border-red-400 flex items-center z-10"
               aria-label="Clear all filters"
             >
               <span className="font-semibold">Clear All Filters</span>
               <X size={14} className="ml-1.5" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Remove all filters</p>
-          </TooltipContent>
-        </Tooltip>
+
       )}
     </div>
   );

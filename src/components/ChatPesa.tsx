@@ -105,8 +105,8 @@ const ChatPanel = () => {
               <div
                 className={`max-w-[80%] flex flex-col p-3 space-y-1 rounded-lg text-sm ${
                   message.sender === "user"
-                    ? "bg-gray-300/30 text-foreground"
-                    : "bg-green-300/15 text-foreground"
+                    ? "bg-gray-200 dark:bg-[#3B403D] dark:text-white"
+                    : "bg-[#D4F0E5] dark:text-background text-foreground"
                 }`}
               >
                 <span className="font-semibold">
@@ -133,7 +133,7 @@ const ChatPanel = () => {
               {defaultStarters.map((starter) => (
                 <Card
                   key={starter}
-                  className="text-xs text-gray-600 border-gray-300 hover:bg-gray-100 p-4 cursor-pointer"
+                  className="text-[14px] text-foreground/95  p-4 cursor-pointer"
                   onClick={() => handleSendMessage(starter)}
                 >
                   {starter}

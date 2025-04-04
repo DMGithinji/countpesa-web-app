@@ -13,12 +13,15 @@ const Table = ({
   transactions,
   sortBy,
   onSortingChange,
+  pageIndex = 0,
+  onPageChange,
 }: {
   transactions: Transaction[];
   sortBy: SortBy;
   onSortingChange: (sorting: SortBy) => void;
+  pageIndex: number;
+  onPageChange: (newPage: number) => void;
 }) => {
-  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
@@ -40,8 +43,8 @@ const Table = ({
         data={transactions} // Pass ALL transactions, not just the sliced subset
         columns={columns}
         totalCount={transactions.length}
-        pageIndex={page - 1}
-        onPageChange={(newPage) => setPage(newPage + 1)}
+        pageIndex={pageIndex}
+        onPageChange={onPageChange}
         initialSorting={[sortBy]}
         onSortingChange={(sorting) => onSortingChange(sorting[0] as SortBy)}
       />

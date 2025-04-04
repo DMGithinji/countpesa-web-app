@@ -112,7 +112,6 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
           <ToggleGroup type="single" value={mode}>
             {Object.values(MoneyMode).map((filterVal) => (
               <ToggleGroupItem
-                className={"cursor-pointer capitalize"}
                 onClick={() => setMode(filterVal)}
                 value={filterVal}
                 key={filterVal}
@@ -146,7 +145,7 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
             />
             <Tooltip id="heatmap-tooltip" />
             <style>{`
-              .react-calendar-heatmap .color-empty { fill: #f9fafb; }
+              .react-calendar-heatmap .color-empty { fill: #99999920; }
               .react-calendar-heatmap .color-red-1 { fill: #ffcccc; }
               .react-calendar-heatmap .color-red-2 { fill: #ff9999; }
               .react-calendar-heatmap .color-red-3 { fill: #ff6666; }
@@ -157,7 +156,7 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
               .react-calendar-heatmap .color-green-4 { fill: #00cc00; }
               .react-calendar-heatmap rect {
                 rx: 2;
-                stroke: white;
+                stroke: #f9fafb20;
                 stroke-width: 1px;
                 cursor: pointer;
               }

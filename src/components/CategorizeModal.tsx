@@ -148,7 +148,7 @@ const TransactionDetails = ({
   mode?: "single" | "multiple";
   transaction: Transaction;
 }) => (
-  <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50 ">
+  <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-secondary ">
     <div className="px-2 rounded-md space-y-1">
       <p className="text-sm font-medium">Transaction Details</p>
 
@@ -156,7 +156,7 @@ const TransactionDetails = ({
         <span className="font-medium">Amount:</span>{" "}
         <span
           className={`font-semibold ${
-            transaction.amount < 0 ? "text-red-600" : "text-green-600"
+            transaction.amount < 0 ? "text-money-out" : "text-money-in"
           }`}
         >
           {formatCurrency(transaction.amount)}

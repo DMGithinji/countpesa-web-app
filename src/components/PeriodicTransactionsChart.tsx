@@ -161,7 +161,7 @@ const PeriodicTransactionsChart = ({
                     <Bar
                       dataKey="moneyIn"
                       name="Money In"
-                      fill="#00A63E"
+                      fill="var(--money-in)"
                       radius={[8, 8, 0, 0]}
                       barSize={40}
                       className="cursor-pointer"
@@ -171,7 +171,7 @@ const PeriodicTransactionsChart = ({
                     <Bar
                       dataKey="moneyOut"
                       name="Money Out"
-                      fill="#FB2C36"
+                      fill="var(--money-out)"
                       radius={[8, 8, 0, 0]}
                       barSize={40}
                       className="cursor-pointer"
@@ -210,7 +210,7 @@ const CustomTooltip = ({
 }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 rounded-md shadow text-sm">
+      <div className="bg-background p-2 rounded-md shadow text-sm">
         <p className="mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p

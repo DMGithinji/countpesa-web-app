@@ -19,19 +19,19 @@ const QuickFiltersCarousel = () => {
   const { calculatedData } = useTransactionContext();
   const { validateAndAddFilters } = useTransactionStore();
 
-  const {
-    topAccountsSentToByCount,
-    topAccountsReceivedFromByCount,
-    topCategoriesMoneyInByCount,
-    topCategoriesMoneyOutByCount
-  } = calculatedData;
-
   useEffect(() => {
+    const {
+      topAccountsSentToByCount,
+      topAccountsReceivedFromByCount,
+      topCategoriesMoneyInByCount,
+      topCategoriesMoneyOutByCount
+    } = calculatedData;
+
     // Create slides from top categories and accounts
     const filterSlides: Slide[] = [];
 
     // Add top 2 accounts received from (by count)
-    topAccountsReceivedFromByCount.slice(0, 5).forEach(item => {
+    topAccountsReceivedFromByCount.slice(0, 2).forEach(item => {
       filterSlides.push({
         id: `account-${item.name}`,
         title: `Money received from ${item.name}`,
@@ -45,7 +45,7 @@ const QuickFiltersCarousel = () => {
     });
 
     // Add top 2 accounts sent to (by count)
-    topAccountsSentToByCount.slice(0, 5).forEach(item => {
+    topAccountsSentToByCount.slice(0, 2).forEach(item => {
       filterSlides.push({
         id: `account-${item.name}`,
         title: `Money sent to ${item.name}`,
@@ -59,7 +59,7 @@ const QuickFiltersCarousel = () => {
     });
 
     // Add top 2 categories money in (by count)
-    topCategoriesMoneyInByCount.slice(0, 5).forEach(item => {
+    topCategoriesMoneyInByCount.slice(0, 2).forEach(item => {
       filterSlides.push({
         id: `category-${item.name}`,
         title: `Money received from ${item.name}`,
@@ -73,7 +73,7 @@ const QuickFiltersCarousel = () => {
     });
 
     // Add top 2 categories money out (by count)
-    topCategoriesMoneyOutByCount.slice(0, 5).forEach(item => {
+    topCategoriesMoneyOutByCount.slice(0, 2).forEach(item => {
       filterSlides.push({
         id: `category-${item.name}`,
         title: `Money spent on ${item.name}`,
@@ -86,19 +86,6 @@ const QuickFiltersCarousel = () => {
       });
     });
 
-    // Add utility-specific query
-    filterSlides.push({
-      id: "utilities-trend",
-      title: "Show me the trend of money received from Bills & Utilities?",
-      filter: {
-        field: "category",
-        operator: "==",
-        value: "Utilities",
-        mode: "and"
-      }
-    });
-
-    // Take only 5 slides
     const uniqueSlides = filterSlides.reduce((unique, slide) => {
       if (!unique.some(item => item.id === slide.id)) {
         unique.push(slide);
@@ -106,14 +93,9 @@ const QuickFiltersCarousel = () => {
       return unique;
     }, [] as Slide[]);
 
-    // Sort by random value and take first 5
-    const randomizedSlides = uniqueSlides
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 5);
-
     // Set the slides state
-    setSlides(randomizedSlides);
-  }, [topAccountsReceivedFromByCount, topAccountsSentToByCount, topCategoriesMoneyInByCount, topCategoriesMoneyOutByCount]);
+    setSlides(uniqueSlides);
+  }, [calculatedData]);
 
   const nextSlide = () => {
     setActiveSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -156,14 +138,14 @@ const QuickFiltersCarousel = () => {
           </Button>
         </div>
 
-        <h3 className="text-sm md:text-base font-medium text-center mx-8 -mt-8">
+        <h3 className="text-sm font-medium text-center mx-8 -mt-8">
           {slides[activeSlide]?.title || "No suggestions available"}
         </h3>
 
         <Button
         variant={'outline'}
           onClick={handleShowMe}
-          className="mt-4 rounded-full border border-primary bg-white text-primary hover:bg-primary hover:text-white px-2 md:px-4 h-8"
+          className="mt-4 rounded-full border border-primary bg-background text-xs text-primary hover:text-primary px-2 md:px-4 h-8"
         >
           Show me
         </Button>
@@ -186,7 +168,7 @@ const QuickFiltersCarousel = () => {
               variant="ghost"
               size="sm"
               className={cn(
-                "w-3 h-3 p-0 rounded-full",
+                "w-1.5 h-1.5 p-0 rounded-full",
                 activeSlide === index
                   ? "bg-primary"
                   : "bg-gray-300 hover:bg-gray-400"

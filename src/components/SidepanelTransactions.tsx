@@ -132,7 +132,7 @@ const SidepanelTransactions = () => {
                       </p>
                       <Badge
                         variant="outline"
-                        className="bg-green-100 text-green-800 text-nowrap text-xs truncate"
+                        className="text-primary bg-primary/10 text-nowrap text-xs truncate"
                       >
                         {transaction.category}
                       </Badge>
@@ -140,7 +140,7 @@ const SidepanelTransactions = () => {
                     </div>
                     <p
                       className={`font-medium text-[13px] ${
-                        isPositive ? "text-green-600" : "text-red-600"
+                        isPositive ? "text-money-in" : "text-money-out"
                       }`}
                     >
                       {formatCurrency(transaction.amount)}

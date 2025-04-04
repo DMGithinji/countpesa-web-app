@@ -48,6 +48,9 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        // Add theme-aware money in/out colors
+        'money-in': 'var(--money-in)',
+        'money-out': 'var(--money-out)',
       },
       borderRadius: {
         lg: 'var(--radius)',

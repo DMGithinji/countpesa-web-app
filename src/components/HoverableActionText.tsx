@@ -45,7 +45,7 @@ const HoverableActionText: React.FC<HoverableTextProps> = ({
                   e.stopPropagation();
                   handleActionClick(action);
                 }}
-                className="text-gray-500 pr-1 hover:text-gray-800 transition-all cursor-pointer"
+                className="text-gray-500 pr-1 hover:text-primary transition-all cursor-pointer"
                 title={formatFilterText(action)}
               >
                 {action.field === "code" ? (

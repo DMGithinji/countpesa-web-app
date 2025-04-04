@@ -62,7 +62,7 @@ const AmtSummaryCard = ({
           <div
             className={cn(
               "text-2xl font-bold",
-              mode === MoneyMode.MoneyIn ? "text-green-600" : "text-red-600"
+              mode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"
             )}
           >
             {formatCurrency(amount)}
@@ -70,8 +70,8 @@ const AmtSummaryCard = ({
           <span
             className={`${
               mode === MoneyMode.MoneyIn
-                ? "text-green-600 bg-green-600/20"
-                : "text-red-600 bg-red-600/20"
+                ? "text-money-in bg-money-in/20"
+                : "text-money-out bg-money-out/20"
             } px- mx-1`}
           >
             {formatCurrency(Math.floor(amount / count) || 0)}
@@ -121,7 +121,7 @@ const Trend = ({ mode, data }: BalanceTrendCardProps) => {
           <Line
             type="linear"
             dataKey="value"
-            stroke={mode === MoneyMode.MoneyIn ? "#22c55e" : "#E7000B"}
+            stroke={mode === MoneyMode.MoneyIn ? "var(--money-in)" : "var(--money-out)"}
             strokeWidth={2}
             dot={true}
             isAnimationActive={true}
@@ -129,7 +129,7 @@ const Trend = ({ mode, data }: BalanceTrendCardProps) => {
           <Tooltip
             content={<CustomTooltip mode={mode} />}
             cursor={{
-              stroke: mode === MoneyMode.MoneyIn ? "#22c55e" : "#E7000B",
+              stroke: mode === MoneyMode.MoneyIn ? "var(--money-in)" : "var(--money-out)",
               strokeWidth: 1,
               strokeDasharray: "3 3",
             }}
@@ -147,12 +147,12 @@ const CustomTooltip = ({
 }: { mode: MoneyMode } & TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 rounded-md shadow-sm text-sm">
+      <div className="bg-background p-2 rounded-md shadow-sm text-sm">
         <p className="">{`${payload[0].payload.date}`}</p>
         <p
           className={cn(
             "font-medium",
-            mode === MoneyMode.MoneyOut ? "text-red-600" : "text-green-600"
+            mode === MoneyMode.MoneyOut ? "text-money-out" : "text-money-in"
           )}
         >{`Balance: ${formatCurrency(payload[0].value || 0)}`}</p>
       </div>

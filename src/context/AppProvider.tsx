@@ -6,6 +6,7 @@ import {
   DefaultErrorFallback,
   ErrorBoundary,
 } from "@/components/ErrorBoundary";
+import { ThemeProvider } from "./ThemeProvider";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -22,11 +23,13 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
         // Would be nice to add an error reporting service here
       }}
     >
-      <BrowserRouter>
-        <TransactionDataProvider>
-          <AIContextProvider>{children}</AIContextProvider>
-        </TransactionDataProvider>
-      </BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
+          <TransactionDataProvider>
+            <AIContextProvider>{children}</AIContextProvider>
+          </TransactionDataProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 };

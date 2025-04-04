@@ -63,7 +63,7 @@ class ErrorBoundaryClass extends React.Component<
             <h2 className="text-xl font-semibold text-red-700 mb-2">
               Something went wrong
             </h2>
-            <p className="text-red-600 mb-4">{error.message}</p>
+            <p className="text-money-out mb-4">{error.message}</p>
             <button
               onClick={this.resetError}
               className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors"
@@ -116,7 +116,7 @@ export const DefaultErrorFallback = ({
       <p>You can continue using the rest of the app.</p>
       {process.env.NODE_ENV === "development" && (
         <details className="bg-red-50 p-3 rounded border border-red-200 text-red-800 text-sm overflow-auto mb-2">
-          <summary className="cursor-pointer font-medium text-red-600">
+          <summary className="cursor-pointer font-medium text-money-out">
             Error details
           </summary>
           <pre className="whitespace-pre-wrap text-left">{error.message}</pre>

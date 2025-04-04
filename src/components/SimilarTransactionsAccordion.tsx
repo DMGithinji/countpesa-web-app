@@ -80,7 +80,7 @@ const SimilarTransactionsAccordion = ({
                   {newCategory === UNCATEGORIZED  ? `${similarTransactions.length} Transactions Found` : `Apply To All (${similarTransactions.length} Transactions)`}
                 </span>
               ) : (
-                <span className="text-green-600 font-xs text-sm">
+                <span className="text-money-in font-xs text-sm">
                   {newCategory !== UNCATEGORIZED
                     ? `Match this category for ${similarTransactions.length} similar/uncategorized transactions.`
                     : `${similarTransactions.length} similar transactions found.`}
@@ -106,7 +106,7 @@ const SimilarTransactionsAccordion = ({
                     <div>
                       <p className="font-medium text-sm">{tx.account}</p>
                       {tx.category && (
-                        <div className="bg-green-100 text-green-600 text-xs px-2 py-0.5 rounded-sm inline-block">
+                        <div className="bg-green-100 text-money-in text-xs px-2 py-0.5 rounded-sm inline-block">
                           {tx.category}
                         </div>
                       )}
@@ -118,7 +118,7 @@ const SimilarTransactionsAccordion = ({
                   <div
                     className={cn(
                       "text-right text-sm",
-                      tx.amount < 0 ? "text-red-600" : "text-green-600"
+                      tx.amount < 0 ? "text-money-out" : "text-money-in"
                     )}
                   >
                     <p className="font-medium">

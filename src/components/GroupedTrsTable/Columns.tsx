@@ -25,7 +25,7 @@ export const transactionGroupSummaryColumns = (
       ),
       cell: ({ row }) => {
         return !props.filters ? (
-          row.getValue("name")
+          <span className="underline">{row.getValue("name")}</span>
         ) : (
           <div className="w-[240px] max-w-[240px]">
             <HoverableActionText
@@ -34,7 +34,7 @@ export const transactionGroupSummaryColumns = (
             >
               <span
                 title={row.getValue("name")}
-                className="block truncate max-w-full capitalize"
+                className="block truncate max-w-full capitalize underline"
               >
                 {row.getValue("name")}
               </span>
@@ -70,7 +70,7 @@ export const transactionGroupSummaryColumns = (
       cell: ({ row }) => {
         const amount = row.getValue("moneyOutAmount") as number;
         return (
-          <div className="text-red-600 w-[150px] font-semibold">
+          <div className="text-money-out w-[150px] font-semibold">
             {formatCurrency(amount)}
           </div>
         );
@@ -86,7 +86,7 @@ export const transactionGroupSummaryColumns = (
       cell: ({ row }) => {
         const amount = row.getValue("moneyInAmount") as number;
         return (
-          <div className="text-green-600 w-[150px] font-semibold">
+          <div className="text-money-in w-[150px] font-semibold">
             {formatCurrency(amount)}
           </div>
         );

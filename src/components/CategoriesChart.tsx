@@ -56,18 +56,18 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white p-2 border rounded-md shadow-sm">
+        <div className="bg-background p-2 border rounded-md shadow-sm">
           <p className="font-medium">{data.name}</p>
           <p>
-            <span className="text-gray-600">Amount: </span>
+            <span>Amount: </span>
             <span className="font-medium">{formatCurrency(data.amount)}</span>
           </p>
           <p>
-            <span className="text-gray-600">No of Trs: </span>
+            <span>No of Trs: </span>
             <span className="font-medium">{data.count}</span>
           </p>
           <p>
-            <span className="text-gray-600">Percentage: </span>
+            <span>Percentage: </span>
             <span className="font-medium">
               {data.amountPercentage.toFixed(1)}%
             </span>
@@ -103,13 +103,13 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
               className={`cursor-pointer ${
                 currentPage === 1
                   ? "text-gray-300"
-                  : "text-gray-600 hover:text-gray-900"
+                  : ""
               }`}
               onClick={() =>
                 currentPage > 1 && setCurrentPage((prev) => prev - 1)
               }
             />
-            <span className="text-xs text-gray-600">
+            <span className="text-xs">
               {currentPage}/{totalPages}
             </span>
             <ChevronRight
@@ -117,7 +117,7 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
               className={`cursor-pointer ${
                 currentPage === totalPages
                   ? "text-gray-300"
-                  : "text-gray-600 hover:text-gray-900"
+                  : ""
               }`}
               onClick={() =>
                 currentPage < totalPages && setCurrentPage((prev) => prev + 1)
@@ -136,8 +136,8 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
           <CardTitle
             className={`text-base font-medium ${
               moneyMode === MoneyMode.MoneyIn
-                ? "text-green-600"
-                : "text-red-600"
+                ? "text-money-in"
+                : "text-money-out"
             }`}
           >
             <span>
@@ -161,15 +161,17 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
                   innerRadius={31}
                   outerRadius={90}
                   fill="#8884d8"
-                  paddingAngle={1}
+                  paddingAngle={0}
                   dataKey="value"
                   animationDuration={500}
                   animationEasing="ease-in-out"
+                  className="border-none"
                 >
                   {chartData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.color}
+                      stroke="none"
                       className="cursor-pointer"
                       onClick={() => onItemClick && onItemClick(entry)}
                     />

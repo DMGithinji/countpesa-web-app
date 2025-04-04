@@ -74,7 +74,7 @@ export const createTransactionColumns = ({
       return (
         <div
           className={`w-[100px] ${
-            amount < 0 ? "text-red-600" : "text-green-600"
+            amount < 0 ? "text-money-out" : "text-money-in"
           } font-semibold`}
         >
           {formattedAmount}
@@ -116,8 +116,8 @@ export const createTransactionColumns = ({
           className={cn(
             "w-[120px] cursor-pointer hover:opacity-80 truncate",
             category !== UNCATEGORIZED
-              ? "bg-green-100 text-green-500 border-green-200"
-              : "bg-orange-100/80 text-orange-400/80 border-orange-100"
+              ? "bg-primary/10 text-primary"
+              : "bg-orange-400/20 dark:bg-amber-500/10 dark:text-amber-500/80 text-orange-500"
           )}
           onClick={() => onCategoryClick && onCategoryClick(transaction)}
         >

@@ -17,10 +17,10 @@ const AmtSummaryCard = ({ type, count, amount, mode, Icon }: AmtSummaryCardProps
         <CardTitle className="text-sm md:text-base font-normal">
           {type} ({count} Transactions)
         </CardTitle>
-        <Icon className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? 'text-green-600' : 'text-red-600'}`} />
+        <Icon className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? 'text-money-in' : 'text-money-out'}`} />
       </CardHeader>
       <CardContent>
-        <div className={cn("text-lg md:text-2xl font-bold", mode === MoneyMode.MoneyIn ? 'text-green-600' : 'text-red-600')}>
+        <div className={cn("text-lg md:text-2xl font-bold", mode === MoneyMode.MoneyIn ? 'text-money-in' : 'text-money-out')}>
           {formatCurrency(amount)}
         </div>
       </CardContent>

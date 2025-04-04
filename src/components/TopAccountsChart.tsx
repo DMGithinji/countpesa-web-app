@@ -1,4 +1,14 @@
 import { useMemo, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { MoneyMode } from "@/types/Transaction";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -10,17 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
+
 
 // Function to format axis values
 const formatAxisValue = (value: number) => {
@@ -66,7 +66,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
   );
 
   // Set colors based on money mode
-  const barColor = moneyMode === MoneyMode.MoneyIn ? "#00A63E" : "#FB2C36";
+  const barColor = moneyMode === MoneyMode.MoneyIn ? "var(--money-in)" : "var(--money-out)";
 
   return (
     <Card className="w-full h-full">
@@ -97,7 +97,6 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
           <ToggleGroup
             type="single"
             value={displayMode}
-            className="border rounded-md"
           >
             {[
               { value: "amount", label: "Amount" },
@@ -178,8 +177,8 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
             <span
               className={` ${
                 moneyMode === MoneyMode.MoneyIn
-                  ? "text-green-600"
-                  : "text-red-600"
+                  ? "text-money-in"
+                  : "text-money-out"
               }`}
             >
               Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:{' '}
@@ -210,7 +209,7 @@ const CustomTooltip = ({
 >) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-white p-2 rounded-md shadow-sm text-sm">
+      <div className="bg-background p-2 rounded-md shadow-sm text-sm">
         <p className="mb-2">{label}</p>
         {payload.map((entry, index) => (
           <p

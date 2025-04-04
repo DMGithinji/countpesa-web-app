@@ -13,7 +13,7 @@ const useAIMessageStore = create<AIMessagesState>((set) => ({
   assessmentMode: AssessmentMode.SERIOUS,
   setAssessmentMode: (mode) => set({ assessmentMode: mode }),
 
-  messages: [{ sender: 'bot', text: "Hey 👋🏾, ChatPesa here. How can I help you today?" }],
+  messages: [{ sender: 'bot', text: "Hi! 👋🏾 I'm ChatPesa.\nHere to help you understand your money better and navigate this app. What can I help you with today?" }],
   setMessage: (message) => set((state) => ({ messages: [...state.messages, message] })),
 }));
 

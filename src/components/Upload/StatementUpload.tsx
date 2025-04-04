@@ -76,7 +76,7 @@ const MpesaUploadSection = ({
       <div className="space-y-2">
         <div className="space-y-4 pb-8">
           <h3 className="font-medium">Below are steps to follow:</h3>
-          <ol className="list-decimal pl-5 space-y-2">
+          <ol className="list-decimal pl-5 text-[15px]">
             <li>
               Get your full mpesa statement from{" "}
               <span className="font-medium">MySafaricom</span> app or by
@@ -91,6 +91,7 @@ const MpesaUploadSection = ({
             </li>
           </ol>
         </div>
+        <Label htmlFor="statement">Statement</Label>
         <div className="flex">
           <Label
             htmlFor="statement"
@@ -135,7 +136,7 @@ const MpesaUploadSection = ({
         type="submit"
         className="w-full font-medium py-2 mt-2"
       >
-        Process File
+        { isLoading ? 'Processing...' : 'Process File'}
       </Button>
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </form>

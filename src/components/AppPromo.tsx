@@ -10,7 +10,7 @@ const AppPromo = () => {
   };
 
   return (
-    <div className="bg-purple-900/4 rounded-sm px-6 pb-4 pt-2 flex flex-col items-center text-center mt-8 mx-6">
+    <div className="bg-background rounded-sm px-6 pb-4 pt-2 flex flex-col items-center text-center mt-8 mx-6 shadow-sm">
       <div className="relative">
         <img src={promoImage} alt="CheckPesa Logo" className="w-24 h-24" />
       </div>
@@ -19,9 +19,8 @@ const AppPromo = () => {
         <br />
         Play Store
       </h2>
-      <p className="text-gray-600 text-sm mb-6">
-        <span className="font-medium">Auto-track</span>, budget and analyse your
-        finances right from your phone.
+      <p className="text-sm mb-6">
+        <span className="font-medium text-background-foreground">Auto-track, Budget & Analyse</span> right from your phone.
       </p>
       <Button onClick={onDownload} className="w-full">
         Download Now
