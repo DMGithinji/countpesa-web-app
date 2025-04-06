@@ -50,7 +50,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   };
 
   const navItems = [
-    { path: "/", icon: <LayoutDashboard size={20} />, label: "Dashboard" },
+    {
+      path: "/dashboard",
+      icon: <LayoutDashboard size={20} />,
+      label: "Dashboard",
+    },
     {
       path: "/transactions",
       icon: <AlignJustify size={20} />,

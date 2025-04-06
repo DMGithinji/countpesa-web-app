@@ -96,7 +96,7 @@ const AmtSummaryCard = ({
               <SelectContent>
                 {periodOptions.map((option, index) => (
                   <SelectItem key={index} value={option}>
-                    <span className="capitalize">{option}</span>
+                    <span>{PeriodDict[option]} Trend</span>
                   </SelectItem>
                 ))}
               </SelectContent>

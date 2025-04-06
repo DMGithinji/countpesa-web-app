@@ -99,7 +99,7 @@ export function getOptimizedCalculatedData(
     // Sample balance trend points
     if (i % sampleInterval === 0 || i === sortedTxs.length - 1) {
       balanceTrend.push({
-        date: formatDate(new Date(tx.date), "EEE, MM-yyyy HH:mm"),
+        date: formatDate(new Date(tx.date), "EEE, do MMM yyyy, HH:mm"),
         balance: tx.balance,
       });
     }

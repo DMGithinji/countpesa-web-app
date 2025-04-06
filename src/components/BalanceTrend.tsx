@@ -65,7 +65,7 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-background p-2 rounded-md shadow-md text-sm">
-        <p className="font-mono">{`Date: ${payload[0].payload.date}`}</p>
+        <p className="font-mono">{`${payload[0].payload.date}`}</p>
         <p className="font-medium">{`Balance: ${formatCurrency(
           payload[0].value || 0
         )}`}</p>
