@@ -6,6 +6,8 @@ import { getDecrypted } from "@/lib/encryptionUtils";
 import { Category, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import { ExtractedTransaction, TransactionTypes } from "@/types/Transaction";
 import { useLoadTransactions } from "./useLoadTransactions";
+import { useLocation, useNavigate } from "react-router-dom";
+import useTransactionStore from "@/stores/transactions.store";
 
 type CategoryData = {
   categoryName: string;
@@ -51,6 +53,10 @@ export function useUploadData() {
   const transactionRepository = useTransactionRepository();
   const categoryRepository = useCategoryRepository();
   const { loadInitialTransactions } = useLoadTransactions();
+  const setLoading = useTransactionStore((state) => state.setLoading);
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const uploadData = async (file: File) => {
     const fileContent = await readFileAsText(file);
@@ -61,13 +67,21 @@ export function useUploadData() {
     switch (backupType) {
       case "phone":
         await processPhoneBackup(jsonData as PhoneBackupFormat);
-        loadInitialTransactions();
         break;
 
       case "browser":
         await processBrowserBackup(jsonData as BrowserBackupFormat);
-        loadInitialTransactions();
         break;
+    }
+    await loadInitialTransactions()
+    const isBaseUrl = location.pathname === "/";
+    if (isBaseUrl) {
+      navigate("/dashboard");
+      setTimeout(() => {
+        setLoading(false);
+      }, 400);
+    } else {
+      setLoading(false);
     }
   };
 
@@ -103,8 +117,8 @@ export function useUploadData() {
 
     // Save to database
     await transactionRepository.processMpesaStatementData(transactions);
-    await Promise.all(categories.map(categoryRepository.addCategory));
-    await Promise.all(subcategories.map(categoryRepository.addSubcategory));
+    await categoryRepository.bulkAddCategories(categories);
+    await categoryRepository.bulkAddSubcategories(subcategories);
   };
 
   const processBrowserBackup = async (
@@ -170,7 +184,7 @@ export function useUploadData() {
         id: `${id}:${s}`,
       }));
 
-      await Promise.all(subs.map(categoryRepository.addSubcategory));
+      await categoryRepository.bulkAddSubcategories(subs);
     }
   };
 

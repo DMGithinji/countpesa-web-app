@@ -10,21 +10,23 @@ import {
 import { Button } from "@/components/ui/button";
 import MpesaUploadSection from "./StatementUpload";
 import BackupRestoreSection from "./BackupRestorationForm";
+import { cn } from "@/lib/utils";
 
 type LoadDataButtonProps = {
   variant?: "default" | "ghost";
-
 };
 const LoadDataButton = ({ variant = "ghost" }: LoadDataButtonProps) => {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <Button
-        variant={variant}
-        onClick={() => setOpen(true)}
-      >
+      <Button variant={variant} onClick={() => setOpen(true)}>
         <FileDown className="h-4 w-4" />
+        <span
+          className={cn("block", { hidden: variant === "ghost" })}
+        >
+          Load Transactions
+        </span>{" "}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

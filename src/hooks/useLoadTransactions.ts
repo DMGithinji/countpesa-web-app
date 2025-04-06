@@ -1,5 +1,5 @@
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   startOfMonth,
   endOfMonth,
@@ -16,6 +16,7 @@ export function useLoadTransactions() {
   const transactionRepository = useTransactionRepository();
   const isDemoMode = useDemoMode();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const setAllTransactions = useTransactionStore(
     (state) => state.setAllTransactions
@@ -37,16 +38,15 @@ export function useLoadTransactions() {
    */
   const loadInitialTransactions = useCallback(async () => {
     try {
-      setLoading(true);
+      const initiateLoading = location.pathname === "/" || isDemoMode;
+      setLoading(initiateLoading);
       const trs = await transactionRepository.getTransactions();
+
 
       if (trs.length > 0) {
         // If transactions exist, use them
         setAllTransactions(trs);
         setCurrentFilters(getDateRangeData(trs));
-        if (!isDemoMode) {
-          navigate("/dashboard");
-        }
         return;
       }
 
@@ -77,15 +77,7 @@ export function useLoadTransactions() {
       console.error("Error fetching transactions:", err);
       setError("Failed to fetch transactions");
     }
-  }, [
-    isDemoMode,
-    navigate,
-    setAllTransactions,
-    setCurrentFilters,
-    setError,
-    setLoading,
-    transactionRepository,
-  ]);
+  }, [isDemoMode, location.pathname, navigate, setAllTransactions, setCurrentFilters, setError, setLoading, transactionRepository]);
 
   return { loadInitialTransactions, loadTransactions };
 }

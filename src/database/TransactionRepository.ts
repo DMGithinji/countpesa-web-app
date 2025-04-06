@@ -188,4 +188,13 @@ export default class TransactionRepository extends AbstractQuery {
     // Perform batch update
     await this.bulkUpdate(updates);
   }
+
+  clearAllData() {
+    return Promise.all([
+      db.transactions.clear(),
+      db.analysisReports.clear(),
+      db.categories.clear(),
+      db.subcategories.clear(),
+    ]);
+  }
 }

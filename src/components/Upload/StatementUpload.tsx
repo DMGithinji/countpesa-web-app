@@ -7,6 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useTransactionRepository } from "@/context/DBContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import useTransactionStore from "@/stores/transactions.store";
 
 const MpesaUploadSection = ({
   setOpen,
@@ -22,9 +23,9 @@ const MpesaUploadSection = ({
 
   const navigate = useNavigate();
   const location = useLocation();
-  const isBaseUrl = location.pathname === "/";
 
   const { loadInitialTransactions } = useLoadTransactions();
+  const setLoading = useTransactionStore(state => state.setLoading);
 
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,10 +62,16 @@ const MpesaUploadSection = ({
 
       if (data.status === "success") {
         await db.processMpesaStatementData(data.results.transactions);
-        loadInitialTransactions();
-        if (isBaseUrl) {
-          navigate("/dashboard");
-        }
+        loadInitialTransactions().then(() => {
+          const isBaseUrl = location.pathname === "/";
+          if (isBaseUrl) {
+            navigate("/dashboard");
+            setTimeout(() => {
+              setLoading(false);
+            }, 200);
+          }
+        });
+
         setOpen(false);
         setFile(null);
         setPassword("");

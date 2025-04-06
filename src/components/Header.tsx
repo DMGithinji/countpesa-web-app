@@ -11,6 +11,7 @@ import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useTransactionStore from "@/stores/transactions.store";
 import { ThemeToggle } from "./ThemeToggle";
 import FeedbackButton from "./FeedbackButton";
+import { MoreActions } from "./HeaderMenu";
 
 const Header = () => {
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
@@ -65,10 +66,11 @@ const Header = () => {
             <span className="hidden lg:block">Chat</span>
           </Button>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <ThemeToggle />
           <FeedbackButton />
           <UploadStatementButton />
+          <MoreActions />
         </div>
       </div>
     </header>

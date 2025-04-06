@@ -22,7 +22,7 @@ const CountPesaLanding = () => {
     <div className="min-h-screen bg-background text-foreground relative">
       {/* Navigation */}
       <nav className="sticky top-0 bg-background shadow z-50">
-        <div className="container flex h-14 items-center justify-between mx-auto px-4">
+        <div className="flex h-14 items-center justify-between mx-auto px-4">
           <a
             href="https://countpesa.com"
             target="_blank"

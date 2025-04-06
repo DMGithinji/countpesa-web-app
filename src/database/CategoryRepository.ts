@@ -19,26 +19,34 @@ export default class CategoryRepository {
     this.transactionRepository = new TransactionRepository(isDemo);
   }
 
-  protected getCategoriesTable(): Dexie.Table<Category, string> {
+  protected get categoriesTable(): Dexie.Table<Category, string> {
     return this.isDemo ? db.demoCategories : db.categories;
   }
 
-  protected getSubcategoriesTable(): Dexie.Table<Subcategory, string> {
+  protected get subcategoriesTable(): Dexie.Table<Subcategory, string> {
     return this.isDemo ? db.demoSubcategories : db.subcategories;
   }
 
+  bulkAddCategories(categories: Category[]) {
+    return this.categoriesTable.bulkPut(categories);
+  }
+
+  bulkAddSubcategories(subcategories: Subcategory[]) {
+    return this.subcategoriesTable.bulkPut(subcategories);
+  }
+
   async addCategory(category: Partial<Category>) {
-    const exists = await this.getCategoriesTable()
+    const exists = await this.categoriesTable
       .where({ name: category.name })
       .first();
     if (exists) {
       return exists.id;
     }
-    return await this.getCategoriesTable().add(category as Category);
+    return await this.categoriesTable.add(category as Category);
   }
 
   async updateCategory(id: string, newName: string) {
-    const oldCategory = await this.getCategoriesTable().get(id);
+    const oldCategory = await this.categoriesTable.get(id);
 
     if (!newName) {
       console.log("New name is empty, returning");
@@ -50,11 +58,7 @@ export default class CategoryRepository {
     }
     await db.transaction(
       "rw",
-      [
-        this.getCategoriesTable(),
-        this.getSubcategoriesTable(),
-        db.transactions,
-      ],
+      [this.categoriesTable, this.subcategoriesTable, db.transactions],
       async () => {
         const oldCategName = `${oldCategory.name}:`;
         this.transactionRepository.updateTransactionsWithCategories(
@@ -62,7 +66,7 @@ export default class CategoryRepository {
           newName
         );
 
-        await this.getCategoriesTable().update(id, { name: newName });
+        await this.categoriesTable.update(id, { name: newName });
       }
     );
   }
@@ -71,7 +75,7 @@ export default class CategoryRepository {
    * Delete a category and all its subcategories.
    */
   async deleteCategory(id: string): Promise<void> {
-    const oldCategory = await this.getCategoriesTable().get(id);
+    const oldCategory = await this.categoriesTable.get(id);
 
     if (!oldCategory) {
       return;
@@ -79,11 +83,7 @@ export default class CategoryRepository {
     // Start a transaction to ensure all operations succeed or fail together
     await db.transaction(
       "rw",
-      [
-        this.getCategoriesTable(),
-        this.getSubcategoriesTable(),
-        db.transactions,
-      ],
+      [this.categoriesTable, this.subcategoriesTable, db.transactions],
       async () => {
         // Set transactions to "Uncategorized" if no replacement provided
         const oldCategName = `${oldCategory.name}:`;
@@ -93,32 +93,32 @@ export default class CategoryRepository {
         );
 
         // Delete subcategories of this category
-        await this.getSubcategoriesTable().where({ categoryId: id }).delete();
+        await this.subcategoriesTable.where({ categoryId: id }).delete();
 
         // Delete the category itself
-        await this.getCategoriesTable().delete(id);
+        await this.categoriesTable.delete(id);
       }
     );
   }
 
   async getAllCategories(): Promise<Category[]> {
-    return this.getCategoriesTable().toArray();
+    return this.categoriesTable.toArray();
   }
 
   async addSubcategory(subcategory: Subcategory) {
     // Verify that the parent category exists
-    const subcategoryExists = await this.getSubcategoriesTable()
+    const subcategoryExists = await this.subcategoriesTable
       .where({ categoryId: subcategory.categoryId, name: subcategory.name })
       .first();
     if (subcategoryExists) {
       return subcategoryExists.id;
     }
 
-    return this.getSubcategoriesTable().add(subcategory);
+    return this.subcategoriesTable.add(subcategory);
   }
 
   async updateSubcategory(id: string, newSubcategory: string) {
-    const existingSubcategory = await this.getSubcategoriesTable().get(id);
+    const existingSubcategory = await this.subcategoriesTable.get(id);
 
     if (!newSubcategory) {
       return;
@@ -130,7 +130,7 @@ export default class CategoryRepository {
 
     // If category is changing, verify new category exists
     if (newSubcategory !== existingSubcategory.name) {
-      const category = await this.getCategoriesTable().get(
+      const category = await this.categoriesTable.get(
         existingSubcategory.categoryId
       );
       if (!category) {
@@ -151,20 +151,18 @@ export default class CategoryRepository {
       );
     }
 
-    return this.getSubcategoriesTable().update(id, { name: newSubcategory });
+    return this.subcategoriesTable.update(id, { name: newSubcategory });
   }
 
   async deleteSubcategory(id: string) {
-    const subcategory = await this.getSubcategoriesTable().get(id);
+    const subcategory = await this.subcategoriesTable.get(id);
 
     if (!subcategory) {
       throw new Error(`Subcategory ${id} does not exist`);
     }
 
-    // await db.transaction('rw', [this.getSubcategoriesTable(), db.transactions], async () => {
-    const category = await this.getCategoriesTable().get(
-      subcategory.categoryId
-    );
+    // await db.transaction('rw', [this.subcategoriesTable, db.transactions], async () => {
+    const category = await this.categoriesTable.get(subcategory.categoryId);
     if (!category) {
       throw new Error(
         `Parent category ${subcategory.categoryId} does not exist`
@@ -184,12 +182,12 @@ export default class CategoryRepository {
     );
 
     // Delete the subcategory
-    await this.getSubcategoriesTable().delete(id);
+    await this.subcategoriesTable.delete(id);
     // });
   }
 
   async getAllSubcategories(): Promise<Subcategory[]> {
-    return this.getSubcategoriesTable().toArray();
+    return this.subcategoriesTable.toArray();
   }
 
   /**
@@ -201,7 +199,7 @@ export default class CategoryRepository {
 
     const result = await Promise.all(
       sortBy(categories, "name").map(async (category) => {
-        const subcategories = await this.getSubcategoriesTable()
+        const subcategories = await this.subcategoriesTable
           .where({ categoryId: category.id })
           .toArray();
         return {
