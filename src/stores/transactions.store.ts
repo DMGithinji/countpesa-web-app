@@ -42,7 +42,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   allTransactions: [],
   transactions: [],
   currentFilters: undefined,
-  loading: true,
+  loading: false,
   error: "",
   accountNames: [],
   calculatedData: DEFAULT_CALCULATED_DATA,

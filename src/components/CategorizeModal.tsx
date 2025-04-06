@@ -4,7 +4,7 @@ import { Transaction } from "@/types/Transaction";
 import SelectionDropdown from "./SelectionDropDown";
 import useCategoriesStore from "@/stores/categories.store";
 import { UNCATEGORIZED } from "@/types/Categories";
-import { useWriteTransactions } from "@/hooks/useTransactions";
+import { useWriteTransactions } from "@/hooks/useWriteTransactions";
 import SimilarTransactionsAccordion from "./SimilarTransactionsAccordion";
 import { formatCurrency } from "@/lib/utils";
 import { deconstructTrCategory, formatTrCategory } from "@/lib/categoryUtils";

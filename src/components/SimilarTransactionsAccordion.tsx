@@ -5,7 +5,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import { UNCATEGORIZED } from "@/types/Categories";
-import { useWriteTransactions } from "@/hooks/useTransactions";
+import { useWriteTransactions } from "@/hooks/useWriteTransactions";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
 import { useTransactionRepository } from "@/context/DBContext";

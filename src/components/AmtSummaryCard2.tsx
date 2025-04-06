@@ -67,7 +67,7 @@ const AmtSummaryCard = ({
         <div className="space-y-4">
           <div
             className={cn(
-              "text-2xl font-bold",
+              "text-xl font-bold",
               mode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"
             )}
           >

@@ -2,10 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import logoLg from "../assets/logo-lg.svg";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Link } from "react-router-dom";
 import UploadStatementButton from "@/components/Upload/LoadDataButton";
+import { useLoadTransactions } from "@/hooks/useLoadTransactions";
 
 const CountPesaLanding = () => {
+  const { loadInitialTransactions } = useLoadTransactions();
+  const goToDemo = async () => {
+    location.href = "/demo/dashboard";
+    await loadInitialTransactions();
+  };
   const onDownload = () => {
     window.open(
       "https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo",
@@ -52,11 +57,9 @@ const CountPesaLanding = () => {
 
           <div className="flex justify-center gap-4 mb-12">
             <UploadStatementButton variant="default" />
-            <Link to="/demo/dashboard">
-              <Button variant="outline" size="lg">
-                Explore Demo
-              </Button>
-            </Link>
+            <Button variant="outline" size="lg" onClick={goToDemo}>
+              Explore Demo
+            </Button>
           </div>
         </header>
 

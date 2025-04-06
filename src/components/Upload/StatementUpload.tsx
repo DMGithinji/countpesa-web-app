@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ExtractedTransaction } from "@/types/Transaction";
-import { useLoadInitialTransactions } from "@/hooks/useTransactions";
+import { useLoadTransactions } from "@/hooks/useLoadTransactions";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { useTransactionRepository } from "@/context/DBContext";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const MpesaUploadSection = ({
   setOpen,
@@ -19,7 +20,12 @@ const MpesaUploadSection = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { loadInitialTransactions } = useLoadInitialTransactions();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isBaseUrl = location.pathname === "/";
+
+  const { loadInitialTransactions } = useLoadTransactions();
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -56,6 +62,9 @@ const MpesaUploadSection = ({
       if (data.status === "success") {
         await db.processMpesaStatementData(data.results.transactions);
         loadInitialTransactions();
+        if (isBaseUrl) {
+          navigate("/dashboard");
+        }
         setOpen(false);
         setFile(null);
         setPassword("");

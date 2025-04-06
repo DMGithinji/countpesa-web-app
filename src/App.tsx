@@ -1,15 +1,20 @@
+import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout";
 import { AppProviders } from "./context/AppProvider";
 import useAppInitializer from "./hooks/useAppInitializer";
 import LandingPage from "./pages/LandingPage";
-import DashboardPage from "./pages/DashboardPage";
-import TransactionsPage from "./pages/TransactionsPage";
-import AccountsPage from "./pages/AccountsPage";
-import CategoriesPage from "./pages/CategoriesPage";
+import useTransactionStore from "./stores/transactions.store";
+import Loader from "./components/Loader";
+
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const TransactionsPage = lazy(() => import("./pages/TransactionsPage"));
+const AccountsPage = lazy(() => import("./pages/AccountsPage"));
+const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
 
 function AppRoutes() {
   useAppInitializer();
+  const loading = useTransactionStore(state => state.loading);
 
   const routes = [
     { path: "/dashboard", element: <DashboardPage /> },
@@ -17,6 +22,12 @@ function AppRoutes() {
     { path: "/accounts", element: <AccountsPage /> },
     { path: "/categories", element: <CategoriesPage /> }
   ];
+
+  if (loading) {
+    return (
+      <Loader />
+    );
+  }
 
   return (
     <Routes>

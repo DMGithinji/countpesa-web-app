@@ -1,15 +1,17 @@
 import { useEffect } from "react";
 import useCategories from "./useCategories";
-import { useLoadInitialTransactions } from "./useTransactions";
+import { useLoadTransactions } from "./useLoadTransactions";
+import useTransactionStore from "@/stores/transactions.store";
 
 function useAppInitializer() {
-  const { loadInitialTransactions } = useLoadInitialTransactions();
+  const { loadInitialTransactions } = useLoadTransactions();
   const { preloadDefaultCategories } = useCategories();
+  const setLoading = useTransactionStore(state => state.setLoading);
 
   useEffect(() => {
-    loadInitialTransactions();
+    loadInitialTransactions().then(() => setTimeout(() => setLoading(false), 200));
     preloadDefaultCategories();
-  }, [loadInitialTransactions, preloadDefaultCategories]);
+  }, []);
 
 }
 

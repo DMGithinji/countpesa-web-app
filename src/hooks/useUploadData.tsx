@@ -5,7 +5,7 @@ import {
 import { getDecrypted } from "@/lib/encryptionUtils";
 import { Category, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import { ExtractedTransaction, TransactionTypes } from "@/types/Transaction";
-import { useLoadInitialTransactions } from "./useTransactions";
+import { useLoadTransactions } from "./useLoadTransactions";
 
 type CategoryData = {
   categoryName: string;
@@ -50,7 +50,7 @@ export type BackupFormat = PhoneBackupFormat | BrowserBackupFormat | unknown;
 export function useUploadData() {
   const transactionRepository = useTransactionRepository();
   const categoryRepository = useCategoryRepository();
-  const { loadInitialTransactions } = useLoadInitialTransactions();
+  const { loadInitialTransactions } = useLoadTransactions();
 
   const uploadData = async (file: File) => {
     const fileContent = await readFileAsText(file);
