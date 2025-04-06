@@ -24,8 +24,8 @@ export type DateRangeData = {
 
 export const DEFAULT_DATE_RANGE_DATA: DateRangeData = {
   dateRange: { from: new Date(), to: new Date() },
-  defaultPeriod: Period.HOUR,
-  periodOptions: [Period.HOUR, Period.DATE, Period.WEEK, Period.MONTH],
+  defaultPeriod: Period.DATE,
+  periodOptions: [Period.DATE, Period.WEEK, Period.MONTH],
 };
 
 

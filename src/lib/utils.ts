@@ -24,7 +24,6 @@ export const filterTransactions = (transactions: Transaction[], searchQuery: str
   return transactions.filter(tr =>
     tr.account.toLowerCase().includes(query) ||
     tr.category.toLowerCase().includes(query) ||
-    tr.description.toLowerCase().includes(query) ||
     tr.code.toLowerCase().includes(query)
   );
 };
@@ -32,11 +31,6 @@ export const filterTransactions = (transactions: Transaction[], searchQuery: str
 /**
  * Sort an array of objects by a specific field.
  * Handles both string and numeric values appropriately.
- *
- * @param array The array to sort
- * @param field The field key to sort by
- * @param direction The sort direction ('asc' or 'desc')
- * @returns A new sorted array
  */
 export function sortBy<T extends Record<string, any>>(
   array: T[],

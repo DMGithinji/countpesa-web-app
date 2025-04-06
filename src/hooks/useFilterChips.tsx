@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from "react";
 import useTransactionStore from "@/stores/transactions.store";
-import { findRangePairs } from "@/lib/filterUtils";
+import { findRangePairs } from "@/lib/filterChipUtils";
 
 export const useFilterChips = () => {
   const { currentFilters, setCurrentFilters, removeFilter } = useTransactionStore();

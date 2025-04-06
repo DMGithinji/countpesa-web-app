@@ -7,16 +7,12 @@ import { Filter, FilterMode } from "@/types/Filters";
 import { addMissingCategories } from "@/lib/categoryUtils";
 
 export function useTransactions() {
-  const currentFilters = useTransactionStore(state => state.currentFilters);
-  const setTransactions = useTransactionStore(state => state.setTransactions);
+  const setAllTransactions = useTransactionStore(state => state.setAllTransactions);
 
   const loadTransactions = useCallback(async () => {
-    // time how long it takes to load transactions
-    const start = performance.now();
-    const trs = await transactionRepository.getTransactions(currentFilters);
-    console.log(`Loaded ${trs.length} transactions in ${(performance.now() - start).toFixed(2)}ms`);
-    setTransactions(trs);
-  }, [currentFilters, setTransactions]);
+    const allTransactions = await transactionRepository.getTransactions();
+    setAllTransactions(allTransactions);
+  }, [setAllTransactions]);
 
   const handleCategorizeTransactions = useCallback(async (trId: string, categoryToSet: string) => {
     await addMissingCategories(categoryToSet);
@@ -37,24 +33,13 @@ export function useTransactions() {
   };
 }
 
-export const formatTrCategory = (category: string, subcategory: string) => {
-  if (!subcategory) return category;
-  return `${category}: ${subcategory}`;
-};
-
-export const deconstructTrCategory = (category: string) => {
-  const parts = category.split(":");
-  if (parts.length === 1) return { category: parts[0], subcategory: '' };
-  return { category: parts[0].trim(), subcategory: parts[1].trim() };
-};
-
-
 export function useLoadInitialTransactions() {
+  const setAllTransactions = useTransactionStore(state => state.setAllTransactions);
   const setCurrentFilters = useTransactionStore(state => state.setCurrentFilters);
   const setLoading = useTransactionStore(state => state.setLoading);
   const setError = useTransactionStore(state => state.setError);
 
-  const loadDefaultFilters = useCallback(async () => {
+  const loadInitialTransactions = useCallback(async () => {
     try {
       const trs = await transactionRepository.getTransactions();
       const earliestTrDate = trs.length ? new Date(trs[0].date) : new Date();
@@ -81,6 +66,7 @@ export function useLoadInitialTransactions() {
         ];
 
       setCurrentFilters(dateRangeFilter);
+      setAllTransactions(trs);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching transactions:", err);
@@ -88,5 +74,5 @@ export function useLoadInitialTransactions() {
     }
   }, []);
 
-  return { loadDefaultFilters }
+  return { loadInitialTransactions }
 }

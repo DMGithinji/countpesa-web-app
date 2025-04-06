@@ -1,4 +1,4 @@
-import { Filter } from "@/types/Filters";
+import { Filter, FilterMode } from "@/types/Filters";
 
 /**
  * Adds one or more new filters to the current filter state, reconciling based on specific rules.
@@ -26,45 +26,45 @@ export const validateAndAddFilters = (
   if (isDateRangePair) {
     // Remove all existing 'date' filters
     updatedFilters = updatedFilters.filter((f) => f.field !== "date");
-    // Add the new date range pair with 'and' mode
-    updatedFilters.push(...filtersToAdd.map(f => ({ ...f, mode: 'and' } as Filter)));
+    // Add the new date range pair with FilterMode.AND mode
+    updatedFilters.push(...filtersToAdd.map(f => ({ ...f, mode: FilterMode.AND } as Filter)));
     return updatedFilters;
   }
 
   // Process each new filter to add
   filtersToAdd.forEach((newFilter) => {
-    const { field, operator, value } = newFilter; // Default mode to 'and' if unspecified
+    const { field, operator, value } = newFilter; // Default mode to FilterMode.AND if unspecified
 
     // Find an existing filter with the same field
     const existingFilterIndex = updatedFilters.findIndex(
       (f) => f.field === field
     );
 
-    // If no existing filter for this field, add it as an 'and' filter
+    // If no existing filter for this field, add it as an FilterMode.AND filter
     if (existingFilterIndex === -1) {
-      updatedFilters.push({ ...newFilter, mode: 'and' });
+      updatedFilters.push({ ...newFilter, mode: FilterMode.AND });
       return;
     }
 
     const existingFilter = updatedFilters[existingFilterIndex];
 
-    // If no existing filter for this field, add it as an 'and' filter
+    // If no existing filter for this field, add it as an FilterMode.AND filter
     if (existingFilter && ['!=', 'not-in'].includes(existingFilter.operator)) {
-      updatedFilters.push({ ...newFilter, mode: 'and' });
+      updatedFilters.push({ ...newFilter, mode: FilterMode.AND });
       return;
     }
 
-    // Rule 1: Same field, same operator, different values -> combine into 'or'
+    // Rule 1: Same field, same operator, different values -> combine into FilterMode.OR
     if (existingFilter.operator === operator && existingFilter.value !== value) {
-      // If existing filter is already in an 'or' group, add to it (not directly supported in flat, so replace)
+      // If existing filter is already in an FilterMode.OR group, add to it (not directly supported in flat, so replace)
       updatedFilters[existingFilterIndex] = {
         field,
         operator,
         value: existingFilter.value, // Could use an array for 'in'-like behavior, but we'll replace logic
-        mode: 'or'
+        mode: FilterMode.OR
       };
-      updatedFilters.push({ ...newFilter, mode: 'or' });
-      // Note: For true 'or' grouping, we'd need a composite structure; here we simulate by replacing
+      updatedFilters.push({ ...newFilter, mode: FilterMode.OR });
+      // Note: For true FilterMode.OR grouping, we'd need a composite structure; here we simulate by replacing
     }
     // Rule 2: Same field, opposite operators -> replace the previous filter
     else if (
@@ -75,18 +75,18 @@ export const validateAndAddFilters = (
       (operator === '>=' && existingFilter.operator === '<') ||
       (operator === '<=' && existingFilter.operator === '>')
     ) {
-      updatedFilters[existingFilterIndex] = { ...newFilter, mode: 'and' }; // Replace with new filter, default to 'and'
+      updatedFilters[existingFilterIndex] = { ...newFilter, mode: FilterMode.AND }; // Replace with new filter, default to FilterMode.AND
     }
     // Rule 3: If filter already exists (same field, operator, value) -> replace it
     else if (
       existingFilter.operator === operator &&
       existingFilter.value === value
     ) {
-      updatedFilters[existingFilterIndex] = { ...newFilter, mode: existingFilter.mode || 'and' }; // Keep existing mode or default
+      updatedFilters[existingFilterIndex] = { ...newFilter, mode: existingFilter.mode || FilterMode.AND }; // Keep existing mode or default
     }
-    // Rule 4: Same field, different operator, different value -> add as 'and'
+    // Rule 4: Same field, different operator, different value -> add as FilterMode.AND
     else if (existingFilter.operator !== operator && existingFilter.value !== value) {
-      updatedFilters.push({ ...newFilter, mode: 'and' }); // Add as a new 'and' filter
+      updatedFilters.push({ ...newFilter, mode: FilterMode.AND }); // Add as a new FilterMode.AND filter
     }
   });
 

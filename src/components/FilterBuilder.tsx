@@ -7,7 +7,7 @@ import SelectionDropdown from "./SelectionDropDown";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { useFilterBuilder } from "@/hooks/useFilterBuilder";
-import { fieldOptions } from "@/lib/filterUtils";
+import { fieldOptions } from "@/lib/filterChipUtils";
 
 // Main FilterBuilder component
 const FilterBuilder = () => {

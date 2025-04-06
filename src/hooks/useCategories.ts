@@ -1,5 +1,4 @@
 import { useCallback } from 'react';
-import { useEffect } from 'react';
 import useCategoriesStore from '@/stores/categories.store';
 import categoryRepository from '@/database/CategoryRepository';
 import { DEFAULT_CATEGORIES, Subcategory } from '@/types/Categories';
@@ -14,7 +13,6 @@ export function useCategories() {
 
   const preloadDefaultCategories = useCallback(async () => {
     try {
-      console.log("Preloading default categories and subcategories");
       for (const category of DEFAULT_CATEGORIES) {
         // Add the category
         const categoryId = await categoryRepository.addCategory({
@@ -32,7 +30,6 @@ export function useCategories() {
         }
       }
       loadCategories();
-      console.log("Default categories and subcategories preloaded successfully");
     } catch (error) {
       console.error("Error preloading categories:", error);
     }
@@ -42,11 +39,6 @@ export function useCategories() {
     const combinedCategories = await categoryRepository.getCategoriesWithSubcategories();
     setCombinedCategories(combinedCategories);
   }, [setCombinedCategories]);
-
-  // Load categories on mount
-  useEffect(() => {
-    loadCategories();
-  }, [loadCategories]);
 
   return {
     preloadDefaultCategories,

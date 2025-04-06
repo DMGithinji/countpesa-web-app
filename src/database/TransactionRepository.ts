@@ -4,8 +4,8 @@ import Dexie from "dexie";
 import { AbstractQuery } from "./AbstractQuery";
 import { Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
-import { deconstructTrCategory, formatTrCategory } from "@/hooks/useTransactions";
 import { format } from "date-fns";
+import { deconstructTrCategory, formatTrCategory } from "@/lib/categoryUtils";
 
 export class TransactionRepository extends AbstractQuery {
   /**

@@ -1,312 +1,225 @@
-import { UNCATEGORIZED } from "@/types/Categories";
-import { Filter, FilterField, FilterOperator, OperatorTranslations } from "@/types/Filters";
-import { MoneyMode, TransactionTypes } from "@/types/Transaction";
-import { endOfDay, format, startOfDay } from "date-fns";
-
-// Group field options by category for better organization
-export const fieldGroups = [
-  {
-    label: "Basic",
-    fields: [
-      { value: "category", label: "Category" },
-      { value: "subcategory", label: "Subcategory" },
-      { value: "account", label: "Sender/Receiver" },
-      { value: "amount", label: "Amount" },
-      { value: "mode", label: "Direction (In/Out)" },
-      { value: "transactionType", label: "Transaction Type" },
-    ],
-  },
-  {
-    label: "Time",
-    fields: [
-      { value: "dayOfWeek", label: "Day of Week" },
-      { value: "hour", label: "Time of Day" },
-    ],
-  },
-  {
-    label: "Other",
-    fields: [
-      { value: "code", label: "Transaction Code" },
-    ],
-  },
-];
-
-// Flatten the field groups for easier access
-export const fieldOptions = fieldGroups.flatMap((group) =>
-  group.fields.map((field) => ({
-    value: field.value as FilterField,
-    label: field.label,
-    group: group.label,
-  }))
-);
-
-// Define operator options based on field type
-export const getOperatorOptions = (field: string) => {
-  // Default operators for string fields
-  const stringOperators = [
-    { value: "==" as FilterOperator, label: "is" },
-    { value: "!=" as FilterOperator, label: "is not" },
-    { value: "contains" as FilterOperator, label: "contains" },
-  ];
-
-  // Operators for numeric fields
-  const numericOperators = [
-    { value: "==" as FilterOperator, label: "equals" },
-    { value: "!=" as FilterOperator, label: "not equals" },
-    { value: ">" as FilterOperator, label: "greater than" },
-    { value: ">=" as FilterOperator, label: "greater than or equal" },
-    { value: "<" as FilterOperator, label: "less than" },
-    { value: "<=" as FilterOperator, label: "less than or equal" },
-  ];
-
-  switch (field) {
-    case "amount":
-      return numericOperators;
-    case "hour":
-      return [
-        { value: "==" as FilterOperator, label: "at" },
-        { value: ">" as FilterOperator, label: "after" },
-        { value: "<" as FilterOperator, label: "before" },
-      ];
-    case "mode":
-    case "dayOfWeek":
-      return [
-        { value: "==" as FilterOperator, label: "is" },
-        { value: "!=" as FilterOperator, label: "is not" },
-      ];
-    default:
-      return stringOperators;
-  }
-};
-
-// Value options for specific fields
-export const getDayOfWeekOptions = () => [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-export const getModeOptions = () => [
-  { value: MoneyMode.MoneyIn, label: "Money In" },
-  { value: MoneyMode.MoneyOut, label: "Money Out" },
-];
-
-export const getTransactionTypeOptions = () =>
-  Object.values(TransactionTypes).map(type => type);
-
-export const getHourOptions = () => {
-  const hours = [];
-  for (let i = 0; i < 24; i++) {
-    const hour = i.toString().padStart(2, "0");
-    hours.push(`${hour}:00`);
-  }
-  return hours;
-};
-
-// Helper function to get formatted value for display
-export const getValueDisplayLabel = (
-  field: string,
-  value: any,
-  date?: Date | undefined
-) => {
-  if (field === "date" && date) {
-    return format(date, "PP");
-  }
-
-  if (field === "mode") {
-    const modeOption = getModeOptions().find(
-      (option) => option.value === value
-    );
-    return modeOption?.label || value;
-  }
-
-  return value;
-};
-
-// Helper function to process date values for filtering
-export const getDateFilterValue = (date: Date, operator: string): number => {
-  return (operator === "<" || operator === "<=")
-    ? endOfDay(date).getTime()
-    : startOfDay(date).getTime();
-};
-
-
-// Field name display mapping for better readability
-export const fieldDisplayNames: Record<string, string> = {
-  dayOfWeek: 'Day',
-  account: 'Sender/Receiver',
-  transactionType: 'Type',
-  mode: 'Direction',
-  date: 'Date',
-  hour: 'Time',
-  category: 'Category',
-  subcategory: 'Subcategory',
-  amount: 'Amount',
-  code: 'Code',
-};
+import { format, isSameDay } from 'date-fns';
+import { Filter, FilterMode, FilterOperator } from '@/types/Filters';
+import { MoneyMode, Transaction } from '@/types/Transaction';
+import { deconstructTrCategory } from './categoryUtils';
 
 
 /**
- * Find date range pairs (>= and <= for the same field)
+ * Filter transactions based on provided filters
  */
-export const findRangePairs = (filters: Filter[]): Filter[][] => {
-  const result: Filter[][] = [];
+export function filterTransactions(
+  transactions: Transaction[],
+  filtersInput: Filter | Filter[]
+): Transaction[] {
+  // Normalize input to array
+  const filters = Array.isArray(filtersInput) ? filtersInput : [filtersInput];
 
-  // Look for >= and <= pairs
-  const startFilters = filters.filter(f => f.operator === ">=");
-
-  for (const startFilter of startFilters) {
-    const endFilter = filters.find(f =>
-      f.operator === "<=" &&
-      f.field === startFilter.field
-    );
-
-    if (endFilter) {
-      result.push([startFilter, endFilter]);
-    }
+  if (!filters.length) {
+    return transactions;
   }
 
-  // Add any remaining filters as individual items
-  const pairedFilters = result.flatMap(pair => pair);
-  const remainingFilters = filters.filter(f => !pairedFilters.includes(f));
+  // Group filters by mode
+  const andFilters = filters.filter(f => f.mode === FilterMode.AND || f.mode === undefined);
+  const orFilters = filters.filter(f => f.mode === FilterMode.OR);
 
-  remainingFilters.forEach(filter => {
-    result.push([filter]);
+  return transactions.filter(transaction => {
+    // Short-circuit evaluation for AND filters (all must match)
+    if (andFilters.length > 0) {
+      for (const filter of andFilters) {
+        if (!evaluateFilter(transaction, filter)) {
+          return false;
+        }
+      }
+    }
+
+    // If we only have AND filters or no filters at all, return result
+    if (orFilters.length === 0) {
+      return true;
+    }
+
+    // Short-circuit evaluation for OR filters (at least one must match)
+    for (const filter of orFilters) {
+      if (evaluateFilter(transaction, filter)) {
+        return true;
+      }
+    }
+
+    // No OR filters matched
+    return false;
   });
-
-  return result;
-};
+}
 
 /**
- * Check if the filter field is a date or hour type
+ * Evaluate a single filter against a transaction
  */
-export const isDateOrHourFilter = (field: FilterField): boolean => {
-  return ["date", "hour"].includes(field);
-};
-
-/**
- * Format values based on field type
- */
-export const formatValue = (field: FilterField, value: unknown): string => {
-  // Handle null/undefined
-  if (value === null || value === undefined) {
-    return field === "category" ? UNCATEGORIZED : "";
-  }
-
-  // Handle date fields
-  if (field === "date" && typeof value === "number") {
-    try {
-      return format(new Date(value), "EEE, MMM d, yyyy");
-    } catch (error) {
-      console.error("Error formatting date:", error);
-      return String(value);
-    }
-  }
-
-  // Handle hour field
-  if (field === "hour" && typeof value === "string") {
-    return value; // Already formatted as HH:MM
-  }
-
-  // Handle money mode field
-  if (field === "mode") {
-    if (value === MoneyMode.MoneyIn) return "Money In";
-    if (value === MoneyMode.MoneyOut) return "Money Out";
-  }
-
-  // Handle amount field
-  if (field === "amount" && typeof value === "number") {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      maximumFractionDigits: 0
-    }).format(value);
-  }
-
-  // Handle 'in' operator with array values
-  if (Array.isArray(value)) {
-    if (value.length === 0) return "nothing";
-    if (value.length === 1) return formatValue(field, value[0]);
-    if (value.length === 2) return `${formatValue(field, value[0])} or ${formatValue(field, value[1])}`;
-    return `${value.length} values`;
-  }
-
-  // Handle empty category
-  if (field === "category" && (value === "" || value === null)) {
-    return UNCATEGORIZED;
-  }
-
-  // Handle day of week capitalization
-  if (field === "dayOfWeek" && typeof value === "string") {
-    // Ensure proper capitalization for days
-    const day = value.toLowerCase();
-    return day.charAt(0).toUpperCase() + day.slice(1);
-  }
-
-  // Truncate very long strings
-  if (typeof value === "string" && value.length > 30) {
-    return `${value.substring(0, 27)}...`;
-  }
-
-  // Standard string formatting
-  return String(value);
-};
-
-/**
- * Format a single filter for tooltip display with full details
- */
-export const formatFilterTooltip = (filter: Filter): string => {
+function evaluateFilter(transaction: Transaction, filter: Filter): boolean {
   const { field, operator, value } = filter;
-  const fieldName = fieldDisplayNames[field] || field.charAt(0).toUpperCase() + field.slice(1);
-  const parsedVal = formatValue(field, value);
-  const operatorText = OperatorTranslations[operator];
 
-  return `${fieldName} ${operatorText} "${parsedVal}"`;
-};
+  // Handle special field types
+  if (field === 'hour') {
+    return evaluateTimeFilter(transaction.date, value as string, operator);
+  }
 
-/**
- * Format date range filters for display
- */
-export const formatDateFilter = (filters: Filter[]): string => {
-  if (!filters || filters.length === 0) return "";
+  if (field === 'mode') {
+    return evaluateModeFilter(transaction.amount, value as MoneyMode, operator);
+  }
 
-  const field = filters[0].field;
-  const isDate = field === "date";
+  if (field === 'dayOfWeek') {
+    return evaluateDayOfWeekFilter(transaction.date, value as string, operator);
+  }
 
-  // Handle range filters (>= and <= pair)
-  if (filters.length === 2) {
-    const startFilter = filters.find(f => f.operator === ">=");
-    const endFilter = filters.find(f => f.operator === "<=");
+  if (field === 'date' && operator === '==' && typeof value === 'number') {
+    return evaluateDateFilter(transaction.date, value);
+  }
 
-    if (startFilter && endFilter) {
-      const startDate = formatValue(field, startFilter.value);
-      const endDate = formatValue(field, endFilter.value);
-      return `${startDate} to ${endDate}`;
+  // Handle category and subcategory as special cases
+  if (field === 'category' || field === 'subcategory') {
+    // For exact matches and non-text operators, use the extracted part
+    if (operator !== 'contains' && operator !== 'contains-any') {
+      const { category, subcategory } = deconstructTrCategory(transaction.category);
+      const fieldValue = field === 'category' ? category : subcategory;
+      return evaluateBasicFilter(fieldValue, value, operator);
+    }
+    // For 'contains' operators on category, we'll check if the full category string contains the value
+    // This allows matching on partial category strings like "Foo: Bar" with "Foo" or "Bar"
+    else if (field === 'category') {
+      return evaluateBasicFilter(transaction.category, value, operator);
+    }
+    // For 'contains' on subcategory, we'll extract just the subcategory part
+    else {
+      const { subcategory } = deconstructTrCategory(transaction.category);
+      return evaluateBasicFilter(subcategory, value, operator);
     }
   }
 
-  // Handle single date condition
-  if (filters.length === 1) {
-    const filter = filters[0];
-    const fieldName = isDate ? "Date" : "Time";
-    const dateValue = formatValue(field, filter.value);
-
-    const opMap = {
-      "==": "is",
-      ">": "after",
-      ">=": "on or after",
-      "<": "before",
-      "<=": "on or before"
-    };
-
-    const opText = opMap[filter.operator as keyof typeof opMap] || OperatorTranslations[filter.operator];
-    return `${fieldName} ${opText} ${dateValue}`;
+  // Special handling for amount (use absolute value)
+  if (field === 'amount' && typeof value === 'number') {
+    const fieldValue = Math.abs(transaction[field] as number);
+    const absValue = Math.abs(value);
+    return evaluateBasicFilter(fieldValue, absValue, operator);
   }
 
-  // Fallback
-  return String(filters[0]?.value || "");
-};
+  // Standard field evaluation
+  const fieldValue = transaction[field as keyof Transaction];
+  return evaluateBasicFilter(fieldValue, value, operator);
+}
+
+function evaluateBasicFilter(fieldValue: any, value: any, operator: FilterOperator): boolean {
+  switch (operator) {
+    case '==':
+      return typeof fieldValue === 'string' && typeof value === 'string'
+        ? fieldValue.toLowerCase() === value.toLowerCase()
+        : fieldValue === value;
+
+    case '!=':
+      return typeof fieldValue === 'string' && typeof value === 'string'
+        ? fieldValue.toLowerCase() !== value.toLowerCase()
+        : fieldValue !== value;
+
+    case '<':
+      return fieldValue < value;
+
+    case '<=':
+      return fieldValue <= value;
+
+    case '>':
+      return fieldValue > value;
+
+    case '>=':
+      return fieldValue >= value;
+
+    case 'contains':
+      return typeof fieldValue === 'string' &&
+        typeof value === 'string' &&
+        fieldValue.toLowerCase().includes(value.toLowerCase());
+
+    case 'contains-any':
+      if (typeof value === 'string' && typeof fieldValue === 'string') {
+        const terms = value.toLowerCase().split(/\s+/);
+        const fieldValueLower = fieldValue.toLowerCase();
+        return terms.some(term => fieldValueLower.includes(term));
+      }
+      return false;
+
+    case 'in':
+      return Array.isArray(value) && value.includes(fieldValue);
+
+    case 'not-in':
+      return Array.isArray(value) && !value.includes(fieldValue);
+
+    default:
+      return false;
+  }
+}
+
+function evaluateTimeFilter(
+  trDateInSeconds: number,
+  timeStr: string,
+  operator: FilterOperator
+): boolean {
+  if (!['<', '<=', '>', '>=', '==', '!='].includes(operator)) {
+    return false;
+  }
+
+  const trDate = new Date(trDateInSeconds * 1000);
+
+  // Parse hours and minutes from the time string
+  const [hours, minutes] = timeStr.split(':').map(num => parseInt(num, 10));
+
+  // Set the comparison time on the same date as the transaction
+  const currentDateStart = new Date(trDate);
+  currentDateStart.setHours(0, 0, 0, 0);
+
+  const compareTime = new Date(currentDateStart);
+  compareTime.setHours(hours, minutes, 0, 0);
+
+  // Compare based on operator
+  switch (operator) {
+    case '<':
+      return trDate.getTime() < compareTime.getTime();
+    case '<=':
+      return trDate.getTime() <= compareTime.getTime();
+    case '>':
+      return trDate.getTime() > compareTime.getTime();
+    case '>=':
+      return trDate.getTime() >= compareTime.getTime();
+    case '==':
+      return trDate.getHours() === hours && trDate.getMinutes() === minutes;
+    case '!=':
+      return trDate.getHours() !== hours || trDate.getMinutes() !== minutes;
+    default:
+      return false;
+  }
+}
+
+function evaluateModeFilter(
+  trAmount: number,
+  mode: MoneyMode,
+  operator: FilterOperator
+): boolean {
+  if (operator !== '==' && operator !== '!=') {
+    return false;
+  }
+
+  const isMoneyOut = trAmount < 0;
+  const isTargetMode = mode === MoneyMode.MoneyOut ? isMoneyOut : !isMoneyOut;
+  return operator === '==' ? isTargetMode : !isTargetMode;
+}
+
+function evaluateDayOfWeekFilter(
+  trDateInSeconds: number,
+  dayOfWeek: string,
+  operator: FilterOperator
+): boolean {
+  if (operator !== '==' && operator !== '!=') {
+    return false;
+  }
+
+  const trDate = new Date(trDateInSeconds * 1000);
+  const actualDay = format(trDate, 'EEEE'); // Get day name (Monday, Tuesday, etc.)
+  return operator === '==' ? actualDay === dayOfWeek : actualDay !== dayOfWeek;
+}
+
+function evaluateDateFilter(trDateInSeconds: number, date: number): boolean {
+  return isSameDay(new Date(trDateInSeconds * 1000), new Date(date * 1000));
+}

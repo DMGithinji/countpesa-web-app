@@ -8,7 +8,7 @@ import {
   isDateOrHourFilter,
   fieldDisplayNames,
   formatValue
-} from "@/lib/filterUtils";
+} from "@/lib/filterChipUtils";
 import { Filter, OperatorTranslations } from "@/types/Filters";
 
 /**

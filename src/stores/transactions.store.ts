@@ -123,12 +123,10 @@ const updateDerivedState = (
   const filteredTransactions = filterTransactions(transactions, filters || []);
   const calculatedData = getCalculatedData(filteredTransactions);
 
-  const dateRangeData = isDateRelatedFilter(filters)
-    ? getDateRangeData({
-        transactions: filteredTransactions,
-        currentFilters: filters,
-      })
-    : DEFAULT_DATE_RANGE_DATA;
+  const dateRangeData = getDateRangeData({
+    transactions: filteredTransactions,
+    currentFilters: filters,
+  })
 
   const periodAverages = getPeriodAverages(dateRangeData, calculatedData);
 
@@ -138,14 +136,4 @@ const updateDerivedState = (
     dateRangeData,
     periodAverages,
   };
-};
-
-const isDateRelatedFilter = (
-  filter: Filter | Filter[] | undefined
-): boolean => {
-  if (!filter) return false;
-  if (Array.isArray(filter)) {
-    return filter.length === 0 || filter.some((f) => f.field === "date");
-  }
-  return filter.field === "date";
 };

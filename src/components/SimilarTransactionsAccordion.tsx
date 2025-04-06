@@ -6,6 +6,8 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { useTransactions } from "@/hooks/useTransactions";
+import { Badge } from "./ui/badge";
+import { Separator } from "./ui/separator";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -62,12 +64,12 @@ const SimilarTransactionsAccordion = ({
           className="flex gap-2 items-center justify-between p-2 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <div className="flex items-center gap-2">
-            <div className="flex items-start gap-3">
+          <div className="flex items-center gap-2 px-2">
+            <div className="flex items-center gap-3">
               {newCategory !== UNCATEGORIZED && (
                 <Checkbox
                   checked={isSame}
-                  className="mt-[2px] border-2 cursor-pointer"
+                  className="border-2 border-foreground cursor-pointer"
                   onClick={(e) => {
                     categorizeTransactions();
                     e.stopPropagation();
@@ -89,29 +91,33 @@ const SimilarTransactionsAccordion = ({
               )}
             </div>
           </div>
-          <div>
+          <div className="pr-2">
             {isOpen ? (
-              <ChevronUp className="h-4 w-4 text-slate-500" />
+              <ChevronUp className="h-4 w-4" />
             ) : (
-              <ChevronDown className="h-4 w-4 text-slate-500" />
+              <ChevronDown className="h-4 w-4" />
             )}
           </div>
         </div>
 
         {isOpen && (
           <div className="px-4 pt-2 max-h-64 overflow-y-auto">
+            <Separator />
             {similarTransactions.map((tx) => (
-              <div key={tx.id} className="px-2 py-3 hover:bg-slate-50">
+              <div key={tx.id} className="px-2 py-3 hover:bg-secondary">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <div>
                       <p className="font-medium text-sm">{tx.account}</p>
                       {tx.category && (
-                        <div className="bg-green-100 text-money-in text-xs px-2 py-0.5 rounded-sm inline-block">
+                        <Badge
+                          variant="outline"
+                          className="text-primary bg-primary/10 text-nowrap text-xs truncate"
+                        >
                           {tx.category}
-                        </div>
+                        </Badge>
                       )}
-                      <p className="text-sm text-slate-500">
+                      <p className="text-sm">
                         {formatDate(new Date(tx.date), "EEE MMM dd yyyy HH:mm")}
                       </p>
                     </div>
@@ -126,7 +132,7 @@ const SimilarTransactionsAccordion = ({
                       {tx.amount < 0 ? "-" : ""}
                       {formatCurrency(Math.abs(tx.amount))}
                     </p>
-                    <p className="text-xs text-slate-500">Amount</p>
+                    <p className="text-xs">Amount</p>
                   </div>
                 </div>
               </div>

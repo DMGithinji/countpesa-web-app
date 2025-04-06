@@ -5,12 +5,12 @@ import SelectionDropdown from "./SelectionDropDown";
 import useCategoriesStore from "@/stores/categories.store";
 import { UNCATEGORIZED } from "@/types/Categories";
 import {
-  deconstructTrCategory,
-  formatTrCategory,
+
   useTransactions,
 } from "@/hooks/useTransactions";
 import SimilarTransactionsAccordion from "./SimilarTransactionsAccordion";
 import { formatCurrency } from "@/lib/utils";
+import { deconstructTrCategory, formatTrCategory } from "@/lib/categoryUtils";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -185,7 +185,7 @@ const MultipleTransactionDetails = ({
 }: {
   transactions: Transaction[];
 }) => (
-  <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-gray-50">
+  <div className="flex flex-col gap-2 p-2 rounded-md border-1 bg-secondary">
     <div className="px-2 rounded-md space-y-2 py-1">
       <div className="text-sm">
         <span>{transactions[0]?.account || "N/A"}</span>

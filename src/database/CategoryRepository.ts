@@ -1,8 +1,8 @@
 import { Category, CombinedCategory, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import db from "./schema";
 import transactionRepository from "./TransactionRepository";
-import { formatTrCategory } from "@/hooks/useTransactions";
 import { sortBy } from "@/lib/utils";
+import { formatTrCategory } from "@/lib/categoryUtils";
 
 export class CategoryRepository {
 

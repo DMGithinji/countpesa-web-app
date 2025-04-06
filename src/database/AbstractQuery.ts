@@ -1,8 +1,8 @@
 import Dexie from "dexie";
 import { Filter, FilterField, FilterMode, Query } from "@/types/Filters";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { deconstructTrCategory } from "@/hooks/useTransactions";
 import { format, isSameDay } from "date-fns";
+import { deconstructTrCategory } from "@/lib/categoryUtils";
 
 // Define operator types for better type safety
 export type ComparisonOperator = "==" | "!=" | "<" | "<=" | ">" | ">=";

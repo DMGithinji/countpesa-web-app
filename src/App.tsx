@@ -1,13 +1,11 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout";
 import { AppProviders } from "./context/AppProvider";
 import useAppInitializer from "./hooks/useAppInitializer";
-
-const DashboardPage = React.lazy(() => import("./pages/DashboardPage"));
-const TransactionsPage = React.lazy(() => import("./pages/TransactionsPage"));
-const AccountsPage = React.lazy(() => import("./pages/AccountsPage"));
-const CategoriesPage = React.lazy(() => import("./pages/CategoriesPage"));
+import DashboardPage from "./pages/DashboardPage";
+import TransactionsPage from "./pages/TransactionsPage";
+import AccountsPage from "./pages/AccountsPage";
+import CategoriesPage from "./pages/CategoriesPage";
 
 function AppRoutes() {
   useAppInitializer();
