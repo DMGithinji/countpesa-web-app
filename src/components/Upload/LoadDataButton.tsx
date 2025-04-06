@@ -11,11 +11,11 @@ import { Button } from "@/components/ui/button";
 import MpesaUploadSection from "./StatementUpload";
 import BackupRestoreSection from "./BackupRestorationForm";
 
-type UploadStatementButtonProps = {
-  variant?: "default" | "outline";
+type LoadDataButtonProps = {
+  variant?: "default" | "ghost";
 
 };
-const UploadStatementButton = ({ variant = "outline" }: UploadStatementButtonProps) => {
+const LoadDataButton = ({ variant = "ghost" }: LoadDataButtonProps) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,7 +25,6 @@ const UploadStatementButton = ({ variant = "outline" }: UploadStatementButtonPro
         onClick={() => setOpen(true)}
       >
         <FileDown className="h-4 w-4" />
-        <span className={variant === 'outline' ? 'hidden md:block' : ''}>Load Transactions</span>
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -56,4 +55,4 @@ const UploadStatementButton = ({ variant = "outline" }: UploadStatementButtonPro
   );
 };
 
-export default UploadStatementButton;
+export default LoadDataButton;

@@ -10,6 +10,7 @@ import { Bot, ListFilter } from "lucide-react";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useTransactionStore from "@/stores/transactions.store";
 import { ThemeToggle } from "./ThemeToggle";
+import FeedbackButton from "./FeedbackButton";
 
 const Header = () => {
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
@@ -41,7 +42,7 @@ const Header = () => {
   );
 
   return (
-    <header className="sticky top-0 w-full border-b pt-2 pb-4 px-2 sm:px-6 h-14">
+    <header className="sticky top-0 w-full border-b pt-2 pb-4 px-2 sm:px-4 h-14">
       <div className="flex justify-between items-center">
         <div className="flex space-x-4 items-center">
           <DateRangePicker
@@ -66,6 +67,7 @@ const Header = () => {
         </div>
         <div className="flex items-center space-x-4">
           <ThemeToggle />
+          <FeedbackButton />
           <UploadStatementButton />
         </div>
       </div>
