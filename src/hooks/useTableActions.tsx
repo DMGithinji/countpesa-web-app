@@ -4,7 +4,7 @@ import { GroupByField, TransactionSummary } from "@/lib/groupByField";
 import { Filter, FilterMode } from "@/types/Filters";
 import { SidepanelMode, SidepanelTransactions } from "@/stores/ui.store";
 
-interface UseTransactionActionsProps {
+interface UseTableActionsProps {
   groupByField: GroupByField;
   validateAndAddFilters: (filter: Filter) => void;
   setTransactionsData: (data: SidepanelTransactions) => void;
@@ -12,13 +12,13 @@ interface UseTransactionActionsProps {
   onCategorizeClick?: (group: TransactionSummary) => void;
 }
 
-export const useTransactionActions = ({
+export const useTableActions = ({
   groupByField,
   validateAndAddFilters,
   setTransactionsData,
   setSidepanelMode,
   onCategorizeClick,
-}: UseTransactionActionsProps) => {
+}: UseTableActionsProps) => {
   const actions: ActionItem[] = useMemo(() => {
     const baseActions: ActionItem[] = [
       {

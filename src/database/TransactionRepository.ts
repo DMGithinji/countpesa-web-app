@@ -1,30 +1,33 @@
 import { ExtractedTransaction, MoneyMode, Transaction } from "../types/Transaction";
-import db from "./schema";
 import Dexie from "dexie";
-import { AbstractQuery } from "./AbstractQuery";
 import { Filter, Query } from "@/types/Filters";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { format } from "date-fns";
 import { deconstructTrCategory, formatTrCategory } from "@/lib/categoryUtils";
+import db from "./schema";
+import { AbstractQuery } from "./AbstractQuery";
 
-export class TransactionRepository extends AbstractQuery {
+export default class TransactionRepository extends AbstractQuery {
+  protected tableDb: Dexie.Table<Transaction, string, Transaction>;
+
+  constructor(isDemo: boolean = false) {
+    super();
+    this.tableDb = isDemo ? db.demoTransactions : db.transactions;
+  }
+
   /**
    * Return the Dexie table for transactions
    */
   protected getTable(): Dexie.Table<Transaction, string> {
-    return db.transactions;
+    return this.tableDb
   }
 
   async bulkAdd(transactions: Transaction[]) {
-    return await db.transactions.bulkAdd(transactions, { allKeys: true });
+    return await this.tableDb.bulkAdd(transactions, { allKeys: true });
   }
 
   async bulkUpdate(updates: Transaction[]) {
-    return await db.transactions.bulkPut(updates);
-  }
-
-  getBoundaryTransaction(type: 'first' | 'last') {
-    return type === 'first' ? db.transactions.orderBy('date').first() : db.transactions.orderBy('date').last();
+    return await this.tableDb.bulkPut(updates);
   }
 
   /**
@@ -106,7 +109,7 @@ export class TransactionRepository extends AbstractQuery {
     trId: string,
     category: string,
   ): Promise<void> {
-    db.transactions.update(((trId as unknown) as string), { category });
+    this.tableDb.update(((trId as unknown) as string), { category });
   }
 
   async getRelatedTransactions(
@@ -115,11 +118,11 @@ export class TransactionRepository extends AbstractQuery {
     getAll = false
   ) {
     if (getAll) {
-      return await db.transactions
+      return await this.tableDb
         .where({ account })
         .toArray();
     }
-    return await db.transactions
+    return await this.tableDb
       .where({ account, category })
       .toArray();
   }
@@ -132,7 +135,7 @@ export class TransactionRepository extends AbstractQuery {
     newCategory: string
   ): Promise<void> {
     // Find all transactions with this category
-    const transactions = await db.transactions
+    const transactions = await this.tableDb
       .where("category")
       .startsWith(oldCategory)
       .toArray();
@@ -163,7 +166,7 @@ export class TransactionRepository extends AbstractQuery {
     newCategoryValue: string
   ): Promise<void> {
     // Find all transactions with this category:subcategory
-    const transactions = await db.transactions
+    const transactions = await this.tableDb
       .where({ category: oldCategorySubcategory })
       .toArray();
 
@@ -183,10 +186,6 @@ export class TransactionRepository extends AbstractQuery {
       });
 
     // Perform batch update
-    await transactionRepository.bulkUpdate(updates);
+    await this.bulkUpdate(updates);
   }
 }
-
-// Create a singleton instance
-const transactionRepository = new TransactionRepository();
-export default transactionRepository;

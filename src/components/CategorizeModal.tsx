@@ -4,10 +4,7 @@ import { Transaction } from "@/types/Transaction";
 import SelectionDropdown from "./SelectionDropDown";
 import useCategoriesStore from "@/stores/categories.store";
 import { UNCATEGORIZED } from "@/types/Categories";
-import {
-
-  useTransactions,
-} from "@/hooks/useTransactions";
+import { useWriteTransactions } from "@/hooks/useTransactions";
 import SimilarTransactionsAccordion from "./SimilarTransactionsAccordion";
 import { formatCurrency } from "@/lib/utils";
 import { deconstructTrCategory, formatTrCategory } from "@/lib/categoryUtils";
@@ -33,7 +30,7 @@ const CategorizeModal = ({
     (state) => state.categoriesWithSubcategories
   );
   const [subcategories, setSubcategories] = useState<string[]>([]);
-  const { categorizeTransaction } = useTransactions();
+  const { categorizeTransaction } = useWriteTransactions();
 
   useEffect(() => {
     if (!isOpen) {

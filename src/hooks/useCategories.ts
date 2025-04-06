@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import useCategoriesStore from '@/stores/categories.store';
-import categoryRepository from '@/database/CategoryRepository';
 import { DEFAULT_CATEGORIES, Subcategory } from '@/types/Categories';
+import { useCategoryRepository } from '@/context/DBContext';
 
 
 /**
@@ -9,6 +9,7 @@ import { DEFAULT_CATEGORIES, Subcategory } from '@/types/Categories';
  * Handles initialization of default categories if none exist
  */
 export function useCategories() {
+  const categoryRepository = useCategoryRepository();
   const setCombinedCategories = useCategoriesStore(state => state.setCombinedCategories);
 
   const preloadDefaultCategories = useCallback(async () => {
@@ -38,17 +39,11 @@ export function useCategories() {
   const loadCategories = useCallback(async () => {
     const combinedCategories = await categoryRepository.getCategoriesWithSubcategories();
     setCombinedCategories(combinedCategories);
-  }, [setCombinedCategories]);
+  }, [categoryRepository, setCombinedCategories]);
 
   return {
     preloadDefaultCategories,
     reloadCategories: loadCategories,
-    addCategory: categoryRepository.addCategory,
-    updateCategory: categoryRepository.updateCategory,
-    deleteCategory: categoryRepository.deleteCategory,
-    addSubcategory: categoryRepository.addSubcategory,
-    updateSubcategory: categoryRepository.updateSubcategory,
-    deleteSubcategory: categoryRepository.deleteSubcategory
   };
 }
 

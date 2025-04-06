@@ -11,44 +11,36 @@ import CategoriesPage from "./pages/CategoriesPage";
 function AppRoutes() {
   useAppInitializer();
 
+  const routes = [
+    { path: "/dashboard", element: <DashboardPage /> },
+    { path: "/transactions", element: <TransactionsPage /> },
+    { path: "/accounts", element: <AccountsPage /> },
+    { path: "/categories", element: <CategoriesPage /> }
+  ];
+
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route
-        path="/dashboard"
-        element={
-          <MainLayout>
-            <DashboardPage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/transactions"
-        element={
-          <MainLayout>
-            <TransactionsPage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/accounts"
-        element={
-          <MainLayout>
-            <AccountsPage />
-          </MainLayout>
-        }
-      />
-      <Route
-        path="/categories"
-        element={
-          <MainLayout>
-            <CategoriesPage />
-          </MainLayout>
-        }
-      />
+
+      {routes.map(route => (
+        <Route
+          key={route.path}
+          path={route.path}
+          element={<MainLayout>{route.element}</MainLayout>}
+        />
+      ))}
+
+      {routes.map(route => (
+        <Route
+          key={`demo${route.path}`}
+          path={`/demo${route.path}`}
+          element={<MainLayout>{route.element}</MainLayout>}
+        />
+      ))}
     </Routes>
   );
 }
+
 
 function App() {
   return (

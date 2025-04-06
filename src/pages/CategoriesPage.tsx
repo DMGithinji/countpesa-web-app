@@ -16,7 +16,7 @@ import useSidepanelStore, {
   SidepanelMode,
   SidepanelTransactions,
 } from "@/stores/ui.store";
-import { useTransactionActions } from "@/hooks/useTransactionActions";
+import { useTableActions } from "@/hooks/useTableActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 import useTransactionStore from "@/stores/transactions.store";
 import { UNCATEGORIZED } from "@/types/Categories";
@@ -76,7 +76,7 @@ const CategoriesPage = () => {
     [setSidepanelMode, setTransactionsData]
   );
 
-  const actions = useTransactionActions({
+  const actions = useTableActions({
     groupByField,
     validateAndAddFilters,
     setTransactionsData,

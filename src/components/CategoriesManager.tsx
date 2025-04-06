@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
+import { useCategoryRepository } from "@/context/DBContext";
 
 interface UiSubcategory {
   id: string;
@@ -23,17 +24,12 @@ interface UiCategory {
 }
 
 const CategoriesManager = () => {
+  const categoryRepository = useCategoryRepository();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const combinedCategories = useCategoriesStore(
     (state) => state.categoriesWithSubcategories
   );
-  const {
-    updateCategory,
-    deleteCategory,
-    updateSubcategory,
-    deleteSubcategory,
-    reloadCategories,
-  } = useCategories();
+  const { reloadCategories } = useCategories();
 
   // Transform combinedCategories into local UI state with isExpanded property
   const [categories, setCategories] = useState<UiCategory[]>([]);
@@ -104,7 +100,7 @@ const CategoriesManager = () => {
         );
 
         // Call repository
-        await updateCategory(editingCategoryId, editValue);
+        await categoryRepository.updateCategory(editingCategoryId, editValue);
 
         // Clear editing state
         setEditingCategoryId(null);
@@ -140,7 +136,7 @@ const CategoriesManager = () => {
         );
 
         // Call repository
-        await updateSubcategory(editingSubcategoryId.subcategoryId, editValue);
+        await categoryRepository.updateSubcategory(editingSubcategoryId.subcategoryId, editValue);
 
         // Clear editing state
         setEditingSubcategoryId(null);
@@ -165,7 +161,7 @@ const CategoriesManager = () => {
         );
 
         // Call repository
-        await deleteCategory(categoryId);
+        await categoryRepository.deleteCategory(categoryId);
 
         // Reload categories to ensure consistency
         await reloadCategories();
@@ -198,7 +194,7 @@ const CategoriesManager = () => {
         );
 
         // Call repository
-        await deleteSubcategory(subcategoryId);
+        await categoryRepository.deleteSubcategory(subcategoryId);
 
         // Reload categories to ensure consistency
         await reloadCategories();

@@ -18,7 +18,7 @@ import {
 } from "./ui/select";
 import { useEffect, useMemo, useState } from "react";
 import { getTotals } from "@/lib/getTotal";
-import { ArrowDownCircle, ArrowUpCircle, Icon } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 
 interface AmtSummaryCardProps {
   type: "Sent" | "Received";

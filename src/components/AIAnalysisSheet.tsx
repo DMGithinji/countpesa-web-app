@@ -17,9 +17,7 @@ import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
 
 import { endOfDay, formatDate } from "date-fns";
 import { SetDateRange } from "@/lib/getDateRangeData";
-import analysisRepository, {
-  getReportAnalysisId,
-} from "@/database/AnalysisRepository";
+import { getReportAnalysisId } from "@/database/AnalysisRepository";
 import { AnalysisReport, AssessmentMode } from "@/types/AITools";
 import {
   GetPromptTemplate,
@@ -28,6 +26,7 @@ import {
 import useAIMessageStore from "@/stores/aiMessages.store";
 import { getCalculationSummary } from "@/lib/getAIPrompt";
 import useTransactionStore from "@/stores/transactions.store";
+import { useAnalysisRepository } from "@/context/DBContext";
 
 const BottomDrawer = () => {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
@@ -39,6 +38,7 @@ const BottomDrawer = () => {
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const analysisRepository = useAnalysisRepository();
 
   const { dateRange, defaultPeriod } = dateRangeData;
   const formattedDateRange = useMemo(() => {
@@ -51,7 +51,10 @@ const BottomDrawer = () => {
     };
   }, [dateRange]);
 
-  const calculationResults = useMemo(() => getCalculationSummary(transactions, calculatedData, defaultPeriod), [calculatedData, defaultPeriod, transactions]);
+  const calculationResults = useMemo(
+    () => getCalculationSummary(transactions, calculatedData, defaultPeriod),
+    [calculatedData, defaultPeriod, transactions]
+  );
 
   const generateAssessment = useCallback(
     async (ignorePast = false) => {
@@ -96,7 +99,7 @@ const BottomDrawer = () => {
         setIsLoading(false);
       }
     },
-    [formattedDateRange, assessmentMode, calculationResults]
+    [formattedDateRange, assessmentMode, analysisRepository, calculationResults]
   );
 
   useEffect(() => {
@@ -147,9 +150,7 @@ const BottomDrawer = () => {
             {isLoading ? (
               <div className="flex items-center justify-center py-16 gap-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
-                <span>
-                  Analyzing your financial data...
-                </span>
+                <span>Analyzing your financial data...</span>
               </div>
             ) : (
               <ScrollArea className="whitespace-pre-wrap prose h-[400px] rounded-md border max-w-none pt-4 px-4">

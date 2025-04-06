@@ -16,7 +16,7 @@ import TopAccountsChart from "@/components/TopAccountsChart";
 import GroupedTrsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 
 import CategorizeModal from "@/components/CategorizeModal";
-import { useTransactionActions } from "@/hooks/useTransactionActions";
+import { useTableActions } from "@/hooks/useTableActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 import useTransactionStore from "@/stores/transactions.store";
 
@@ -71,7 +71,7 @@ const AccountsPage = () => {
     setIsModalOpen(true);
   }, []);
 
-  const actions = useTransactionActions({
+  const actions = useTableActions({
     groupByField: GroupByField.Account,
     validateAndAddFilters,
     setTransactionsData,

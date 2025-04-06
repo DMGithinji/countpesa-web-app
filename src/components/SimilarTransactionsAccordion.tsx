@@ -5,9 +5,10 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Checkbox } from "./ui/checkbox";
 import { UNCATEGORIZED } from "@/types/Categories";
-import { useTransactions } from "@/hooks/useTransactions";
+import { useWriteTransactions } from "@/hooks/useTransactions";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
+import { useTransactionRepository } from "@/context/DBContext";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -20,13 +21,14 @@ const SimilarTransactionsAccordion = ({
   newCategory,
   mode = "single",
 }: SimilarTransactionsAccordionProps) => {
+  const transactionRepository = useTransactionRepository();
   const [similarTransactions, setSimilarTransactions] = useState<Transaction[]>(
     []
   );
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const { getRelatedTransactions, bulkUpdateTransactions } = useTransactions();
+  const { bulkUpdateTransactions } = useWriteTransactions();
 
   const isSame = useMemo(() => {
     return similarTransactions.every((tr) => tr.category === newCategory);
@@ -34,17 +36,19 @@ const SimilarTransactionsAccordion = ({
 
   useEffect(() => {
     const getAll = mode === "multiple";
-    getRelatedTransactions(
-      selectedTransaction.account,
-      selectedTransaction.category,
-      getAll
-    ).then((trs) => {
-      const filtered = trs.filter(
-        (tx) => mode === "multiple" || tx.id !== selectedTransaction.id
-      );
-      setSimilarTransactions(filtered);
-    });
-  }, [getRelatedTransactions, mode, selectedTransaction]);
+    transactionRepository
+      .getRelatedTransactions(
+        selectedTransaction.account,
+        selectedTransaction.category,
+        getAll
+      )
+      .then((trs) => {
+        const filtered = trs.filter(
+          (tx) => mode === "multiple" || tx.id !== selectedTransaction.id
+        );
+        setSimilarTransactions(filtered);
+      });
+  }, [mode, selectedTransaction, transactionRepository]);
 
   const categorizeTransactions = async () => {
     const updated = similarTransactions.map((tx) => ({

@@ -1,4 +1,3 @@
-import transactionRepository from "@/database/TransactionRepository";
 import {
   FieldGroupSummary,
   GroupByField,
@@ -10,9 +9,7 @@ import { CalculatedData } from "@/lib/getCalculatedData";
 import { getPeriodData, Period } from "@/lib/groupByPeriod";
 
 
-export async function getInitialPrompt() {
-  const transactions = await transactionRepository.getTransactions();
-
+export async function getInitialPrompt(transactions: Transaction[]) {
   const groupedByAccount = groupedTrxByField(
     transactions,
     GroupByField.Account

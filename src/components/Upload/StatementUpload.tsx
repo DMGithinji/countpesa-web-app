@@ -1,24 +1,25 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ExtractedTransaction } from "@/types/Transaction";
-import transactionRepository from "@/database/TransactionRepository";
 import { useLoadInitialTransactions } from "@/hooks/useTransactions";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
+import { useTransactionRepository } from "@/context/DBContext";
 
 const MpesaUploadSection = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const db = useTransactionRepository();
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const { fetchTransactions } = useLoadInitialTransactions();
+  const { loadInitialTransactions } = useLoadInitialTransactions();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -53,10 +54,8 @@ const MpesaUploadSection = ({
       };
 
       if (data.status === "success") {
-        await transactionRepository.processMpesaStatementData(
-          data.results.transactions
-        );
-        fetchTransactions();
+        await db.processMpesaStatementData(data.results.transactions);
+        loadInitialTransactions();
         setOpen(false);
         setFile(null);
         setPassword("");
@@ -136,7 +135,7 @@ const MpesaUploadSection = ({
         type="submit"
         className="w-full font-medium py-2 mt-2"
       >
-        { isLoading ? 'Processing...' : 'Process File'}
+        {isLoading ? "Processing..." : "Process File"}
       </Button>
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </form>

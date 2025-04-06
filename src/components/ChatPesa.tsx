@@ -10,6 +10,7 @@ import useTransactionStore from "@/stores/transactions.store";
 import { handleResponse } from "@/lib/processAIResponse";
 import { getInitialPrompt } from "@/lib/getAIPrompt";
 import { useAIContext } from "@/context/AIContext";
+import { useTransactionRepository } from "@/context/DBContext";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -19,11 +20,13 @@ const defaultStarters = [
 ];
 
 const ChatPanel = () => {
+
   const { AIChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const setCurrentFilters = useTransactionStore(
     (state) => state.setCurrentFilters
   );
+  const transactionsRepository = useTransactionRepository();
 
   const messages = useAIMessageStore((state) => state.messages);
   const setMessage = useAIMessageStore((state) => state.setMessage);
@@ -44,7 +47,8 @@ const ChatPanel = () => {
     const isFirst = messages.length === 1;
     let prompt = message;
     if (isFirst) {
-      const intializationPrompt = await getInitialPrompt();
+      const transactions = await transactionsRepository.getTransactions();
+      const intializationPrompt = await getInitialPrompt(transactions);
       prompt = `${intializationPrompt}. ${message}`;
     }
 

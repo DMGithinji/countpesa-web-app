@@ -6,6 +6,7 @@ import {
   ErrorBoundary,
 } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./ThemeProvider";
+import { RepositoryProvider } from "./DBContext";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -24,7 +25,9 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
     >
       <ThemeProvider>
         <BrowserRouter>
-          <AIContextProvider>{children}</AIContextProvider>
+          <RepositoryProvider>
+            <AIContextProvider>{children}</AIContextProvider>
+          </RepositoryProvider>
         </BrowserRouter>
       </ThemeProvider>
     </ErrorBoundary>

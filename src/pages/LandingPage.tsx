@@ -52,7 +52,7 @@ const CountPesaLanding = () => {
 
           <div className="flex justify-center gap-4 mb-12">
             <UploadStatementButton variant="default" />
-            <Link to="/dashboard">
+            <Link to="/demo/dashboard">
               <Button variant="outline" size="lg">
                 Explore Demo
               </Button>
@@ -62,7 +62,7 @@ const CountPesaLanding = () => {
 
         {/* Loom Video Embed */}
         <div className="mb-8 overflow-hidden rounded-lg shadow-lg mx-auto max-w-4xl">
-          <div className="bg-gray-500/10">
+          <div className="bg-black">
             <div className="relative mt-4 pb-[45.833%] h-0 rounded overflow-hidden">
               <iframe
                 src="https://www.loom.com/embed/f48117983d994fcb8b72fd4068a0a863?sid=aebc15da-e4db-4365-b654-bbaf734a59e6"
@@ -88,7 +88,7 @@ const CountPesaLanding = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <Card className="transition-all duration-300 hover:shadow-lg rounded-lg">
+            <Card className="transition-all duration-300 hover:shadow rounded-lg">
               <CardHeader className="text-center pb-2">
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">📄</span>
@@ -107,7 +107,7 @@ const CountPesaLanding = () => {
             </Card>
 
             {/* Step 2 */}
-            <Card className="transition-all duration-300 hover:shadow-lg rounded-lg">
+            <Card className="transition-all duration-300 hover:shadow rounded-lg">
               <CardHeader className="text-center pb-2">
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">🔄</span>
@@ -126,7 +126,7 @@ const CountPesaLanding = () => {
             </Card>
 
             {/* Step 3 */}
-            <Card className="transition-all duration-300 hover:shadow-lg rounded-lg">
+            <Card className="transition-all duration-300 hover:shadow rounded-lg">
               <CardHeader className="text-center pb-2">
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">📊</span>
