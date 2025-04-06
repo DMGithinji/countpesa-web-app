@@ -71,6 +71,8 @@ export default function DateRangePicker({
     onDateChange(range);
   };
 
+  const nextDisabled = date?.to && isAfter(addDays(date.to, 1), new Date());
+
   // Determine the period type and if navigation arrows should be shown
   const { periodType, showNavigationArrows } = useMemo(
     () => getPeriodPresets(date),
@@ -123,6 +125,7 @@ export default function DateRangePicker({
             variant="ghost"
             size="icon"
             className="h-8 w-8 hover:text-foreground"
+            disabled={nextDisabled}
             onClick={() => navigateToPeriod(1)}
           >
             <ChevronRight className="h-4 w-4" />
