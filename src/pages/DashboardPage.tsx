@@ -7,8 +7,8 @@ import { MoneyMode } from "@/types/Transaction";
 import TopGroups from "@/components/TopGroups";
 import QuickFiltersCarousel from "@/components/QuickFiltersCarousel";
 import TransactionHeatmap from "@/components/TransactionHeatmap";
-import { useEffect, useMemo, useState } from "react";
-import { getPeriodAverages, Period } from "@/lib/groupByPeriod";
+import { useEffect, useState } from "react";
+import { Period } from "@/lib/groupByPeriod";
 
 const DashboardPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>();
@@ -16,10 +16,9 @@ const DashboardPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const periodAverages = useTransactionStore((state) => state.periodAverages);
   const { transactionTotals, balance, balanceTrend } = calculatedData;
   const { defaultPeriod, periodOptions } = dateRangeData;
-
-  const periodAverages = useMemo(() => getPeriodAverages(dateRangeData, calculatedData), [calculatedData, dateRangeData]);
 
   useEffect(() => {
     setSelectedPeriod(defaultPeriod);

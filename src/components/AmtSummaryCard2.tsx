@@ -8,7 +8,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
-import { groupTransactionsByPeriod, Period, PeriodDict } from "@/lib/groupByPeriod";
+import { groupTransactionsByPeriod, Period, PeriodAverages, PeriodDict } from "@/lib/groupByPeriod";
 import {
   Select,
   SelectContent,
@@ -27,10 +27,7 @@ interface AmtSummaryCardProps {
   transactions: Transaction[];
   periodOptions: Period[];
   defaultPeriod: Period;
-  periodAverages: { [period: string]: {
-    moneyInAverage: number;
-    moneyOutAverage: number;
-  }};
+  periodAverages: PeriodAverages;
 }
 const AmtSummaryCard = ({
   type,

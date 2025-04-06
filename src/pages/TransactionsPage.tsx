@@ -11,7 +11,7 @@ import GroupedTransactionsTable, {
 } from "@/components/GroupedTrsTable/Table";
 import { calculateTransactionTotals } from "@/lib/getTotal";
 import { TransactionSummary } from "@/lib/groupByField";
-import { getPeriodAverages, groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
+import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import useTransactionStore from "@/stores/transactions.store";
@@ -19,10 +19,10 @@ import useTransactionStore from "@/stores/transactions.store";
 const TransactionsPage = () => {
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
-  const dateRangeData = useTransactionStore((state) => state.dateRangeData);  const { defaultPeriod, periodOptions } = dateRangeData;
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const periodAverages = useTransactionStore((state) => state.periodAverages);
+  const { defaultPeriod, periodOptions } = dateRangeData;
   const { transactionTotals } = calculatedData;
-
-  const periodAverages = useMemo(() => getPeriodAverages(dateRangeData, calculatedData), [calculatedData, dateRangeData]);
 
   const [groupBy, setGroupBy] = useState<"all" | Period>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");

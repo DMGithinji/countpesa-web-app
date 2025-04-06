@@ -7,7 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatCurrency = (amount: number) => {
-  return `Ksh ${amount.toLocaleString()}`;
+  return new Intl.NumberFormat('en-KE', {
+    style: 'currency',
+    currency: 'KES',
+    maximumFractionDigits: 0
+  }).format(amount);
 };
 
 export const filterTransactions = (transactions: Transaction[], searchQuery: string) => {

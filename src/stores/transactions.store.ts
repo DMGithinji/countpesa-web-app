@@ -2,11 +2,20 @@ import { Filter } from "@/types/Filters";
 import { create } from "zustand";
 import { Transaction } from "@/types/Transaction";
 import { removeFilters, validateAndAddFilters } from "@/lib/manageFilters";
-import { CalculatedData, DEFAULT_CALCULATED_DATA, getCalculatedData } from "@/lib/getCalculatedData";
-import { DateRangeData, DEFAULT_DATE_RANGE_DATA, getDateRangeData } from "@/lib/getDateRangeData";
+import {
+  CalculatedData,
+  DEFAULT_CALCULATED_DATA,
+  getCalculatedData,
+} from "@/lib/getCalculatedData";
+import {
+  DateRangeData,
+  DEFAULT_DATE_RANGE_DATA,
+  getDateRangeData,
+} from "@/lib/getDateRangeData";
 import { getAllAccountNames } from "@/lib/groupByField";
+import { filterTransactions } from "@/lib/filterUtils";
+import { getPeriodAverages, PeriodAverages } from "@/lib/groupByPeriod";
 
-const filterIsDateRelated = (filter: Filter | Filter[]) => Array.isArray(filter) && filter.some(f => f.field === 'date') || !Array.isArray(filter) && filter.field === 'date'
 interface TransactionState {
   allTransactions: Transaction[];
   transactions: Transaction[];
@@ -17,9 +26,9 @@ interface TransactionState {
   calculatedData: CalculatedData;
   dateRangeData: DateRangeData;
   accountNames: string[];
+  periodAverages: PeriodAverages;
 
   setAllTransactions: (transactions: Transaction[]) => void;
-  setTransactions: (transactions: Transaction[]) => void;
   setCurrentFilters: (filters: undefined | Filter[]) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string) => void;
@@ -29,44 +38,45 @@ interface TransactionState {
 }
 
 const useTransactionStore = create<TransactionState>((set) => ({
+  // Initial state
   allTransactions: [],
   transactions: [],
   currentFilters: undefined,
   loading: true,
   error: "",
-
   accountNames: [],
   calculatedData: DEFAULT_CALCULATED_DATA,
   dateRangeData: DEFAULT_DATE_RANGE_DATA,
+  periodAverages: {},
 
+  // Actions
   setAllTransactions: (transactions) =>
-    set(() => {
+    set((state) => {
       const accountNames = getAllAccountNames(transactions);
+      const derivedState = updateDerivedState(
+        transactions,
+        state.currentFilters
+      );
+
       return {
         allTransactions: transactions,
         accountNames,
-      };
-    }),
-
-  setTransactions: (transactions) =>
-    set((state) => {
-      const calculatedData = getCalculatedData(transactions);
-      const dateRangeData = getDateRangeData({
-        transactions,
-        currentFilters: state.currentFilters,
-      });
-
-      return {
-        transactions,
-        calculatedData,
-        dateRangeData,
+        ...derivedState,
       };
     }),
 
   setCurrentFilters: (filters) =>
     set((state) => {
-      const updatedFilters = validateAndAddFilters(filters, []);
-      return { ...state, currentFilters: updatedFilters };
+      const validatedFilters = validateAndAddFilters(filters, []);
+      const derivedState = updateDerivedState(
+        state.allTransactions,
+        validatedFilters
+      );
+
+      return {
+        currentFilters: validatedFilters,
+        ...derivedState,
+      };
     }),
 
   setLoading: (loading) => set({ loading }),
@@ -75,18 +85,14 @@ const useTransactionStore = create<TransactionState>((set) => ({
   removeFilter: (filter) =>
     set((state) => {
       const updatedFilters = removeFilters(state.currentFilters, filter);
-
-      let dateRangeData = state.dateRangeData;
-      if (filterIsDateRelated(filter)) {
-        dateRangeData = getDateRangeData({
-          transactions: state.transactions,
-          currentFilters: updatedFilters,
-        });
-      }
+      const derivedState = updateDerivedState(
+        state.allTransactions,
+        updatedFilters
+      );
 
       return {
         currentFilters: updatedFilters,
-        dateRangeData,
+        ...derivedState,
       };
     }),
 
@@ -96,20 +102,50 @@ const useTransactionStore = create<TransactionState>((set) => ({
         state.currentFilters,
         newFilter
       );
-
-      let dateRangeData = state.dateRangeData;
-      if (filterIsDateRelated(newFilter)) {
-        dateRangeData = getDateRangeData({
-          transactions: state.transactions,
-          currentFilters: updatedFilters,
-        });
-      }
+      const derivedState = updateDerivedState(
+        state.allTransactions,
+        updatedFilters
+      );
 
       return {
         currentFilters: updatedFilters,
-        dateRangeData,
+        ...derivedState,
       };
     }),
 }));
 
 export default useTransactionStore;
+
+const updateDerivedState = (
+  transactions: Transaction[],
+  filters: Filter[] | undefined
+) => {
+  const filteredTransactions = filterTransactions(transactions, filters || []);
+  const calculatedData = getCalculatedData(filteredTransactions);
+
+  const dateRangeData = isDateRelatedFilter(filters)
+    ? getDateRangeData({
+        transactions: filteredTransactions,
+        currentFilters: filters,
+      })
+    : DEFAULT_DATE_RANGE_DATA;
+
+  const periodAverages = getPeriodAverages(dateRangeData, calculatedData);
+
+  return {
+    transactions: filteredTransactions,
+    calculatedData,
+    dateRangeData,
+    periodAverages,
+  };
+};
+
+const isDateRelatedFilter = (
+  filter: Filter | Filter[] | undefined
+): boolean => {
+  if (!filter) return false;
+  if (Array.isArray(filter)) {
+    return filter.length === 0 || filter.some((f) => f.field === "date");
+  }
+  return filter.field === "date";
+};

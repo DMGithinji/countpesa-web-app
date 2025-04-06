@@ -24,7 +24,7 @@ const AmtSummaryCard = ({
 }: AmtSummaryCardProps) => {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="text-sm md:text-base font-normal">
           {type} ({count} Transactions)
         </CardTitle>
@@ -37,14 +37,14 @@ const AmtSummaryCard = ({
       <CardContent>
         <div
           className={cn(
-            "text-lg md:text-2xl font-bold",
+            "text-lg md:text-xl font-bold",
             mode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"
           )}
         >
           {formatCurrency(amount)}
         </div>
         {!!average && (
-          <div className="text-sm text-muted-foreground space-x-1 mt-6">
+          <div className="text-sm text-muted-foreground space-x-1 mt-4">
             <span className="bg-money-in/10 text-money-in px-2 py-0.5 rounded-sm inline-block">
               {formatCurrency(Math.round(average))}
             </span>
