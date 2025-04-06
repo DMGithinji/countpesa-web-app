@@ -18,6 +18,7 @@ import {
 } from "./ui/select";
 import { useEffect, useMemo, useState } from "react";
 import { getTotals } from "@/lib/getTotal";
+import { ArrowDownCircle, ArrowUpCircle, Icon } from "lucide-react";
 
 interface AmtSummaryCardProps {
   type: "Sent" | "Received";
@@ -58,6 +59,9 @@ const AmtSummaryCard = ({
         <CardTitle className="font-normal mb-0 pb-0">
           Total {type} ({count} Transactions)
         </CardTitle>
+        {
+          mode === MoneyMode.MoneyIn ? <ArrowUpCircle size={18} className="text-money-in" /> : <ArrowDownCircle size={18} className="text-money-out" />
+        }
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">

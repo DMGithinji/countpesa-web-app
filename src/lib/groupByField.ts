@@ -65,7 +65,7 @@ export function groupedTrxByField(
 
   // Single pass to collect transactions by group
   for (const tx of transactions) {
-    const key = getGroupKey(tx, field);
+    const key = getGroupKey(tx, field).trim();
 
     if (!fieldMap.has(key)) {
       fieldMap.set(key, []);

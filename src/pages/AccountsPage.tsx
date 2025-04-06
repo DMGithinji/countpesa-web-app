@@ -72,7 +72,7 @@ const AccountsPage = () => {
   }, []);
 
   const actions = useTransactionActions({
-    groupByField: "account",
+    groupByField: GroupByField.Account,
     validateAndAddFilters,
     setTransactionsData,
     setSidepanelMode,
@@ -80,7 +80,7 @@ const AccountsPage = () => {
   });
 
   const columnsWithActions = useTransactionColumns({
-    groupByField: "account",
+    groupByField: GroupByField.Account,
     actions,
     title: "Sender/Receiver",
     onCategoryClick: handleFilterByAccount,

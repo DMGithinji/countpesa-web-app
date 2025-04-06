@@ -6,13 +6,13 @@ import { Filter } from "@/types/Filters";
 import { Badge } from "@/components/ui/badge";
 
 interface UseTransactionColumnsProps {
-  groupByField: "category" | "account";
+  groupByField: GroupByField;
   actions: ActionItem[];
   title: string;
   onCategoryClick?: (group: TransactionSummary) => void;
 }
 
-const createFilters = (field: "category" | "account", value: string): Filter[] => [
+const createFilters = (field: GroupByField, value: string): Filter[] => [
   { field, operator: "==", value },
   { field, operator: "!=", value },
 ];

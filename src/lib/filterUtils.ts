@@ -108,7 +108,7 @@ function evaluateBasicFilter(fieldValue: any, value: any, operator: FilterOperat
   switch (operator) {
     case '==':
       return typeof fieldValue === 'string' && typeof value === 'string'
-        ? fieldValue.toLowerCase() === value.toLowerCase()
+        ? fieldValue.toLowerCase().trim() === value.toLowerCase().trim()
         : fieldValue === value;
 
     case '!=':

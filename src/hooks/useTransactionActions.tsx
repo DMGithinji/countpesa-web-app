@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { ActionItem } from "@/components/GroupedTrsTable/RowAction";
-import { TransactionSummary } from "@/lib/groupByField";
-import { Filter } from "@/types/Filters";
+import { GroupByField, TransactionSummary } from "@/lib/groupByField";
+import { Filter, FilterMode } from "@/types/Filters";
 import { SidepanelMode, SidepanelTransactions } from "@/stores/ui.store";
 
 interface UseTransactionActionsProps {
-  groupByField: "category" | "account";
+  groupByField: GroupByField;
   validateAndAddFilters: (filter: Filter) => void;
   setTransactionsData: (data: SidepanelTransactions) => void;
   setSidepanelMode: (mode: SidepanelMode) => void;
@@ -28,7 +28,7 @@ export const useTransactionActions = ({
             field: groupByField,
             operator: "==",
             value: row.name,
-            mode: "and",
+            mode: FilterMode.AND,
           };
           validateAndAddFilters(filter);
         },
@@ -40,7 +40,7 @@ export const useTransactionActions = ({
             field: groupByField,
             operator: "!=",
             value: row.name,
-            mode: "and",
+            mode: FilterMode.AND,
           };
           validateAndAddFilters(filter);
         },
