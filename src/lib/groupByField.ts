@@ -1,4 +1,5 @@
 import { Transaction } from "@/types/Transaction";
+import { UNCATEGORIZED } from "@/types/Categories";
 import { calculateTransactionTotals, getTotals, TransactionTotals } from "./getTotal";
 
 export enum GroupByField {
@@ -49,9 +50,9 @@ function getGroupKey(tx: Transaction, field: GroupByField): string {
 }
 
 /**
- * Optimized version of groupedTrxByField with reduced memory allocations
+ * Optimized version of groupTrxByField with reduced memory allocations
  */
-export function groupedTrxByField(
+export function groupTrxByField(
   transactions: Transaction[],
   field: GroupByField,
   sortBy: GroupByTrxSortBy = GroupByTrxSortBy.MoneyOut
@@ -90,7 +91,7 @@ export function groupedTrxByField(
   return result.sort((a, b) => Math.abs(b[sortBy]) - Math.abs(a[sortBy]));
 }
 
-export function groupTransactionsByField(
+export function groupTrxByFieldAndSummarize(
   transactions: Transaction[],
   field: GroupByField,
   sortBy: "amount" | "count" = "amount"
@@ -104,7 +105,7 @@ export function groupTransactionsByField(
   }
 
   // Get groups efficiently
-  const groups = groupedTrxByField(transactions, field);
+  const groups = groupTrxByField(transactions, field);
   const result: FieldGroupSummary[] = new Array(groups.length);
 
   // Transform to summary in one pass
@@ -140,3 +141,47 @@ export function getAllAccountNames(transactions: Transaction[]): string[] {
   // Convert the Set back to an array
   return Array.from(accountNamesSet);
 }
+
+interface MoneyGroupsData {
+  title: string;
+  groupByField: GroupByField;
+  moneyOutGroups: FieldGroupSummary[];
+  moneyInGroups: FieldGroupSummary[];
+}
+
+export const getGroupByCategoryOrSubcategory = (
+  topCategoriesMoneyInByAmt: FieldGroupSummary[],
+  topCategoriesMoneyOutByAmt: FieldGroupSummary[]
+): MoneyGroupsData => {
+  const isSingleMoneyOutCategory =
+    topCategoriesMoneyOutByAmt.length === 1 && topCategoriesMoneyOutByAmt[0].name !== UNCATEGORIZED;
+
+  const isSingleMoneyInCategory =
+    topCategoriesMoneyInByAmt.length === 1 && topCategoriesMoneyInByAmt[0].name !== UNCATEGORIZED;
+
+  const isSubcategory =
+    (!topCategoriesMoneyInByAmt.length && isSingleMoneyOutCategory) ||
+    (!topCategoriesMoneyOutByAmt.length && isSingleMoneyInCategory) ||
+    (isSingleMoneyInCategory &&
+      isSingleMoneyOutCategory &&
+      topCategoriesMoneyInByAmt[0].name === topCategoriesMoneyOutByAmt[0].name);
+
+  return {
+    title: isSubcategory ? "Subcategories" : "Categories",
+    groupByField: isSubcategory ? GroupByField.Subcategory : GroupByField.Category,
+    moneyOutGroups:
+      isSingleMoneyInCategory && isSubcategory
+        ? groupTrxByFieldAndSummarize(
+            topCategoriesMoneyOutByAmt[0]?.transactions || [],
+            GroupByField.Subcategory
+          )
+        : topCategoriesMoneyOutByAmt,
+    moneyInGroups:
+      isSingleMoneyOutCategory && isSubcategory
+        ? groupTrxByFieldAndSummarize(
+            topCategoriesMoneyInByAmt[0]?.transactions || [],
+            GroupByField.Subcategory
+          )
+        : topCategoriesMoneyInByAmt,
+  };
+};

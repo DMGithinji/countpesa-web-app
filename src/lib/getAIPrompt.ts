@@ -1,13 +1,13 @@
-import { FieldGroupSummary, GroupByField, groupedTrxByField } from "@/lib/groupByField";
+import { FieldGroupSummary, GroupByField, groupTrxByField } from "@/lib/groupByField";
 import { Transaction, TransactionTypes } from "@/types/Transaction";
 import promptText from "@/configs/prompt.txt?raw";
 import { CalculatedData } from "@/lib/getCalculatedData";
 import { getPeriodData, Period } from "@/lib/groupByPeriod";
 
 export async function getInitialPrompt(transactions: Transaction[]) {
-  const groupedByAccount = groupedTrxByField(transactions, GroupByField.Account);
-  const groupedByCategory = groupedTrxByField(transactions, GroupByField.Category);
-  const groupedBySubcategory = groupedTrxByField(transactions, GroupByField.Subcategory);
+  const groupedByAccount = groupTrxByField(transactions, GroupByField.Account);
+  const groupedByCategory = groupTrxByField(transactions, GroupByField.Category);
+  const groupedBySubcategory = groupTrxByField(transactions, GroupByField.Subcategory);
   const accountNames = groupedByAccount.map(({ name }) => name);
   const categoryNames = groupedByCategory.map(({ name }) => name);
   const subcategoryNames = groupedBySubcategory.map(({ name }) => name);

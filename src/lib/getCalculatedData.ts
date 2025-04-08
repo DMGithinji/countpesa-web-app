@@ -113,7 +113,7 @@ function createEmptyResult(): CalculatedData {
 }
 
 // Optimized version of getCalculatedData
-export function getOptimizedCalculatedData(
+export function getCalculatedData(
   transactions: Transaction[],
   options = {
     balanceTrendMaxPoints: 100, // Maximum data points for balance trend
@@ -264,9 +264,4 @@ export function getOptimizedCalculatedData(
       "count"
     ),
   };
-}
-
-// Export the optimized function as the main function
-export function getCalculatedData(transactions: Transaction[]): CalculatedData {
-  return getOptimizedCalculatedData(transactions);
 }

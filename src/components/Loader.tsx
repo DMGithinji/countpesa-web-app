@@ -13,7 +13,7 @@ function Loader() {
           />
         ))}
       </div>
-      <p className="mt-4 text-sm text-gray-500 font-medium">Loading data...</p>
+      <p className="mt-4 text-sm text-gray-500 font-medium">Loading transactions...</p>
     </div>
   );
 }

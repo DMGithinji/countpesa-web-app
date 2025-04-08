@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { TableRowActions, ActionItem } from "@/components/GroupedTrsTable/RowAction";
-import { GroupByField, TransactionSummary, groupedTrxByField } from "@/lib/groupByField";
+import { GroupByField, TransactionSummary, groupTrxByField } from "@/lib/groupByField";
 import { Filter } from "@/types/Filters";
 import { Badge } from "@/components/ui/badge";
 
@@ -36,7 +36,7 @@ export const useTransactionColumns = ({
           {
             headerTitle: "Main Category",
             rowElement: (row: TransactionSummary) => {
-              const groups = groupedTrxByField(row.transactions, GroupByField.Category);
+              const groups = groupTrxByField(row.transactions, GroupByField.Category);
               const mainCateg = groups[0];
               return (
                 <div className="w-[180px]">

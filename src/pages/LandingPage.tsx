@@ -2,15 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UploadStatementButton from "@/components/Upload/LoadDataButton";
-import { useLoadTransactions } from "@/hooks/useLoadTransactions";
+import useTransactionStore from "@/stores/transactions.store";
+import { Home } from "lucide-react";
+import { Link } from "react-router-dom";
 import logoLg from "../assets/logo-lg.svg";
 
 function CountPesaLanding() {
-  const { loadInitialTransactions } = useLoadTransactions();
+  const trs = useTransactionStore((state) => state.transactions);
+
   const goToDemo = async () => {
     window.location.href = "/demo/dashboard";
-    await loadInitialTransactions();
   };
+
   const onDownload = () => {
     window.open(
       "https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo",
@@ -37,6 +40,13 @@ function CountPesaLanding() {
             <Button variant="outline" size="sm" onClick={onDownload}>
               Download App
             </Button>
+            {trs.length > 0 && (
+              <Link to="/dashboard" className="flex items-center gap-2">
+                <Button variant="outline" size="sm">
+                  <Home size={20} />
+                </Button>
+              </Link>
+            )}
             <ThemeToggle />
           </div>
         </div>

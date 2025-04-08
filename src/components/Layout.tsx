@@ -19,6 +19,10 @@ function MainLayout({ children }: MainLayoutProps) {
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
   const isDemoMode = useDemoMode();
+  const hasTransactions = useMemo(
+    () => !isDemoMode && location.pathname !== "/",
+    [isDemoMode, location.pathname]
+  );
 
   // Check screen size on mount and when window resizes
   useEffect(() => {
@@ -94,7 +98,7 @@ function MainLayout({ children }: MainLayoutProps) {
           >
             {/* Logo */}
             <div className="p-4 flex items-center justify-between h-16">
-              <Link to="/" className="flex items-center">
+              <Link to={hasTransactions ? "/dashboard" : "/"} className="flex items-center">
                 {!collapsed && <img src={logoLg} alt="CheckPesa" className="w-36 h-16 mr-4" />}
                 {collapsed && <div className="text-primary font-bold px-2 py-1 rounded">CP</div>}
               </Link>

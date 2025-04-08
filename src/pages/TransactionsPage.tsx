@@ -1,96 +1,22 @@
 import { useMemo, useState } from "react";
-import { transactionGroupSummaryColumns } from "@/components/GroupedTrsTable/Columns";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TransactionSearch } from "@/components/SearchInput";
 import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
-import TransactionsTable, { SortBy } from "@/components/TransactionsTable/Table";
-import GroupedTransactionsTable, {
-  SortBy as GroupedSortBy,
-} from "@/components/GroupedTrsTable/Table";
-import { calculateTransactionTotals } from "@/lib/getTotal";
-import { TransactionSummary } from "@/lib/groupByField";
-import { groupTransactionsByPeriod, Period } from "@/lib/groupByPeriod";
+import { SortBy as IndividualSortBy } from "@/components/TransactionsTable/IndividualTrsTable";
+import { SortBy as GroupedSortBy } from "@/components/GroupedTrsTable/Table";
+import { Period } from "@/lib/groupByPeriod";
 import { filterTransactions, sortBy } from "@/lib/utils";
-import { MoneyMode, Transaction } from "@/types/Transaction";
+import { MoneyMode } from "@/types/Transaction";
 import useTransactionStore from "@/stores/transactions.store";
-
-function TransactionTable({
-  transactions,
-  groupBy,
-  pageIndex,
-  setPageIndex,
-  sortingState,
-  onSortingChange,
-  groupedSortingState,
-  setGroupedSortingState,
-}: {
-  transactions: Transaction[];
-  groupBy: "all" | Period;
-  pageIndex: number;
-  setPageIndex: (index: number) => void;
-  sortingState: SortBy;
-  onSortingChange: (sortDir: SortBy) => void;
-  groupedSortingState: GroupedSortBy;
-  setGroupedSortingState: (sortByField: GroupedSortBy) => void;
-}) {
-  switch (groupBy) {
-    case "all":
-      return (
-        <TransactionsTable
-          transactions={transactions}
-          sortBy={sortingState}
-          onSortingChange={onSortingChange}
-          pageIndex={pageIndex}
-          onPageChange={setPageIndex}
-        />
-      );
-    case Period.DATE:
-    case Period.WEEK:
-    case Period.MONTH:
-    case Period.YEAR: {
-      const columnDefProps = {
-        title: groupBy.slice(0, 1).toUpperCase() + groupBy.slice(1),
-      };
-      const columnDef = transactionGroupSummaryColumns(columnDefProps);
-      const grouped = groupTransactionsByPeriod(transactions, groupBy);
-      const summary: TransactionSummary[] = Object.keys(grouped).map((key) => {
-        const trs = grouped[key];
-        const trsTotals = calculateTransactionTotals(trs);
-        return {
-          name: key,
-          transactions: trs,
-          ...trsTotals,
-        };
-      });
-
-      return (
-        <GroupedTransactionsTable
-          transactions={summary}
-          columnDef={columnDef}
-          sortBy={groupedSortingState}
-          onSortingChange={setGroupedSortingState}
-        />
-      );
-    }
-    default:
-      return null;
-  }
-}
+import TransactionPageTable from "@/components/TransactionsTable/TrsPageTables";
 
 type PeriodOption = Period | "all";
 
 function TransactionsPage() {
-  const transactions = useTransactionStore((state) => state.transactions);
-  const calculatedData = useTransactionStore((state) => state.calculatedData);
-  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
-  const periodAverages = useTransactionStore((state) => state.periodAverages);
-  const { defaultPeriod, periodOptions } = dateRangeData;
-  const { transactionTotals } = calculatedData;
-
   const [groupBy, setGroupBy] = useState<PeriodOption>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [sortingState, setSortingState] = useState<SortBy>({
+  const [sortingState, setSortingState] = useState<IndividualSortBy>({
     desc: true,
     id: "date",
   });
@@ -98,6 +24,13 @@ function TransactionsPage() {
     desc: true,
     id: "name",
   });
+
+  const transactions = useTransactionStore((state) => state.transactions);
+  const calculatedData = useTransactionStore((state) => state.calculatedData);
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const periodAverages = useTransactionStore((state) => state.periodAverages);
+  const { defaultPeriod, periodOptions } = dateRangeData;
+  const { transactionTotals } = calculatedData;
 
   const filteredTrs = useMemo(() => {
     const filtered = filterTransactions(transactions, searchQuery);
@@ -145,7 +78,7 @@ function TransactionsPage() {
             ))}
           </ToggleGroup>
         </div>
-        <TransactionTable
+        <TransactionPageTable
           transactions={filteredTrs}
           groupBy={groupBy}
           pageIndex={pageIndex}

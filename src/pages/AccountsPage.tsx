@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import {
   GroupByField,
   GroupByTrxSortBy,
-  groupedTrxByField,
+  groupTrxByField,
   TransactionSummary,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
@@ -44,7 +44,7 @@ function AccountsPage() {
 
   const groupedTrs = useMemo(() => {
     const filteredTrs = filterTransactions(transactions, searchQuery);
-    const groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Account);
+    const groupedTrx = groupTrxByField(filteredTrs, GroupByField.Account);
     return sortBy(groupedTrx, sortingState.id, sortingState.desc ? "desc" : "asc");
   }, [searchQuery, transactions, sortingState]);
 

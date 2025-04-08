@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import TransactionsTable, { SortBy } from "@/components/GroupedTrsTable/Table";
 import {
-  FieldGroupSummary,
+  getGroupByCategoryOrSubcategory,
   GroupByField,
   GroupByTrxSortBy,
-  groupedTrxByField,
-  groupTransactionsByField,
+  groupTrxByField,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
 import { TransactionSearch } from "@/components/SearchInput";
@@ -16,51 +15,6 @@ import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/store
 import { useTableActions } from "@/hooks/useTableActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 import useTransactionStore from "@/stores/transactions.store";
-import { UNCATEGORIZED } from "@/types/Categories";
-
-interface MoneyGroupsData {
-  title: string;
-  groupByField: GroupByField;
-  moneyOutGroups: FieldGroupSummary[];
-  moneyInGroups: FieldGroupSummary[];
-}
-
-const calculateMoneyGroups = (
-  topCategoriesMoneyInByAmt: FieldGroupSummary[],
-  topCategoriesMoneyOutByAmt: FieldGroupSummary[]
-): MoneyGroupsData => {
-  const isSingleMoneyOutCategory =
-    topCategoriesMoneyOutByAmt.length === 1 && topCategoriesMoneyOutByAmt[0].name !== UNCATEGORIZED;
-
-  const isSingleMoneyInCategory =
-    topCategoriesMoneyInByAmt.length === 1 && topCategoriesMoneyInByAmt[0].name !== UNCATEGORIZED;
-
-  const isSubcategory =
-    (!topCategoriesMoneyInByAmt.length && isSingleMoneyOutCategory) ||
-    (!topCategoriesMoneyOutByAmt.length && isSingleMoneyInCategory) ||
-    (isSingleMoneyInCategory &&
-      isSingleMoneyOutCategory &&
-      topCategoriesMoneyInByAmt[0].name === topCategoriesMoneyOutByAmt[0].name);
-
-  return {
-    title: isSubcategory ? "Subcategories" : "Categories",
-    groupByField: isSubcategory ? GroupByField.Subcategory : GroupByField.Category,
-    moneyOutGroups:
-      isSingleMoneyInCategory && isSubcategory
-        ? groupTransactionsByField(
-            topCategoriesMoneyOutByAmt[0]?.transactions || [],
-            GroupByField.Subcategory
-          )
-        : topCategoriesMoneyOutByAmt,
-    moneyInGroups:
-      isSingleMoneyOutCategory && isSubcategory
-        ? groupTransactionsByField(
-            topCategoriesMoneyInByAmt[0]?.transactions || [],
-            GroupByField.Subcategory
-          )
-        : topCategoriesMoneyInByAmt,
-  };
-};
 
 function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -80,10 +34,10 @@ function CategoriesPage() {
 
   const groupedTrs = useMemo(() => {
     const filteredTrs = filterTransactions(transactions, searchQuery);
-    let groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Category);
+    let groupedTrx = groupTrxByField(filteredTrs, GroupByField.Category);
 
     if (groupedTrx.length === 1) {
-      groupedTrx = groupedTrxByField(groupedTrx[0].transactions, GroupByField.Subcategory);
+      groupedTrx = groupTrxByField(groupedTrx[0].transactions, GroupByField.Subcategory);
     }
 
     return sortBy(groupedTrx, sortingState.id, sortingState.desc ? "desc" : "asc");
@@ -91,7 +45,7 @@ function CategoriesPage() {
 
   /** When focused on a category, show the subcategories */
   const { title, groupByField, moneyOutGroups, moneyInGroups } = useMemo(
-    () => calculateMoneyGroups(topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt),
+    () => getGroupByCategoryOrSubcategory(topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt),
     [topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt]
   );
 

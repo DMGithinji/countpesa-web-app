@@ -9,7 +9,7 @@ export type SortBy = {
   id: keyof Transaction;
 };
 
-function Table({
+function IndividualTrsTable({
   transactions,
   sortBy,
   onSortingChange,
@@ -57,4 +57,4 @@ function Table({
   );
 }
 
-export default Table;
+export default IndividualTrsTable;
