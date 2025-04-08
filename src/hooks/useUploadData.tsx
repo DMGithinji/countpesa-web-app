@@ -4,6 +4,7 @@ import { getDecrypted } from "@/lib/encryptionUtils";
 import { Category, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import { ExtractedTransaction, TransactionTypes } from "@/types/Transaction";
 import useTransactionStore from "@/stores/transactions.store";
+import { deconstructTrCategory } from "@/lib/categoryUtils";
 import { useLoadTransactions } from "./useLoadTransactions";
 
 type CategoryData = {
@@ -32,14 +33,13 @@ export type PhoneBackupFormat = {
 
 export type BrowserBackupFormat = {
   transactions: {
-    mpesaCode: string;
+    code: string;
     date: number;
     transactionDescription: string;
     amount: number;
     account: string;
     balance: number;
     category?: string;
-    subcategory?: string;
     transactionType: TransactionTypes;
   }[];
 };
@@ -106,7 +106,6 @@ export function useUploadData() {
         }) as ExtractedTransaction
     );
 
-    // Process categories and subcategories
     const categories = data.categories.map((c) => ({ name: c.name, id: c.id }) as Category);
 
     const subcategories = data.sub_categories.map(
@@ -128,14 +127,13 @@ export function useUploadData() {
     const transactions = data.transactions.map(
       (tx) =>
         ({
-          code: tx.mpesaCode,
-          date: tx.date * 1000, // Convert to milliseconds
+          code: tx.code,
+          date: tx.date,
           description: tx.transactionDescription,
           amount: tx.amount,
           account: tx.account,
           balance: tx.balance,
-          category:
-            tx.category && tx.subcategory ? `${tx.category}: ${tx.subcategory}` : UNCATEGORIZED,
+          category: tx.category || UNCATEGORIZED,
           type: tx.transactionType,
           status: "Completed",
         }) as ExtractedTransaction
@@ -145,8 +143,7 @@ export function useUploadData() {
     const categoryData = data.transactions.reduce((acc: Record<string, CategoryData>, tr) => {
       if (!tr.category) return acc;
 
-      const { category } = tr;
-      const { subcategory } = tr;
+      const { category, subcategory } = deconstructTrCategory(tr.category);
 
       if (!acc[category]) {
         acc[category] = { categoryName: category, subcategories: {} };
