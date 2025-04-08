@@ -60,7 +60,10 @@ export default class TransactionRepository extends AbstractQuery {
    * Process and store transactions from MPesa statement
    * Takes API response and converts it to our transaction format
    */
-  async processMpesaStatementData(mpesaTransactions: ExtractedTransaction[]) {
+  async processMpesaStatementData(
+    mpesaTransactions: ExtractedTransaction[],
+    accountTransactionDict?: Record<string, string>
+  ) {
     const now = Date.now();
 
     const existingTrs = await this.getTransactions();
@@ -85,7 +88,7 @@ export default class TransactionRepository extends AbstractQuery {
           amount: t.amount,
           account: t.account || "Unknown",
           balance: t.balance,
-          category: t.category || UNCATEGORIZED,
+          category: t.category || accountTransactionDict?.[t.account] || UNCATEGORIZED,
           transactionType: t.type,
           createdAt: now,
           // Add more fields for more expressive querying

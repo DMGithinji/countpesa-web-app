@@ -23,6 +23,7 @@ interface TransactionState {
   dateRangeData: DateRangeData;
   accountNames: string[];
   periodAverages: PeriodAverages;
+  accountCategoryDict: Record<string, string>;
 
   setAllTransactions: (transactions: Transaction[]) => void;
   setCurrentFilters: (filters: undefined | Filter[]) => void;
@@ -60,6 +61,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   loading: true,
   error: "",
   accountNames: [],
+  accountCategoryDict: {},
   calculatedData: DEFAULT_CALCULATED_DATA,
   dateRangeData: DEFAULT_DATE_RANGE_DATA,
   periodAverages: {},
@@ -67,12 +69,13 @@ const useTransactionStore = create<TransactionState>((set) => ({
   // Actions
   setAllTransactions: (transactions) =>
     set((state) => {
-      const accountNames = getAllAccountNames(transactions);
+      const { accountNames, accountCategoryDict } = getAllAccountNames(transactions);
       const derivedState = updateDerivedState(transactions, state.currentFilters);
 
       return {
         allTransactions: transactions,
         accountNames,
+        accountCategoryDict,
         ...derivedState,
       };
     }),

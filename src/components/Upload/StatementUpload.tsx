@@ -22,6 +22,7 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
 
   const { loadInitialTransactions } = useLoadTransactions();
   const setLoading = useTransactionStore((state) => state.setLoading);
+  const accountTransactionDict = useTransactionStore((state) => state.accountCategoryDict);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -56,7 +57,7 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
       };
 
       if (data.status === "success") {
-        await db.processMpesaStatementData(data.results.transactions);
+        await db.processMpesaStatementData(data.results.transactions, accountTransactionDict);
         loadInitialTransactions().then(() => {
           const isBaseUrl = location.pathname === "/";
           if (isBaseUrl) {

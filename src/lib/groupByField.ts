@@ -127,19 +127,23 @@ export function groupTrxByFieldAndSummarize(
   return result.sort((a, b) => b[sortBy] - a[sortBy]);
 }
 
-export function getAllAccountNames(transactions: Transaction[]): string[] {
-  // Use a Set to automatically handle duplicates
-  const accountNamesSet = new Set<string>();
+export function getAllAccountNames(transactions: Transaction[]) {
+  const trsGroupedByAccount = groupTrxByFieldAndSummarize(transactions, GroupByField.Account);
+  // Get dict of account name and the category it has
+  const accountNamesSet = trsGroupedByAccount.reduce((acc, group) => {
+    const accountName = group.name;
+    const { category } = group.transactions[0];
+    return {
+      ...acc,
+      [accountName]: category || UNCATEGORIZED,
+    };
+  }, {});
 
   // Iterate through transactions and add each account name to the set
-  transactions.forEach((transaction) => {
-    if (transaction.account) {
-      accountNamesSet.add(transaction.account);
-    }
-  });
+  const accountNames = Object.keys(accountNamesSet);
 
   // Convert the Set back to an array
-  return Array.from(accountNamesSet);
+  return { accountNames, accountCategoryDict: accountNamesSet };
 }
 
 interface MoneyGroupsData {
