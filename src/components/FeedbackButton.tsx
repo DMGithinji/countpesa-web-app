@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { submitData } from "@/lib/feedbackUtils";
 
 function FeedbackButton() {
   const [open, setOpen] = useState(false);
@@ -25,20 +26,12 @@ function FeedbackButton() {
 
     setSubmitting(true);
 
-    const feedbackData = {
-      google_sheet: "CountpesaFeedback",
+    submitData({
+      type: "feedback",
       message: feedback,
-      email: wantResponse ? email : null,
-      type: "CountPesa Web App Feedback",
-    };
-
-    fetch("https://feedback-to-sheets.onrender.com/feedback/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(feedbackData),
+      email: wantResponse ? email : "",
     });
+
     setTimeout(() => {
       setOpen(false);
       resetForm();

@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { submitData } from "@/lib/feedbackUtils";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 
@@ -12,6 +13,20 @@ interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;
 }
+
+const logErrorToFeedback = (error: Error, errorInfo: React.ErrorInfo): void => {
+  submitData({
+    type: "error",
+    message: JSON.stringify({
+      name: `${error.name}: ${error.message}`,
+      url: typeof window !== "undefined" ? window.location.href : "",
+      timestamp: new Date().toISOString(),
+      componentStack: errorInfo.componentStack,
+      stack: error.stack,
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+    }),
+  });
+};
 
 // This component needs to be a class component because error boundaries require lifecycle methods
 class ErrorBoundaryClass extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -36,6 +51,8 @@ class ErrorBoundaryClass extends React.Component<ErrorBoundaryProps, ErrorBounda
     if (onError) {
       onError(error, errorInfo);
     }
+
+    logErrorToFeedback(error, errorInfo);
 
     // eslint-disable-next-line no-console
     console.error("Error caught by ErrorBoundary:", error, errorInfo);
