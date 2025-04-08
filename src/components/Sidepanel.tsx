@@ -2,7 +2,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import useUiStore, { SidepanelMode } from "@/stores/ui.store";
 import CategoriesManager from "./CategoriesManager";
 import SidepanelTransactions from "./SidepanelTransactions";
-import ChatPesa from "./ChatPesa";
+import ChatPesa from "./ChatPanel";
 import FilterBuilder from "./FilterBuilder";
 
 function Display({ mode }: { mode: SidepanelMode }) {

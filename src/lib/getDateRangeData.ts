@@ -32,7 +32,7 @@ export function getDateRangeData({
   currentFilters,
 }: {
   transactions: Transaction[];
-  currentFilters: Filter[] | undefined;
+  currentFilters?: Filter[] | undefined;
 }) {
   // Find date range filter if it exists
   const dateRangeFilter = currentFilters?.find((fl) => fl.field === "date");

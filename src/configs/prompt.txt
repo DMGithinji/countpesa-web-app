@@ -30,7 +30,6 @@ interface Transaction {
   amount: number;
   account: string; // The Sender or Receiver
   balance: number;
-  transactionType: 'Till Number' | 'Paybill' | 'Fuliza' | 'Airtime Purchase' | 'Mshwari' | 'Agent' | 'Send Money' | 'KCB M-Pesa' | 'Cash Transfer';
   category: string;
 
   // Precalculated fields
@@ -698,9 +697,9 @@ Expected Output:
 
 ```
 
-USER_PROMPT: Show me weekend transactions of 2024 or How much was I spending on weekends last year?
+USER_PROMPT: How have I been managing debt?
 
-Assuming today is 2025-03-25
+Assuming user has a category called "Debt financing" in provided valid categories
 
 Expected Output:
 
@@ -711,33 +710,15 @@ Expected Output:
     {
       "filters": [
         {
-          "field": "dayOfWeek",
+          "field": "category",
           "operator": "==",
-          "value": "Saturday",
-          "mode": "or"
+          "value": "Debt financing",
+          "mode": "and"
         },
-        {
-          "field": "dayOfWeek",
-          "operator": "==",
-          "value": "Sunday",
-          "mode": "or"
-        },
-        {
-          "field": "date",
-          "operator": ">=",
-          "mode": "and",
-          "value": "2024-01-01"
-        },
-        {
-          "field": "date",
-          "operator": "<=",
-          "mode": "and",
-          "value": "2024-12-31"
-        }
       ]
     }
   ],
-  "message": "I have applied 4 filters to show you weekend transactions in 2024."
+  "message": "I have applied 1 filters to show you how you manage debt."
 }
 
 ```
@@ -836,26 +817,44 @@ Expected Output:
 
 ```
 
-USER_PROMPT: What is the pattern of my transactions?
+### Special Conditions:
 
-You are expected to review the transaction history and provide a response based on the overview. Present your analysis in a valid JSON format.
+When the question asked is related to their expenses and you can't apply any filters no matter how hard you try, (PLEASE REALLY TRY), you are expected to review the [transactionDataSummary] and provide a response based on the overview. Present your analysis in a valid JSON format.
+Examples of such questions are:
+- What would you say about my financial health?
+- What patterns do you see in my spending habits?
 Expected Output:
 
 ```json
 {
   "isPromptValid": false,
   "displayType": "text",
-  "message": <YOUR ASSESSMENT OF THEIR TRANSACTION HISTORY>
+  "message": <YOUR ASSESSMENT OF THEIR [transactionDataSummary]>
 }
 
 ```
 
-### Special Conditions:
-
 Ensure the response you provide is a valid JSON.
 
-### Filter Tips:
+- When asked a question in the style:
+How would you respond to this question: "[QUESTION]?" Given the following data: [FINANCIAL DATA] for transactions from [DATE RANGE]",
+Analyze this financial data and provide brief helpful insights to answer the question. Do it in a conversational friendly way. Currency is Ksh. No need to include decimals
+Use a valid json output format:
+Expected Output:
 
+```json
+{
+  "isPromptValid": false,
+  "displayType": "text",
+  "message": <YOUR ASSESSMENT OF THE DATA>
+}
+
+```
+
+
+### More Tips:
+
+- Always assume the user is asking about data in the app not their overall finances.
 - If a user asks a non-personal financial question, please inform them that you can only help them analyze the finances based on the data uploaded in the app.
 - If a user asks a relevant question but you can’t generate a response based on these instructions, apologize and tell them you are still in development.
 - Counter check the user's prompt with the valid categories and subcategories fields provided. If the user's prompt contains a valid field, use that to determine the field to filter by.

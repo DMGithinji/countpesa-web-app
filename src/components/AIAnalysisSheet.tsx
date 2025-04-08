@@ -22,6 +22,7 @@ import useAIMessageStore from "@/stores/aiMessages.store";
 import { getCalculationSummary } from "@/lib/getAIPrompt";
 import useTransactionStore from "@/stores/transactions.store";
 import { useAnalysisRepository } from "@/context/RepositoryContext";
+import { submitData } from "@/lib/feedbackUtils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 
@@ -37,7 +38,7 @@ function BottomDrawer() {
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
   const analysisRepository = useAnalysisRepository();
 
-  const { dateRange, defaultPeriod } = dateRangeData;
+  const { dateRange } = dateRangeData;
   const formattedDateRange = useMemo(() => {
     return {
       ...dateRange,
@@ -45,10 +46,13 @@ function BottomDrawer() {
     };
   }, [dateRange]);
 
-  const calculationResults = useMemo(
-    () => getCalculationSummary(transactions, calculatedData, defaultPeriod),
-    [calculatedData, defaultPeriod, transactions]
-  );
+  const calculationResults = useMemo(() => {
+    return getCalculationSummary({
+      dateRangeData,
+      calculatedData,
+      transactions,
+    });
+  }, [calculatedData, dateRangeData, transactions]);
 
   const generateAssessment = useCallback(
     async (ignorePast = false) => {
@@ -77,10 +81,17 @@ function BottomDrawer() {
         const response = result.response.text();
         setStreamingResponse(response);
       } catch (error) {
-        console.error("Error generating AI assessment:", error);
         setStreamingResponse(
           "Sorry, there was an error generating your financial assessment. Please try again."
         );
+        submitData({
+          type: "error",
+          message: JSON.stringify({
+            name: `Error generating AI assessment`,
+            error,
+            timestamp: new Date().toISOString(),
+          }),
+        });
       } finally {
         setIsLoading(false);
       }

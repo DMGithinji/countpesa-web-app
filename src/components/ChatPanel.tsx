@@ -1,16 +1,20 @@
-import { useEffect, useRef, useState } from "react";
-import { Bot, Send, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Bot, RefreshCcw, Send, X } from "lucide-react";
+import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useAIMessageStore from "@/stores/aiMessages.store";
-import useTransactionStore from "@/stores/transactions.store";
+import useTransactionStore, { getDerivedState } from "@/stores/transactions.store";
 import { handleResponse } from "@/lib/processAIResponse";
-import { getInitialPrompt } from "@/lib/getAIPrompt";
+import { getCalculationSummary, getInitialPrompt } from "@/lib/getAIPrompt";
 import { useAIContext } from "@/context/AIContext";
 import { useTransactionRepository } from "@/context/RepositoryContext";
+import { submitData } from "@/lib/feedbackUtils";
+import { FollowUpPromptTemplate } from "@/configs/PromptTemplate";
+import { Filter } from "@/types/Filters";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -20,10 +24,11 @@ const defaultStarters = [
 ];
 
 function ChatPanel() {
-  const { AIChat } = useAIContext();
+  const { AIChat, refreshChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const setCurrentFilters = useTransactionStore((state) => state.setCurrentFilters);
   const transactionsRepository = useTransactionRepository();
+  const allTransactions = useTransactionStore((state) => state.allTransactions);
 
   const messages = useAIMessageStore((state) => state.messages);
   const setMessage = useAIMessageStore((state) => state.setMessage);
@@ -40,55 +45,106 @@ function ChatPanel() {
     scrollToBottom();
   }, [messages.length]);
 
-  const handleSendMessage = async (message: string) => {
-    const isFirst = messages.length === 1;
-    let prompt = message;
-    if (isFirst) {
-      const transactions = await transactionsRepository.getTransactions();
-      const intializationPrompt = await getInitialPrompt(transactions);
-      prompt = `${intializationPrompt}. ${message}`;
-    }
+  const doFollowUpAnalysis = useCallback(
+    async (question: string, setFilters: Filter[]) => {
+      const derivedState = getDerivedState(allTransactions, setFilters);
+      if (!derivedState) return;
+      const { dateRangeData } = derivedState;
+      const calculationResults = getCalculationSummary(derivedState);
+      const formattedDateRange = {
+        from: format(dateRangeData.dateRange.from, "do MMM yyyy"),
+        to: format(dateRangeData.dateRange.to, "do MMM yyyy"),
+      };
+      const prompt = FollowUpPromptTemplate(calculationResults, formattedDateRange, question);
+      const result = await AIChat.sendMessage(prompt);
+      const response = result.response.text();
+      const processedResponse = handleResponse(response);
+      console.log({ response, processedResponse });
+      setMessage({ sender: "bot", text: processedResponse.message });
+    },
+    [AIChat, allTransactions, setMessage]
+  );
 
-    setInput("");
-    setMessage({ sender: "user", text: message });
-    setTimeout(async () => {
-      setIsLoading(true);
-      try {
-        const result = await AIChat.sendMessage(prompt);
-        const response = result.response.text();
-        const processedResponse = handleResponse(response);
-        if (processedResponse.filters?.length) {
-          setCurrentFilters(processedResponse.filters);
-        }
-        console.log({ response, processedResponse });
-        setIsLoading(false);
-        setMessage({ sender: "bot", text: processedResponse.message });
-      } catch (error) {
-        console.error("Error generating AI response:", error);
-        setIsLoading(false);
-        setMessage({
-          sender: "bot",
-          text: "Sorry, there was an error generating your financial assessment. Please try again.",
-        });
+  const handleSendMessage = useCallback(
+    async (message: string) => {
+      const isFirst = messages.length === 1;
+      let prompt = message;
+      if (isFirst) {
+        const allTrs = await transactionsRepository.getTransactions();
+        const intializationPrompt = await getInitialPrompt(allTrs);
+        prompt = `${intializationPrompt}. ${message}`;
       }
-    }, 600);
-  };
+
+      setInput("");
+      setMessage({ sender: "user", text: message });
+      setTimeout(async () => {
+        setIsLoading(true);
+        try {
+          const result = await AIChat.sendMessage(prompt);
+          const response = result.response.text();
+          const processedResponse = handleResponse(response);
+          console.log({ response, processedResponse });
+          setMessage({ sender: "bot", text: processedResponse.message });
+          setIsLoading(false);
+
+          if (processedResponse.filters?.length) {
+            setCurrentFilters(processedResponse.filters);
+            setIsLoading(true);
+            await doFollowUpAnalysis(message, processedResponse.filters);
+            setIsLoading(false);
+          }
+        } catch (error) {
+          submitData({
+            type: "error",
+            message: JSON.stringify({
+              name: `Chatpesa Error`,
+              error,
+              timestamp: new Date().toISOString(),
+            }),
+          });
+          setIsLoading(false);
+          setMessage({
+            sender: "bot",
+            text: "Sorry, there was an error generating your financial assessment. Please try again.",
+          });
+        }
+      }, 600);
+    },
+    [
+      AIChat,
+      doFollowUpAnalysis,
+      messages.length,
+      setCurrentFilters,
+      setMessage,
+      transactionsRepository,
+    ]
+  );
 
   return (
     <div className="flex flex-col h-full">
       <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex gap-2 items-center pt-4.5 pb-3 text-white">
-            <Bot size={20} className="text-primary" />
+            <Bot size={20} className="text-white" />
             ChatPesa
           </CardTitle>
-          <Button
-            variant="ghost"
-            onClick={() => setSidepanel(SidepanelMode.Closed)}
-            className="hover:bg-transparent hover:text-white"
-          >
-            <X size={16} />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              title="Refresh chat"
+              onClick={refreshChat}
+              className="hover:bg-transparent hover:text-white"
+            >
+              <RefreshCcw size={16} />
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setSidepanel(SidepanelMode.Closed)}
+              className="hover:bg-transparent hover:text-white"
+            >
+              <X size={16} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
 

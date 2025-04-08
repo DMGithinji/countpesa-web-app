@@ -34,7 +34,15 @@ interface TransactionState {
   validateAndAddFilters: (newFilters: Filter | Filter[]) => void;
 }
 
-const updateDerivedState = (transactions: Transaction[], filters: Filter[] | undefined) => {
+export type DerivedState = {
+  transactions: Transaction[];
+  dateRangeData: DateRangeData;
+  calculatedData: CalculatedData;
+};
+export const getDerivedState = (
+  transactions: Transaction[],
+  filters: Filter[] | undefined
+): DerivedState => {
   const filteredTransactions = filterTransactions(transactions, filters || []);
   const calculatedData = getCalculatedData(filteredTransactions);
 
@@ -70,7 +78,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   setAllTransactions: (transactions) =>
     set((state) => {
       const { accountNames, accountCategoryDict } = getAllAccountNames(transactions);
-      const derivedState = updateDerivedState(transactions, state.currentFilters);
+      const derivedState = getDerivedState(transactions, state.currentFilters);
 
       return {
         allTransactions: transactions,
@@ -83,7 +91,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   setCurrentFilters: (filters) =>
     set((state) => {
       const validatedFilters = validateAndAddFilters(filters, []);
-      const derivedState = updateDerivedState(state.allTransactions, validatedFilters);
+      const derivedState = getDerivedState(state.allTransactions, validatedFilters);
 
       return {
         currentFilters: validatedFilters,
@@ -97,7 +105,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   removeFilter: (filter) =>
     set((state) => {
       const updatedFilters = removeFilters(state.currentFilters, filter);
-      const derivedState = updateDerivedState(state.allTransactions, updatedFilters);
+      const derivedState = getDerivedState(state.allTransactions, updatedFilters);
 
       return {
         currentFilters: updatedFilters,
@@ -108,7 +116,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   validateAndAddFilters: (newFilter) =>
     set((state) => {
       const updatedFilters = validateAndAddFilters(state.currentFilters, newFilter);
-      const derivedState = updateDerivedState(state.allTransactions, updatedFilters);
+      const derivedState = getDerivedState(state.allTransactions, updatedFilters);
 
       return {
         currentFilters: updatedFilters,

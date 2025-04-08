@@ -51,3 +51,10 @@ THE ROAST-ALYSIS:
 
 Begin with a sarcastic quote about money management that matches their situation. Be funny but not mean-spirited. Your goal is to make them laugh, think, and then actually improve their finances.
 `;
+
+export const FollowUpPromptTemplate = (
+  financialData: unknown,
+  dateRange: { from: string; to: string },
+  originalQuery: string
+) =>
+  `How would you respond to this question: "${originalQuery}?" Given the following data: ${JSON.stringify(financialData, null, 2)} for transactions from ${dateRange.from} to ${dateRange.to}`;

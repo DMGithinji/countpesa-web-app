@@ -1,8 +1,11 @@
 import { FieldGroupSummary, GroupByField, groupTrxByField } from "@/lib/groupByField";
 import { Transaction, TransactionTypes } from "@/types/Transaction";
 import promptText from "@/configs/prompt.txt?raw";
-import { CalculatedData } from "@/lib/getCalculatedData";
-import { getPeriodData, Period } from "@/lib/groupByPeriod";
+import { getCalculatedData } from "@/lib/getCalculatedData";
+import { DerivedState } from "@/stores/transactions.store";
+import { getDateRangeData } from "./getDateRangeData";
+import { groupTransactionsByPeriod } from "./groupByPeriod";
+import { calculateTransactionTotals } from "./getTotal";
 
 export async function getInitialPrompt(transactions: Transaction[]) {
   const groupedByAccount = groupTrxByField(transactions, GroupByField.Account);
@@ -11,22 +14,26 @@ export async function getInitialPrompt(transactions: Transaction[]) {
   const accountNames = groupedByAccount.map(({ name }) => name);
   const categoryNames = groupedByCategory.map(({ name }) => name);
   const subcategoryNames = groupedBySubcategory.map(({ name }) => name);
+  const dateRangeData = getDateRangeData({ transactions });
+  const calculatedData = getCalculatedData(transactions);
+  const transactionDataSummary = getCalculationSummary({
+    dateRangeData,
+    calculatedData,
+    transactions,
+  });
 
   const promptSuffix = `
   - Valid sender/receiver names are ${accountNames}.
   - Valid categories are ${categoryNames}.
   - Valid subcategories are ${subcategoryNames}
   - Valid transactionTypes are ${Object.values(TransactionTypes)}.
+  - Transaction Data Summary: ${transactionDataSummary}
   - The date today is ${new Date()}. This is the USER_PROMPT: `;
 
   return `${promptText}${promptSuffix}`;
 }
 
-export function getCalculationSummary(
-  transactions: Transaction[],
-  calculatedData: CalculatedData,
-  defaultPeriod: Period
-) {
+export function getCalculationSummary(derivedState: DerivedState) {
   const {
     transactionTotals,
     topAccountsSentToByAmt,
@@ -37,13 +44,28 @@ export function getCalculationSummary(
     topAccountsReceivedFromByCount,
     topCategoriesMoneyInByCount,
     topCategoriesMoneyOutByCount,
-  } = calculatedData;
+  } = derivedState.calculatedData;
+
+  const trsGroupedByPeriod = groupTransactionsByPeriod(
+    derivedState.transactions,
+    derivedState.dateRangeData.defaultPeriod
+  );
+  const periodTotals = Object.keys(trsGroupedByPeriod).map((key) => {
+    const trs = trsGroupedByPeriod[key];
+    const trsTotals = calculateTransactionTotals(trs);
+    return {
+      period: key,
+      totalAmount: Math.abs(trsTotals.totalAmount),
+      moneyInAmount: Math.abs(trsTotals.moneyInAmount),
+      moneyOutAmount: Math.abs(trsTotals.moneyOutAmount),
+    };
+  });
 
   const { totalCount, totalAmount, moneyInAmount, moneyOutAmount } = transactionTotals;
 
   // Extract top 15 items and map to consistent format
   const getTopItems = (items: FieldGroupSummary[]) =>
-    items.slice(0, 15).map(({ amount, count, name }) => ({ amount, count, name }));
+    items.slice(0, 6).map(({ amount, count, name }) => ({ amount, count, name }));
 
   const topData = {
     accountsSentToByAmt: getTopItems(topAccountsSentToByAmt),
@@ -57,13 +79,14 @@ export function getCalculationSummary(
   };
 
   return {
-    dataGroupedByPeriod: getPeriodData(transactions, defaultPeriod),
+    dataGroupedByPeriod: derivedState.dateRangeData.dateRange,
     totals: {
       totalCount,
       totalAmount,
       moneyInAmount,
       moneyOutAmount,
     },
+    periodTotals,
     ...Object.entries(topData).reduce(
       (acc, [key, value]) => ({
         ...acc,
