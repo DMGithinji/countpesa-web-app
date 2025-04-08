@@ -63,32 +63,32 @@ function evaluateTimeFilter(
     return false;
   }
 
-  const trDate = new Date(trDateInSeconds * 1000);
+  const trDate = new Date(trDateInSeconds);
 
   // Parse hours and minutes from the time string
   const [hours, minutes] = timeStr.split(":").map((num) => parseInt(num, 10));
 
   // Set the comparison time on the same date as the transaction
-  const currentDateStart = new Date(trDate);
-  currentDateStart.setHours(0, 0, 0, 0);
+  const trDateCopy = new Date(trDate);
+  const compareTime = new Date(trDateCopy.setHours(hours, minutes, 0, 0));
 
-  const compareTime = new Date(currentDateStart);
-  compareTime.setHours(hours, minutes, 0, 0);
+  // For comparing times of day, we need just the time portion
+  const trTime = new Date(trDate).setHours(trDate.getHours(), trDate.getMinutes(), 0, 0);
 
   // Compare based on operator
   switch (operator) {
     case "<":
-      return trDate.getTime() < compareTime.getTime();
+      return trTime < compareTime.getTime();
     case "<=":
-      return trDate.getTime() <= compareTime.getTime();
+      return trTime <= compareTime.getTime();
     case ">":
-      return trDate.getTime() > compareTime.getTime();
+      return trTime > compareTime.getTime();
     case ">=":
-      return trDate.getTime() >= compareTime.getTime();
+      return trTime >= compareTime.getTime();
     case "==":
-      return trDate.getHours() === hours && trDate.getMinutes() === minutes;
+      return trTime === compareTime.getTime();
     case "!=":
-      return trDate.getHours() !== hours || trDate.getMinutes() !== minutes;
+      return trTime !== compareTime.getTime();
     default:
       return false;
   }
@@ -119,7 +119,7 @@ function evaluateDayOfWeekFilter(
 }
 
 function evaluateDateFilter(trDateInSeconds: number, date: number): boolean {
-  return isSameDay(new Date(trDateInSeconds * 1000), new Date(date * 1000));
+  return isSameDay(new Date(trDateInSeconds), new Date(date));
 }
 
 /**

@@ -1,6 +1,7 @@
 import json5 from "json5";
-import { Filter } from "@/types/Filters";
+import { Filter, FilterMode } from "@/types/Filters";
 import { GenAiOutput } from "@/types/AITools";
+import { endOfDay, startOfDay } from "date-fns";
 
 export function validateFilters(filters: Filter[] | undefined | false): boolean {
   if (!filters) {
@@ -37,11 +38,62 @@ function parseInstructions(filters: false | Filter[] | undefined) {
     return [];
   }
 
-  return filters.map((filter) => {
-    if (filter.field === "date") {
-      Object.assign(filter, { value: new Date(filter.value).getTime() });
+  // Use flatMap to transform and potentially expand the array
+  return filters.flatMap((filter) => {
+    // Special handling for date equality
+    if (filter.field === "date" && filter.operator === "==") {
+      const dateValue = new Date(filter.value);
+
+      // Create two new filters for the start and end of the day
+      const startFilter: Filter = {
+        ...filter,
+        operator: ">=",
+        value: startOfDay(dateValue).getTime(),
+        mode: FilterMode.AND,
+      };
+
+      const endFilter: Filter = {
+        ...filter,
+        operator: "<=",
+        value: endOfDay(dateValue).getTime(),
+        mode: FilterMode.AND,
+      };
+
+      // Return both filters as an array to be flattened
+      return [startFilter, endFilter];
     }
-    return filter;
+
+    if (filter.field === "date") {
+      // Handle other date operators
+      if (filter.operator === "<" || filter.operator === "<=") {
+        return [
+          {
+            ...filter,
+            value: endOfDay(new Date(filter.value)).getTime(),
+          },
+        ];
+      }
+
+      if (filter.operator === ">" || filter.operator === ">=") {
+        return [
+          {
+            ...filter,
+            value: startOfDay(new Date(filter.value)).getTime(),
+          },
+        ];
+      }
+
+      // For other operators, just convert to timestamp
+      return [
+        {
+          ...filter,
+          value: new Date(filter.value).getTime(),
+        },
+      ];
+    }
+
+    // Non-date filters remain unchanged
+    return [filter];
   });
 }
 

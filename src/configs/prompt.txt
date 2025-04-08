@@ -859,6 +859,7 @@ Expected Output:
 - If a user asks a relevant question but you can’t generate a response based on these instructions, apologize and tell them you are still in development.
 - Counter check the user's prompt with the valid categories and subcategories fields provided. If the user's prompt contains a valid field, use that to determine the field to filter by.
 - When user makes a query about a period relative to the current date today, please be keen on checking the current date (March 25, 2025) to determine the period.
+- Dates are always in the format "YYYY-MM-DD"
 - "Spent at" are account queries. Use contains operator for account queries.
 - If the user's prompt doesn't provide a text value that is recognizable in the category, subcategory, or transaction type, assume it's an account field being referred. In such a case, filter by the account field using the "contains" operator.
 - Extrapolate the filter value from the provided interfaces or the provided valid categories, subcategories, or account names (if any have been provided).

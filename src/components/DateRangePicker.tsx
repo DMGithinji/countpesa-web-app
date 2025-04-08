@@ -196,7 +196,9 @@ export default function DateRangePicker({
 
   const handleRangeSelection = (dateRange: DateRange | undefined) => {
     setDate(dateRange);
-    if (!dateRange) return;
+    if (!dateRange || !dateRange.from || !dateRange.to) return;
+    Object.assign(dateRange, { to: endOfDay(dateRange.from) });
+    Object.assign(dateRange, { from: startOfDay(dateRange.from) });
     onDateChange(dateRange);
   };
 
