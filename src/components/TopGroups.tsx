@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { GroupByField } from "@/lib/groupByField";
 import { Transaction } from "@/types/Transaction";
+import useTransactionStore from "@/stores/transactions.store";
 import TopTrsGroupedByField from "./TopTrsGroupedByField";
 import ChartTransactions from "./ChartTransactions";
-import useTransactionStore from "@/stores/transactions.store";
 
-const TopGroups = () => {
+function TopGroups() {
   const [selectedTransactions, setSelectedTransactions] = useState<{
     title: string;
     transactions: Transaction[];
@@ -48,13 +48,13 @@ const TopGroups = () => {
       <div className="lg:col-span-1">
         <ChartTransactions
           selected={selectedTransactions}
-          defaultDisplayMode={"all"}
+          defaultDisplayMode="all"
           defaultSortBy="amount"
           showDisplayMode={false}
         />
       </div>
     </div>
   );
-};
+}
 
 export default TopGroups;

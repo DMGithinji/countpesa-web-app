@@ -1,8 +1,4 @@
 import { useMemo, useState } from "react";
-import { Transaction } from "@/types/Transaction";
-import { formatCurrency, sortBy } from "@/lib/utils";
-import { CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
   ArrowUpDown,
@@ -13,38 +9,32 @@ import {
   X,
 } from "lucide-react";
 import { formatDate } from "date-fns";
-import { ScrollArea } from "./ui/scroll-area";
+import { Transaction } from "@/types/Transaction";
+import { formatCurrency, sortBy } from "@/lib/utils";
+import { CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
+import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
-import IconButton from "./ui/IconButton";
+import IconButton from "./IconButton";
 
-const SidepanelTransactions = () => {
+function SidepanelTransactions() {
   const [sortByField, setSortByField] = useState<"amount" | "date">("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [display, setDisplayMode] = useState<"all" | "moneyIn" | "moneyOut">(
-    "all"
-  );
-  const transactionSummary = useSidepanelStore(
-    (state) => state.sidepanelTransactions
-  );
+  const [display, setDisplayMode] = useState<"all" | "moneyIn" | "moneyOut">("all");
+  const transactionSummary = useSidepanelStore((state) => state.sidepanelTransactions);
   const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode);
 
   const sortedTransactions = useMemo(() => {
     if (!transactionSummary?.transactions) return [];
-    const filteredTransactions = (
-      transactionSummary?.transactions || []
-    ).filter((transaction) => {
+    const filteredTransactions = (transactionSummary?.transactions || []).filter((transaction) => {
       if (display === "all") return true;
       if (display === "moneyIn") return transaction.amount > 0;
       if (display === "moneyOut") return transaction.amount < 0;
       return true;
     });
 
-    return sortBy(
-      filteredTransactions,
-      sortByField as keyof Transaction,
-      sortDirection
-    );
+    return sortBy(filteredTransactions, sortByField as keyof Transaction, sortDirection);
   }, [transactionSummary?.transactions, sortByField, sortDirection, display]);
 
   const toggleSort = (type: "amount" | "date") => {
@@ -70,7 +60,7 @@ const SidepanelTransactions = () => {
               : "No Data Selected"}
           </div>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             onClick={() => setSidepanelMode(SidepanelMode.Closed)}
             className="hover:bg-transparent hover:text-white mt-[-6px]"
           >
@@ -91,33 +81,30 @@ const SidepanelTransactions = () => {
               size={18}
             />
           </div>
-            <div className="flex space-x-2">
-              <IconButton
-                isActive={display === "all"}
-                onClick={() => toggleDisplayMode("all")}
-                Icon={ArrowUpDown}
-              />
-              <IconButton
-                isActive={display === "moneyIn"}
-                onClick={() => toggleDisplayMode("moneyIn")}
-                Icon={ArrowUp}
-              />
-              <IconButton
-                isActive={display === "moneyOut"}
-                onClick={() => toggleDisplayMode("moneyOut")}
-                Icon={ArrowDown}
-              />
-            </div>
+          <div className="flex space-x-2">
+            <IconButton
+              isActive={display === "all"}
+              onClick={() => toggleDisplayMode("all")}
+              Icon={ArrowUpDown}
+            />
+            <IconButton
+              isActive={display === "moneyIn"}
+              onClick={() => toggleDisplayMode("moneyIn")}
+              Icon={ArrowUp}
+            />
+            <IconButton
+              isActive={display === "moneyOut"}
+              onClick={() => toggleDisplayMode("moneyOut")}
+              Icon={ArrowDown}
+            />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="pt-2 px-2">
         {sortedTransactions.length ? (
           <ScrollArea className="h-[calc(100vh-6rem)] overflow-y-auto mt-0">
             {sortedTransactions.map((transaction) => {
-              const formattedDate = formatDate(
-                transaction.date,
-                "EEE, do MMM yyyy HH:mm"
-              );
+              const formattedDate = formatDate(transaction.date, "EEE, do MMM yyyy HH:mm");
               const isPositive = transaction.amount > 0;
 
               return (
@@ -127,9 +114,7 @@ const SidepanelTransactions = () => {
                 >
                   <div className="flex justify-between items-center w-full mb-1">
                     <div className=" w-[70%]">
-                      <p className="font-medium text-[13px] ">
-                        {transaction.account}
-                      </p>
+                      <p className="font-medium text-[13px] ">{transaction.account}</p>
                       <Badge
                         variant="outline"
                         className="text-primary bg-primary/10 text-nowrap text-xs truncate"
@@ -161,6 +146,6 @@ const SidepanelTransactions = () => {
       </CardContent>
     </div>
   );
-};
+}
 
 export default SidepanelTransactions;

@@ -2,15 +2,15 @@ import { ListFilter, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
+import { useFilterBuilder } from "@/hooks/useFilterBuilder";
+import { fieldOptions } from "@/lib/filterChipUtils";
 import { FilterChips } from "./FilterChips";
 import SelectionDropdown from "./SelectionDropDown";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
-import { useFilterBuilder } from "@/hooks/useFilterBuilder";
-import { fieldOptions } from "@/lib/filterChipUtils";
 
 // Main FilterBuilder component
-const FilterBuilder = () => {
+function FilterBuilder() {
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
 
   const {
@@ -55,7 +55,7 @@ const FilterBuilder = () => {
             <ListFilter size={20} className="text-primary" /> Filter Builder
           </CardTitle>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             onClick={() => setSidepanel(SidepanelMode.Closed)}
             className="hover:bg-transparent hover:text-white"
           >
@@ -71,10 +71,7 @@ const FilterBuilder = () => {
             placeholder="Select a field to filter"
             options={fieldOptions.map((field) => field.label)}
             value={
-              selectedField
-                ? fieldOptions.find((f) => f.value === selectedField)?.label ||
-                  ""
-                : ""
+              selectedField ? fieldOptions.find((f) => f.value === selectedField)?.label || "" : ""
             }
             onChange={handleFieldChange}
           />
@@ -87,8 +84,7 @@ const FilterBuilder = () => {
               options={operatorOptions.map((op) => op.label)}
               value={
                 selectedOperator
-                  ? operatorOptions.find((op) => op.value === selectedOperator)
-                      ?.label || ""
+                  ? operatorOptions.find((op) => op.value === selectedOperator)?.label || ""
                   : ""
               }
               onChange={handleOperatorChange}
@@ -97,43 +93,33 @@ const FilterBuilder = () => {
 
           {/* Value Selector - shown if field and operator are selected */}
           {selectedField && selectedOperator && (
-            <>
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Value</p>
-                {filterValueOptions.length > 0 ? (
-                  <SelectionDropdown
-                    title=""
-                    placeholder="Select or enter a value"
-                    options={filterValueOptions.map((v) =>
-                      typeof v === "object" ? v.label : v
-                    )}
-                    value={valueDisplayLabel as string}
-                    onChange={setSelectedValue}
-                  />
-                ) : (
-                  <Input
-                    type={selectedField === "amount" ? "number" : "text"}
-                    placeholder="Enter a value"
-                    value={selectedValue as string}
-                    onChange={(e) =>
-                      setSelectedValue(
-                        selectedField === "amount"
-                          ? parseFloat(e.target.value)
-                          : e.target.value
-                      )
-                    }
-                  />
-                )}
-              </div>
-            </>
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Value</p>
+              {filterValueOptions.length > 0 ? (
+                <SelectionDropdown
+                  title=""
+                  placeholder="Select or enter a value"
+                  options={filterValueOptions.map((v) => (typeof v === "object" ? v.label : v))}
+                  value={valueDisplayLabel as string}
+                  onChange={setSelectedValue}
+                />
+              ) : (
+                <Input
+                  type={selectedField === "amount" ? "number" : "text"}
+                  placeholder="Enter a value"
+                  value={selectedValue as string}
+                  onChange={(e) =>
+                    setSelectedValue(
+                      selectedField === "amount" ? parseFloat(e.target.value) : e.target.value
+                    )
+                  }
+                />
+              )}
+            </div>
           )}
 
           {/* Add Filter Button */}
-          <Button
-            onClick={handleAddFilter}
-            disabled={!isAddFilterEnabled}
-            className="mt-2"
-          >
+          <Button onClick={handleAddFilter} disabled={!isAddFilterEnabled} className="mt-2">
             <Plus className="h-4 w-4 mr-2" /> Add Filter
           </Button>
         </div>
@@ -147,6 +133,6 @@ const FilterBuilder = () => {
       </CardContent>
     </div>
   );
-};
+}
 
 export default FilterBuilder;

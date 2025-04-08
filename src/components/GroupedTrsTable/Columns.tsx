@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "../ui/table/data-table-column-header";
 import { TransactionSummary } from "@/lib/groupByField";
 import { formatCurrency } from "@/lib/utils";
-import HoverableActionText from "../HoverableActionText";
 import { Filter } from "@/types/Filters";
+import HoverableActionText from "../HoverableActionText";
+import { DataTableColumnHeader } from "../ui/table/data-table-column-header";
 
 type TrGroupProps = {
   title: string;
@@ -20,9 +20,7 @@ export const transactionGroupSummaryColumns = (
   const items: ColumnDef<TransactionSummary>[] = [
     {
       accessorKey: "name",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={props.title} />
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title={props.title} />,
       cell: ({ row }) => {
         return !props.filters ? (
           <span className="underline">{row.getValue("name")}</span>
@@ -55,24 +53,18 @@ export const transactionGroupSummaryColumns = (
         />
       ),
       cell: ({ row }) => (
-        <div className="px-6 w-[150px] font-semibold">
-          {row.getValue("totalCount")}
-        </div>
+        <div className="px-6 w-[150px] font-semibold">{row.getValue("totalCount")}</div>
       ),
       enableSorting: true,
       enableHiding: false,
     },
     {
       accessorKey: "moneyOutAmount",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Money Out" />
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Money Out" />,
       cell: ({ row }) => {
         const amount = row.getValue("moneyOutAmount") as number;
         return (
-          <div className="text-money-out w-[150px] font-semibold">
-            {formatCurrency(amount)}
-          </div>
+          <div className="text-money-out w-[150px] font-semibold">{formatCurrency(amount)}</div>
         );
       },
       enableSorting: true,
@@ -80,15 +72,11 @@ export const transactionGroupSummaryColumns = (
     },
     {
       accessorKey: "moneyInAmount",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Money In" />
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Money In" />,
       cell: ({ row }) => {
         const amount = row.getValue("moneyInAmount") as number;
         return (
-          <div className="text-money-in w-[150px] font-semibold">
-            {formatCurrency(amount)}
-          </div>
+          <div className="text-money-in w-[150px] font-semibold">{formatCurrency(amount)}</div>
         );
       },
       enableSorting: true,
@@ -100,9 +88,7 @@ export const transactionGroupSummaryColumns = (
   props.rows?.forEach((val, i) => {
     items.push({
       id: `actions-${i}`,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={val.headerTitle} />
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title={val.headerTitle} />,
       cell: ({ row }) => val.rowElement(row.original), // Use the actions function with row data
       enableSorting: false,
       enableHiding: false,

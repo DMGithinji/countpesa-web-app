@@ -1,5 +1,5 @@
-import { Filter } from "@/types/Filters";
 import { create } from "zustand";
+import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 import { removeFilters, validateAndAddFilters } from "@/lib/manageFilters";
 import {
@@ -7,11 +7,7 @@ import {
   DEFAULT_CALCULATED_DATA,
   getCalculatedData,
 } from "@/lib/getCalculatedData";
-import {
-  DateRangeData,
-  DEFAULT_DATE_RANGE_DATA,
-  getDateRangeData,
-} from "@/lib/getDateRangeData";
+import { DateRangeData, DEFAULT_DATE_RANGE_DATA, getDateRangeData } from "@/lib/getDateRangeData";
 import { getAllAccountNames } from "@/lib/groupByField";
 import { filterTransactions } from "@/lib/filterUtils";
 import { getPeriodAverages, PeriodAverages } from "@/lib/groupByPeriod";
@@ -37,12 +33,31 @@ interface TransactionState {
   validateAndAddFilters: (newFilters: Filter | Filter[]) => void;
 }
 
+const updateDerivedState = (transactions: Transaction[], filters: Filter[] | undefined) => {
+  const filteredTransactions = filterTransactions(transactions, filters || []);
+  const calculatedData = getCalculatedData(filteredTransactions);
+
+  const dateRangeData = getDateRangeData({
+    transactions: filteredTransactions,
+    currentFilters: filters,
+  });
+
+  const periodAverages = getPeriodAverages(dateRangeData, calculatedData);
+
+  return {
+    transactions: filteredTransactions,
+    calculatedData,
+    dateRangeData,
+    periodAverages,
+  };
+};
+
 const useTransactionStore = create<TransactionState>((set) => ({
   // Initial state
   allTransactions: [],
   transactions: [],
   currentFilters: undefined,
-  loading: false,
+  loading: true,
   error: "",
   accountNames: [],
   calculatedData: DEFAULT_CALCULATED_DATA,
@@ -53,10 +68,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   setAllTransactions: (transactions) =>
     set((state) => {
       const accountNames = getAllAccountNames(transactions);
-      const derivedState = updateDerivedState(
-        transactions,
-        state.currentFilters
-      );
+      const derivedState = updateDerivedState(transactions, state.currentFilters);
 
       return {
         allTransactions: transactions,
@@ -68,10 +80,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   setCurrentFilters: (filters) =>
     set((state) => {
       const validatedFilters = validateAndAddFilters(filters, []);
-      const derivedState = updateDerivedState(
-        state.allTransactions,
-        validatedFilters
-      );
+      const derivedState = updateDerivedState(state.allTransactions, validatedFilters);
 
       return {
         currentFilters: validatedFilters,
@@ -85,10 +94,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   removeFilter: (filter) =>
     set((state) => {
       const updatedFilters = removeFilters(state.currentFilters, filter);
-      const derivedState = updateDerivedState(
-        state.allTransactions,
-        updatedFilters
-      );
+      const derivedState = updateDerivedState(state.allTransactions, updatedFilters);
 
       return {
         currentFilters: updatedFilters,
@@ -98,14 +104,8 @@ const useTransactionStore = create<TransactionState>((set) => ({
 
   validateAndAddFilters: (newFilter) =>
     set((state) => {
-      const updatedFilters = validateAndAddFilters(
-        state.currentFilters,
-        newFilter
-      );
-      const derivedState = updateDerivedState(
-        state.allTransactions,
-        updatedFilters
-      );
+      const updatedFilters = validateAndAddFilters(state.currentFilters, newFilter);
+      const derivedState = updateDerivedState(state.allTransactions, updatedFilters);
 
       return {
         currentFilters: updatedFilters,
@@ -115,25 +115,3 @@ const useTransactionStore = create<TransactionState>((set) => ({
 }));
 
 export default useTransactionStore;
-
-const updateDerivedState = (
-  transactions: Transaction[],
-  filters: Filter[] | undefined
-) => {
-  const filteredTransactions = filterTransactions(transactions, filters || []);
-  const calculatedData = getCalculatedData(filteredTransactions);
-
-  const dateRangeData = getDateRangeData({
-    transactions: filteredTransactions,
-    currentFilters: filters,
-  })
-
-  const periodAverages = getPeriodAverages(dateRangeData, calculatedData);
-
-  return {
-    transactions: filteredTransactions,
-    calculatedData,
-    dateRangeData,
-    periodAverages,
-  };
-};

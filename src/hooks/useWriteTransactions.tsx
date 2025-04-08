@@ -1,13 +1,13 @@
 import { useCallback } from "react";
-import { useTransactionRepository } from "@/context/DBContext";
-import useAddMissingCategories from "./useAddCategories";
+import { useTransactionRepository } from "@/context/RepositoryContext";
 import { Transaction } from "@/types/Transaction";
+import useAddMissingCategories from "./useAddCategories";
 import { useLoadTransactions } from "./useLoadTransactions";
 
 export function useWriteTransactions() {
   const transactionRepository = useTransactionRepository();
   const { addMissingCategories } = useAddMissingCategories();
-  const {loadTransactions} = useLoadTransactions();
+  const { loadTransactions } = useLoadTransactions();
 
   const handleCategorizeTransactions = useCallback(
     async (trId: string, categoryToSet: string) => {

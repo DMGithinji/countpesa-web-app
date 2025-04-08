@@ -15,26 +15,22 @@ const RepositoryContext = createContext<RepositoryContextType | undefined>(undef
 
 export function RepositoryProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const isDemoMode = location.pathname.includes('/demo');
+  const isDemoMode = location.pathname.includes("/demo");
 
   const value = useMemo(() => {
-  const transactionRepository = new TransactionRepository(isDemoMode);
-  const categoryRepository = new CategoryRepository(isDemoMode);
-  const analysisRepository = new AnalysisRepository(isDemoMode);
+    const transactionRepository = new TransactionRepository(isDemoMode);
+    const categoryRepository = new CategoryRepository(isDemoMode);
+    const analysisRepository = new AnalysisRepository(isDemoMode);
 
-  return {
-    transactionRepository,
-    categoryRepository,
-    analysisRepository,
-    isDemoMode
-  };
+    return {
+      transactionRepository,
+      categoryRepository,
+      analysisRepository,
+      isDemoMode,
+    };
   }, [isDemoMode]);
 
-  return (
-    <RepositoryContext.Provider value={value}>
-      {children}
-    </RepositoryContext.Provider>
-  );
+  return <RepositoryContext.Provider value={value}>{children}</RepositoryContext.Provider>;
 }
 
 // Custom hooks to access repositories

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import { CombinedCategory } from "@/types/Categories";
 
 interface CategoriesState {

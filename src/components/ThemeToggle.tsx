@@ -25,11 +25,7 @@ export function ThemeToggle() {
       pressed={isDark}
       onPressedChange={(pressed) => setTheme(pressed ? "dark" : "light")}
     >
-      {isDark ? (
-        <Moon className="h-8 w-8" />
-      ) : (
-        <Sun className="h-8 w-8" />
-      )}
+      {isDark ? <Moon className="h-8 w-8" /> : <Sun className="h-8 w-8" />}
     </Toggle>
   );
 }

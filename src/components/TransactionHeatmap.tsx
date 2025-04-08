@@ -9,13 +9,7 @@ import { formatCurrency } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import ChartTransactions from "./ChartTransactions";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "./ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
 
 interface TransactionHeatmapProps {
   transactions: Transaction[];
@@ -41,10 +35,10 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
 
   useEffect(() => {
     const years = Array.from(new Set(transactions.map((tx) => new Date(tx.date).getFullYear())));
-    const availableYears = years.sort((a, b) => b - a); // Sort descending (most recent first)
-    setAvailableYears(availableYears);
-    setSelectedYear(availableYears[0]);
-  }, [transactions])
+    const yearsAvailable = years.sort((a, b) => b - a); // Sort descending (most recent first)
+    setAvailableYears(yearsAvailable);
+    setSelectedYear(yearsAvailable[0]);
+  }, [transactions]);
 
   // Filter transactions by selected year and mode
   const values = useMemo(() => {
@@ -95,7 +89,10 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
           <CardTitle className="text-base font-medium flex items-center gap-2">
             {mode === MoneyMode.MoneyOut ? "Spending" : "Deposits"} Heatmap
             {availableYears.length > 1 && (
-              <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
+              <Select
+                value={selectedYear.toString()}
+                onValueChange={(value) => setSelectedYear(parseInt(value, 10))}
+              >
                 <SelectTrigger className="h-7 w-auto border-none px-0 shadow-none flex gap-2 items-center focus:border-none focus:ring-none focus:outline-none">
                   <SelectValue placeholder="Year" />
                 </SelectTrigger>
@@ -111,11 +108,7 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
           </CardTitle>
           <ToggleGroup type="single" value={mode}>
             {Object.values(MoneyMode).map((filterVal) => (
-              <ToggleGroupItem
-                onClick={() => setMode(filterVal)}
-                value={filterVal}
-                key={filterVal}
-              >
+              <ToggleGroupItem onClick={() => setMode(filterVal)} value={filterVal} key={filterVal}>
                 {filterVal === MoneyMode.MoneyIn ? "In" : "Out"}
               </ToggleGroupItem>
             ))}
@@ -129,7 +122,7 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
               values={values}
               classForValue={(value) => (value ? getColorClass(value.amount) : "color-empty")}
               onClick={(value) => value && handleCellClick(value as HeatmapValue)}
-              showWeekdayLabels={true}
+              showWeekdayLabels
               tooltipDataAttrs={(value) => {
                 if (!value || !value.date) {
                   return { "data-tooltip-id": "", "data-tooltip-content": "" } as TooltipDataAttrs;

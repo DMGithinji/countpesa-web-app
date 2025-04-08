@@ -14,26 +14,24 @@ const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
 
 function AppRoutes() {
   useAppInitializer();
-  const loading = useTransactionStore(state => state.loading);
+  const loading = useTransactionStore((state) => state.loading);
 
   const routes = [
     { path: "/dashboard", element: <DashboardPage /> },
     { path: "/transactions", element: <TransactionsPage /> },
     { path: "/accounts", element: <AccountsPage /> },
-    { path: "/categories", element: <CategoriesPage /> }
+    { path: "/categories", element: <CategoriesPage /> },
   ];
 
   if (loading) {
-    return (
-      <Loader />
-    );
+    return <Loader />;
   }
 
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
 
-      {routes.map(route => (
+      {routes.map((route) => (
         <Route
           key={route.path}
           path={route.path}
@@ -41,7 +39,7 @@ function AppRoutes() {
         />
       ))}
 
-      {routes.map(route => (
+      {routes.map((route) => (
         <Route
           key={`demo${route.path}`}
           path={`/demo${route.path}`}
@@ -51,7 +49,6 @@ function AppRoutes() {
     </Routes>
   );
 }
-
 
 function App() {
   return (

@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Check, ChevronDown, ChevronUp, Pencil, Trash, X } from "lucide-react";
+import { toast } from "sonner";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import useCategoriesStore from "@/stores/categories.store";
 import useCategories from "@/hooks/useCategories";
-import { toast } from "sonner";
-import { CardHeader, CardTitle } from "./ui/card";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
-import { useCategoryRepository } from "@/context/DBContext";
+import { useCategoryRepository } from "@/context/RepositoryContext";
+import { CardHeader, CardTitle } from "./ui/card";
 
 interface UiSubcategory {
   id: string;
@@ -23,12 +23,10 @@ interface UiCategory {
   isExpanded?: boolean;
 }
 
-const CategoriesManager = () => {
+function CategoriesManager() {
   const categoryRepository = useCategoryRepository();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
-  const combinedCategories = useCategoriesStore(
-    (state) => state.categoriesWithSubcategories
-  );
+  const combinedCategories = useCategoriesStore((state) => state.categoriesWithSubcategories);
   const { reloadCategories } = useCategories();
 
   // Transform combinedCategories into local UI state with isExpanded property
@@ -51,9 +49,7 @@ const CategoriesManager = () => {
   }, [combinedCategories]);
 
   // State for tracking which category or subcategory is being edited
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
-    null
-  );
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingSubcategoryId, setEditingSubcategoryId] = useState<{
     categoryId: string;
     subcategoryId: string;
@@ -64,9 +60,7 @@ const CategoriesManager = () => {
   const toggleCategory = (categoryId: string) => {
     setCategories(
       categories.map((category) =>
-        category.id === categoryId
-          ? { ...category, isExpanded: !category.isExpanded }
-          : category
+        category.id === categoryId ? { ...category, isExpanded: !category.isExpanded } : category
       )
     );
   };
@@ -78,10 +72,7 @@ const CategoriesManager = () => {
   };
 
   // Start editing a subcategory
-  const startEditingSubcategory = (
-    categoryId: string,
-    subcategory: UiSubcategory
-  ) => {
+  const startEditingSubcategory = (categoryId: string, subcategory: UiSubcategory) => {
     setEditingSubcategoryId({ categoryId, subcategoryId: subcategory.id });
     setEditValue(subcategory.name);
   };
@@ -93,9 +84,7 @@ const CategoriesManager = () => {
         // Update UI optimistically
         setCategories(
           categories.map((category) =>
-            category.id === editingCategoryId
-              ? { ...category, name: editValue }
-              : category
+            category.id === editingCategoryId ? { ...category, name: editValue } : category
           )
         );
 
@@ -156,9 +145,7 @@ const CategoriesManager = () => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
         // Update UI optimistically
-        setCategories(
-          categories.filter((category) => category.id !== categoryId)
-        );
+        setCategories(categories.filter((category) => category.id !== categoryId));
 
         // Call repository
         await categoryRepository.deleteCategory(categoryId);
@@ -173,10 +160,7 @@ const CategoriesManager = () => {
   };
 
   // Delete a subcategory
-  const handleDeleteSubcategory = async (
-    categoryId: string,
-    subcategoryId: string
-  ) => {
+  const handleDeleteSubcategory = async (categoryId: string, subcategoryId: string) => {
     if (window.confirm("Are you sure you want to delete this subcategory?")) {
       try {
         // Update UI optimistically
@@ -185,9 +169,7 @@ const CategoriesManager = () => {
             category.id === categoryId
               ? {
                   ...category,
-                  subcategories: category.subcategories.filter(
-                    (sub) => sub.id !== subcategoryId
-                  ),
+                  subcategories: category.subcategories.filter((sub) => sub.id !== subcategoryId),
                 }
               : category
           )
@@ -213,7 +195,7 @@ const CategoriesManager = () => {
             Manage Categories
           </CardTitle>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             onClick={() => setSidepanel(SidepanelMode.Closed)}
             className="hover:bg-transparent hover:text-white"
           >
@@ -226,15 +208,12 @@ const CategoriesManager = () => {
           <div key={category.id} className="group">
             <div className="py-2 flex items-center justify-between hover:bg-gray-600/10">
               <div
+                role="none"
                 className="flex-1 flex items-center cursor-pointer"
                 onClick={() => toggleCategory(category.id)}
               >
                 <Button variant="ghost" size="sm" className="p-1 mr-2">
-                  {category.isExpanded ? (
-                    <ChevronUp size={16} />
-                  ) : (
-                    <ChevronDown size={16} />
-                  )}
+                  {category.isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </Button>
 
                 <div className="flex-1">
@@ -300,9 +279,7 @@ const CategoriesManager = () => {
             {category.isExpanded && (
               <div className="pl-12 pr-4 pb-4">
                 {category.subcategories.length === 0 ? (
-                  <div className="text-sm text-gray-500 italic">
-                    No subcategories
-                  </div>
+                  <div className="text-sm text-gray-500 italic">No subcategories</div>
                 ) : (
                   <ul className="space-y-2">
                     {category.subcategories.map((subcategory) => (
@@ -312,8 +289,7 @@ const CategoriesManager = () => {
                       >
                         {editingSubcategoryId &&
                         editingSubcategoryId.categoryId === category.id &&
-                        editingSubcategoryId.subcategoryId ===
-                          subcategory.id ? (
+                        editingSubcategoryId.subcategoryId === subcategory.id ? (
                           <div className="flex-1 flex items-center">
                             <Input
                               value={editValue}
@@ -337,12 +313,7 @@ const CategoriesManager = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() =>
-                                  startEditingSubcategory(
-                                    category.id,
-                                    subcategory
-                                  )
-                                }
+                                onClick={() => startEditingSubcategory(category.id, subcategory)}
                                 className="h-8 w-8 p-0"
                               >
                                 <Pencil size={16} />
@@ -350,12 +321,7 @@ const CategoriesManager = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() =>
-                                  handleDeleteSubcategory(
-                                    category.id,
-                                    subcategory.id
-                                  )
-                                }
+                                onClick={() => handleDeleteSubcategory(category.id, subcategory.id)}
                                 className="h-8 w-8 p-0 text-red-500"
                               >
                                 <Trash size={16} />
@@ -374,6 +340,6 @@ const CategoriesManager = () => {
       </ScrollArea>
     </div>
   );
-};
+}
 
 export default CategoriesManager;

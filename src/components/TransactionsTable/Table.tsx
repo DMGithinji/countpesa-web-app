@@ -9,7 +9,7 @@ export type SortBy = {
   id: keyof Transaction;
 };
 
-const Table = ({
+function Table({
   transactions,
   sortBy,
   onSortingChange,
@@ -21,11 +21,9 @@ const Table = ({
   onSortingChange: (sorting: SortBy) => void;
   pageIndex: number;
   onPageChange: (newPage: number) => void;
-}) => {
+}) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
-
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const handleCategoryClick = (transaction: Transaction) => {
     setSelectedTransaction(transaction);
@@ -48,13 +46,15 @@ const Table = ({
         initialSorting={[sortBy]}
         onSortingChange={(sorting) => onSortingChange(sorting[0] as SortBy)}
       />
-      {selectedTransaction && <CategorizeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        transaction={selectedTransaction}
-      />}
+      {selectedTransaction && (
+        <CategorizeModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          transaction={selectedTransaction}
+        />
+      )}
     </>
   );
-};
+}
 
 export default Table;

@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+node_modules
+public
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+.github
+.vscode

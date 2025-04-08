@@ -1,23 +1,24 @@
 import { useState } from "react";
 import { MessageSquare } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const FeedbackButton = () => {
+function FeedbackButton() {
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [wantResponse, setWantResponse] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const resetForm = () => {
+    setFeedback("");
+    setWantResponse(false);
+    setEmail("");
+  };
 
   const handleSubmit = async () => {
     if (!feedback.trim()) return;
@@ -25,35 +26,24 @@ const FeedbackButton = () => {
     setSubmitting(true);
 
     const feedbackData = {
-      google_sheet: 'CountpesaFeedback',
+      google_sheet: "CountpesaFeedback",
       message: feedback,
       email: wantResponse ? email : null,
       type: "CountPesa Web App Feedback",
     };
 
-    try {
-      fetch("https://feedback-to-sheets.onrender.com/feedback/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(feedbackData),
-      });
-      setTimeout(() => {
-        setOpen(false);
-        resetForm();
-      }, 400);
-    } catch (error) {
-      console.error("Error submitting feedback:", error);
-    } finally {
+    fetch("https://feedback-to-sheets.onrender.com/feedback/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(feedbackData),
+    });
+    setTimeout(() => {
+      setOpen(false);
+      resetForm();
       setSubmitting(false);
-    }
-  };
-
-  const resetForm = () => {
-    setFeedback("");
-    setWantResponse(false);
-    setEmail("");
+    }, 400);
   };
 
   return (
@@ -67,14 +57,17 @@ const FeedbackButton = () => {
         <MessageSquare className="h-4 w-4" />
       </Button>
 
-      <Dialog open={open} onOpenChange={(newOpen) => {
-        setOpen(newOpen);
-        if (!newOpen) resetForm();
-      }}>
+      <Dialog
+        open={open}
+        onOpenChange={(newOpen) => {
+          setOpen(newOpen);
+          if (!newOpen) resetForm();
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold">
-              We'd Love Your Feedback!
+              We&apos;d Love Your Feedback!
             </DialogTitle>
           </DialogHeader>
 
@@ -97,7 +90,7 @@ const FeedbackButton = () => {
                 className="border-input"
               />
               <Label htmlFor="want-response" className="text-sm font-medium cursor-pointer">
-                I'd like a response from the team
+                I&apos;d like a response from the team
               </Label>
             </div>
 
@@ -139,6 +132,6 @@ const FeedbackButton = () => {
       </Dialog>
     </>
   );
-};
+}
 
 export default FeedbackButton;

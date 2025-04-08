@@ -1,9 +1,5 @@
 import { Transaction } from "@/types/Transaction";
-import {
-  calculateTransactionTotals,
-  getTotals,
-  TransactionTotals,
-} from "./getTotal";
+import { calculateTransactionTotals, getTotals, TransactionTotals } from "./getTotal";
 
 export enum GroupByField {
   Account = "account",
@@ -64,7 +60,7 @@ export function groupedTrxByField(
   const fieldMap = new Map<string, Transaction[]>();
 
   // Single pass to collect transactions by group
-  for (const tx of transactions) {
+  transactions.forEach((tx) => {
     const key = getGroupKey(tx, field).trim();
 
     if (!fieldMap.has(key)) {
@@ -73,7 +69,7 @@ export function groupedTrxByField(
 
     // Direct push instead of spread (more efficient)
     fieldMap.get(key)!.push(tx);
-  }
+  });
 
   // Pre-allocate result array for better performance
   const result: TransactionSummary[] = new Array(fieldMap.size);
@@ -93,7 +89,6 @@ export function groupedTrxByField(
   // Sort only once at the end
   return result.sort((a, b) => Math.abs(b[sortBy]) - Math.abs(a[sortBy]));
 }
-
 
 export function groupTransactionsByField(
   transactions: Transaction[],
@@ -136,7 +131,7 @@ export function getAllAccountNames(transactions: Transaction[]): string[] {
   const accountNamesSet = new Set<string>();
 
   // Iterate through transactions and add each account name to the set
-  transactions.forEach(transaction => {
+  transactions.forEach((transaction) => {
     if (transaction.account) {
       accountNamesSet.add(transaction.account);
     }

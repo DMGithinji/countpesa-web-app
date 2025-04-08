@@ -6,10 +6,7 @@ type ThemeProviderProps = {
   defaultTheme?: string;
 };
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-}: ThemeProviderProps) {
+export function ThemeProvider({ children, defaultTheme = "system" }: ThemeProviderProps) {
   return (
     <NextThemesProvider attribute="class" defaultTheme={defaultTheme}>
       {children}

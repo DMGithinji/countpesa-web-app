@@ -1,14 +1,14 @@
 import { useState, useEffect, useMemo } from "react";
-import { Transaction } from "@/types/Transaction";
 import { formatDate } from "date-fns";
 import { ChevronUp, ChevronDown } from "lucide-react";
+import { Transaction } from "@/types/Transaction";
 import { cn, formatCurrency } from "@/lib/utils";
-import { Checkbox } from "./ui/checkbox";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { useWriteTransactions } from "@/hooks/useWriteTransactions";
+import { useTransactionRepository } from "@/context/RepositoryContext";
+import { Checkbox } from "./ui/checkbox";
 import { Badge } from "./ui/badge";
 import { Separator } from "./ui/separator";
-import { useTransactionRepository } from "@/context/DBContext";
 
 interface SimilarTransactionsAccordionProps {
   selectedTransaction: Transaction;
@@ -16,15 +16,13 @@ interface SimilarTransactionsAccordionProps {
   mode?: "single" | "multiple";
 }
 
-const SimilarTransactionsAccordion = ({
+function SimilarTransactionsAccordion({
   selectedTransaction,
   newCategory,
   mode = "single",
-}: SimilarTransactionsAccordionProps) => {
+}: SimilarTransactionsAccordionProps) {
   const transactionRepository = useTransactionRepository();
-  const [similarTransactions, setSimilarTransactions] = useState<Transaction[]>(
-    []
-  );
+  const [similarTransactions, setSimilarTransactions] = useState<Transaction[]>([]);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -37,11 +35,7 @@ const SimilarTransactionsAccordion = ({
   useEffect(() => {
     const getAll = mode === "multiple";
     transactionRepository
-      .getRelatedTransactions(
-        selectedTransaction.account,
-        selectedTransaction.category,
-        getAll
-      )
+      .getRelatedTransactions(selectedTransaction.account, selectedTransaction.category, getAll)
       .then((trs) => {
         const filtered = trs.filter(
           (tx) => mode === "multiple" || tx.id !== selectedTransaction.id
@@ -65,6 +59,7 @@ const SimilarTransactionsAccordion = ({
     <div className="border rounded-md w-full mt-4">
       <div className="flex flex-col">
         <div
+          role="none"
           className="flex gap-2 items-center justify-between p-2 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
@@ -96,11 +91,7 @@ const SimilarTransactionsAccordion = ({
             </div>
           </div>
           <div className="pr-2">
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
+            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </div>
         </div>
 
@@ -146,6 +137,6 @@ const SimilarTransactionsAccordion = ({
       </div>
     </div>
   );
-};
+}
 
 export default SimilarTransactionsAccordion;

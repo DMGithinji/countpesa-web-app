@@ -1,6 +1,6 @@
 import { SetDateRange } from "@/lib/getDateRangeData";
 
-export const GetPromptTemplate = (financialData: unknown, dateRange: SetDateRange) => (`
+export const GetPromptTemplate = (financialData: unknown, dateRange: SetDateRange) => `
         You are a financial advisor in a expense tracking web app.
         The web app tracks M-Pesa transactions (KSH) where a user can visualise their spending patterns
         by period, people or places they transacted and categories.
@@ -16,12 +16,9 @@ export const GetPromptTemplate = (financialData: unknown, dateRange: SetDateRang
 
         The output should be in well formatted markdown.
         Dive right into the assessment. Don't say here's a concise assessment etc. The user doesn't know about this prompt.
-      `);
+      `;
 
-export const GetRoastPromptTemplate = (
-  financialData: unknown,
-  dateRange: SetDateRange
-) => `
+export const GetRoastPromptTemplate = (financialData: unknown, dateRange: SetDateRange) => `
 You are a brutally honest financial advisor reviewing M-Pesa transactions (KSH) who balances tough love with actual help.
 
 THE DATA (try not to cry):

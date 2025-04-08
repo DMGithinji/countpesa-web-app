@@ -1,8 +1,8 @@
-import { SetDateRange } from "@/lib/getDateRangeData";
-import db from "./schema";
-import { AnalysisReport, AssessmentMode } from "@/types/AITools";
 import { format } from "date-fns";
 import Dexie from "dexie";
+import { SetDateRange } from "@/lib/getDateRangeData";
+import { AnalysisReport, AssessmentMode } from "@/types/AITools";
+import db from "./schema";
 
 export default class AnalysisRepository {
   private isDemo: boolean;
@@ -20,7 +20,7 @@ export default class AnalysisRepository {
     if (exists) {
       return this.getReportTable().update(report.id, report);
     }
-    return await this.getReportTable().add(report);
+    return this.getReportTable().add(report);
   }
 
   async getReport(id: string) {
@@ -28,11 +28,5 @@ export default class AnalysisRepository {
   }
 }
 
-export const getReportAnalysisId = (
-  dateRange: SetDateRange,
-  assessmentMode: AssessmentMode
-) =>
-  `${format(dateRange.from, "dd-MM-yyyy")}-${format(
-    dateRange.to,
-    "dd-MM-yyyy"
-  )}_${assessmentMode}`;
+export const getReportAnalysisId = (dateRange: SetDateRange, assessmentMode: AssessmentMode) =>
+  `${format(dateRange.from, "dd-MM-yyyy")}-${format(dateRange.to, "dd-MM-yyyy")}_${assessmentMode}`;

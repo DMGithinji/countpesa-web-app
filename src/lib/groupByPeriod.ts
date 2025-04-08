@@ -1,5 +1,5 @@
-import { Transaction } from "@/types/Transaction";
 import { endOfWeek, format, formatDate, startOfWeek } from "date-fns";
+import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "./getTotal";
 import { CalculatedData } from "./getCalculatedData";
 import { DateRangeData } from "./getDateRangeData";
@@ -18,6 +18,13 @@ export const PeriodDict = {
   [Period.WEEK]: "Weekly",
   [Period.MONTH]: "Monthly",
   [Period.YEAR]: "Yearly",
+};
+
+export type PeriodData = {
+  period: string;
+  totalAmount: number;
+  moneyInAmount: number;
+  moneyOutAmount: number;
 };
 
 export type PeriodAverages = {
@@ -39,7 +46,7 @@ export function groupTransactionsByPeriod(
   // Date cache to avoid creating redundant Date objects
   const dateCache: Record<number, Date> = {};
 
-  for (const transaction of transactions) {
+  transactions.forEach((transaction) => {
     // Get or create Date object from timestamp
     const timestamp = transaction.date;
     let date = dateCache[timestamp];
@@ -66,10 +73,7 @@ export function groupTransactionsByPeriod(
         // Format: "Week W, YYYY"
         const start = startOfWeek(date, { weekStartsOn: 1 });
         const end = endOfWeek(date, { weekStartsOn: 1 });
-        groupKey = `${formatDate(start, "MMM dd, yy")} - ${formatDate(
-          end,
-          "MMM dd, yy"
-        )}`;
+        groupKey = `${formatDate(start, "MMM dd, yy")} - ${formatDate(end, "MMM dd, yy")}`;
         break;
       }
 
@@ -92,7 +96,7 @@ export function groupTransactionsByPeriod(
       grouped[groupKey] = [];
     }
     grouped[groupKey].push(transaction);
-  }
+  });
 
   return grouped;
 }
@@ -103,15 +107,13 @@ export function groupTransactionsByPeriod(
  */
 export const getPeriodData = (transactions: Transaction[], period: Period) => {
   const groupedTransactions = groupTransactionsByPeriod(transactions, period);
-  const result = [];
+  const result: PeriodData[] = [];
 
-  for (const periodKey in groupedTransactions) {
-    if (Object.prototype.hasOwnProperty.call(groupedTransactions, periodKey)) {
-      const periodTxs = groupedTransactions[periodKey];
-      const { totalAmount, moneyInAmount, moneyOutAmount } = calculateTransactionTotals(periodTxs);
-      result.push({ period: periodKey, totalAmount, moneyInAmount, moneyOutAmount });
-    }
-  }
+  // Using Object.entries instead of for...in loop
+  Object.entries(groupedTransactions).forEach(([periodKey, periodTxs]) => {
+    const { totalAmount, moneyInAmount, moneyOutAmount } = calculateTransactionTotals(periodTxs);
+    result.push({ period: periodKey, totalAmount, moneyInAmount, moneyOutAmount });
+  });
 
   return result;
 };
@@ -124,10 +126,12 @@ export function getPeriodAverages(
   dateRangeData: DateRangeData,
   calculatedData: CalculatedData
 ): PeriodAverages {
-  const { moneyInTrs, moneyOutTrs, moneyInAmount, moneyOutAmount } = calculatedData.transactionTotals;
+  const { moneyInTrs, moneyOutTrs, moneyInAmount, moneyOutAmount } =
+    calculatedData.transactionTotals;
   const periodAverages: PeriodAverages = {};
 
-  for (const period of dateRangeData.periodOptions) {
+  // Using Array.forEach instead of for...of loop
+  dateRangeData.periodOptions.forEach((period) => {
     // Get number of unique periods
     const moneyInGroups = groupTransactionsByPeriod(moneyInTrs, period);
     const moneyOutGroups = groupTransactionsByPeriod(moneyOutTrs, period);
@@ -140,7 +144,7 @@ export function getPeriodAverages(
       moneyInAverage: moneyInAmount / inPeriodCount,
       moneyOutAverage: moneyOutAmount / outPeriodCount,
     };
-  }
+  });
 
   return periodAverages;
 }

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import promoImage from "../assets/giftbox.png";
 
-const AppPromo = () => {
+function AppPromo() {
   const onDownload = () => {
     window.open(
       "https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo",
@@ -20,13 +20,14 @@ const AppPromo = () => {
         Play Store
       </h2>
       <p className="text-sm mb-6">
-        <span className="font-medium text-background-foreground">Auto-track, Budget & Analyse</span> right from your phone.
+        <span className="font-medium text-background-foreground">Auto-track, Budget & Analyse</span>{" "}
+        right from your phone.
       </p>
       <Button onClick={onDownload} className="w-full">
         Download Now
       </Button>
     </div>
   );
-};
+}
 
 export default AppPromo;

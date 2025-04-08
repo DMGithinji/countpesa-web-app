@@ -1,13 +1,10 @@
-import {
-  useCategoryRepository,
-  useTransactionRepository,
-} from "@/context/DBContext";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCategoryRepository, useTransactionRepository } from "@/context/RepositoryContext";
 import { getDecrypted } from "@/lib/encryptionUtils";
 import { Category, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import { ExtractedTransaction, TransactionTypes } from "@/types/Transaction";
-import { useLoadTransactions } from "./useLoadTransactions";
-import { useLocation, useNavigate } from "react-router-dom";
 import useTransactionStore from "@/stores/transactions.store";
+import { useLoadTransactions } from "./useLoadTransactions";
 
 type CategoryData = {
   categoryName: string;
@@ -49,150 +46,6 @@ export type BrowserBackupFormat = {
 
 export type BackupFormat = PhoneBackupFormat | BrowserBackupFormat | unknown;
 
-export function useUploadData() {
-  const transactionRepository = useTransactionRepository();
-  const categoryRepository = useCategoryRepository();
-  const { loadInitialTransactions } = useLoadTransactions();
-  const setLoading = useTransactionStore((state) => state.setLoading);
-
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const uploadData = async (file: File) => {
-    const fileContent = await readFileAsText(file);
-    const decrypted = getDecrypted(fileContent);
-    const jsonData = JSON.parse(decrypted) as BackupFormat;
-    const backupType = getBackupType(jsonData);
-
-    switch (backupType) {
-      case "phone":
-        await processPhoneBackup(jsonData as PhoneBackupFormat);
-        break;
-
-      case "browser":
-        await processBrowserBackup(jsonData as BrowserBackupFormat);
-        break;
-    }
-    await loadInitialTransactions()
-    const isBaseUrl = location.pathname === "/";
-    if (isBaseUrl) {
-      navigate("/dashboard");
-      setTimeout(() => {
-        setLoading(false);
-      }, 400);
-    } else {
-      setLoading(false);
-    }
-  };
-
-  const processPhoneBackup = async (data: PhoneBackupFormat): Promise<void> => {
-    const transactions = data.mpesaTrs.map(
-      (tx) =>
-        ({
-          code: tx.mpesaCode,
-          date: tx.date * 1000, // Convert to milliseconds
-          description: tx.transaction_description,
-          amount: tx.amount,
-          account: tx.account || "Unknown",
-          balance: tx.balance,
-          category: tx.category || UNCATEGORIZED,
-          type: tx.transaction_type,
-          status: "Completed",
-        } as ExtractedTransaction)
-    );
-
-    // Process categories and subcategories
-    const categories = data.categories.map(
-      (c) => ({ name: c.name, id: c.id } as Category)
-    );
-
-    const subcategories = data.sub_categories.map(
-      (subcat) =>
-        ({
-          name: subcat.name,
-          id: subcat.id,
-          categoryId: subcat.category_id,
-        } as Subcategory)
-    );
-
-    // Save to database
-    await transactionRepository.processMpesaStatementData(transactions);
-    await categoryRepository.bulkAddCategories(categories);
-    await categoryRepository.bulkAddSubcategories(subcategories);
-  };
-
-  const processBrowserBackup = async (
-    data: BrowserBackupFormat
-  ): Promise<void> => {
-    const transactions = data.transactions.map(
-      (tx) =>
-        ({
-          code: tx.mpesaCode,
-          date: tx.date * 1000, // Convert to milliseconds
-          description: tx.transactionDescription,
-          amount: tx.amount,
-          account: tx.account,
-          balance: tx.balance,
-          category:
-            tx.category && tx.subcategory
-              ? `${tx.category}: ${tx.subcategory}`
-              : UNCATEGORIZED,
-          type: tx.transactionType,
-          status: "Completed",
-        } as ExtractedTransaction)
-    );
-
-    // Extract categories and subcategories from transactions
-    const categoryData = data.transactions.reduce(
-      (acc: Record<string, CategoryData>, tr) => {
-        if (!tr.category) return acc;
-
-        const category = tr.category;
-        const subcategory = tr.subcategory;
-
-        if (!acc[category]) {
-          acc[category] = { categoryName: category, subcategories: {} };
-        }
-
-        if (subcategory && !acc[category].subcategories[subcategory]) {
-          acc[category].subcategories[subcategory] = subcategory;
-        }
-
-        return acc;
-      },
-      {}
-    );
-
-    // Save transactions to database
-    await transactionRepository.processMpesaStatementData(transactions);
-
-    // Save categories and subcategories
-    for (const data of Object.values(categoryData)) {
-      const { categoryName, subcategories } = data;
-      const id = await categoryRepository.addCategory({
-        name: categoryName,
-        id: categoryName,
-      });
-
-      if (!id) {
-        throw new Error(`Failed to add category: ${categoryName}`);
-      }
-
-      const subs = Object.keys(subcategories).map((s) => ({
-        name: s,
-        categoryId: id,
-        id: `${id}:${s}`,
-      }));
-
-      await categoryRepository.bulkAddSubcategories(subs);
-    }
-  };
-
-  return {
-    uploadData,
-  };
-}
-
 // Helper function to read file as text
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -227,3 +80,147 @@ const getBackupType = (data: any): "phone" | "browser" | "unknown" => {
 
   return "unknown";
 };
+
+export function useUploadData() {
+  const transactionRepository = useTransactionRepository();
+  const categoryRepository = useCategoryRepository();
+  const { loadInitialTransactions } = useLoadTransactions();
+  const setLoading = useTransactionStore((state) => state.setLoading);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const processPhoneBackup = async (data: PhoneBackupFormat): Promise<void> => {
+    const transactions = data.mpesaTrs.map(
+      (tx) =>
+        ({
+          code: tx.mpesaCode,
+          date: tx.date * 1000, // Convert to milliseconds
+          description: tx.transaction_description,
+          amount: tx.amount,
+          account: tx.account || "Unknown",
+          balance: tx.balance,
+          category: tx.category || UNCATEGORIZED,
+          type: tx.transaction_type,
+          status: "Completed",
+        }) as ExtractedTransaction
+    );
+
+    // Process categories and subcategories
+    const categories = data.categories.map((c) => ({ name: c.name, id: c.id }) as Category);
+
+    const subcategories = data.sub_categories.map(
+      (subcat) =>
+        ({
+          name: subcat.name,
+          id: subcat.id,
+          categoryId: subcat.category_id,
+        }) as Subcategory
+    );
+
+    // Save to database
+    await transactionRepository.processMpesaStatementData(transactions);
+    await categoryRepository.bulkAddCategories(categories);
+    await categoryRepository.bulkAddSubcategories(subcategories);
+  };
+
+  const processBrowserBackup = async (data: BrowserBackupFormat): Promise<void> => {
+    const transactions = data.transactions.map(
+      (tx) =>
+        ({
+          code: tx.mpesaCode,
+          date: tx.date * 1000, // Convert to milliseconds
+          description: tx.transactionDescription,
+          amount: tx.amount,
+          account: tx.account,
+          balance: tx.balance,
+          category:
+            tx.category && tx.subcategory ? `${tx.category}: ${tx.subcategory}` : UNCATEGORIZED,
+          type: tx.transactionType,
+          status: "Completed",
+        }) as ExtractedTransaction
+    );
+
+    // Extract categories and subcategories from transactions
+    const categoryData = data.transactions.reduce((acc: Record<string, CategoryData>, tr) => {
+      if (!tr.category) return acc;
+
+      const { category } = tr;
+      const { subcategory } = tr;
+
+      if (!acc[category]) {
+        acc[category] = { categoryName: category, subcategories: {} };
+      }
+
+      if (subcategory && !acc[category].subcategories[subcategory]) {
+        acc[category].subcategories[subcategory] = subcategory;
+      }
+
+      return acc;
+    }, {});
+
+    // Save transactions to database
+    await transactionRepository.processMpesaStatementData(transactions);
+
+    // Save categories and subcategories
+    await Object.values(categoryData).reduce(async (previousPromise, categoryItem) => {
+      // Wait for the previous promise to complete
+      await previousPromise;
+
+      const { categoryName, subcategories } = categoryItem;
+
+      const id = await categoryRepository.addCategory({
+        name: categoryName,
+        id: categoryName,
+      });
+
+      if (!id) {
+        throw new Error(`Failed to add category: ${categoryName}`);
+      }
+
+      const subs = Object.keys(subcategories).map((s) => ({
+        name: s,
+        categoryId: id,
+        id: `${id}:${s}`,
+      }));
+
+      await categoryRepository.bulkAddSubcategories(subs);
+
+      // Return a resolved promise for the next iteration
+      return Promise.resolve();
+    }, Promise.resolve());
+  };
+
+  const uploadData = async (file: File) => {
+    const fileContent = await readFileAsText(file);
+    const decrypted = getDecrypted(fileContent);
+    const jsonData = JSON.parse(decrypted) as BackupFormat;
+    const backupType = getBackupType(jsonData);
+
+    switch (backupType) {
+      case "phone":
+        await processPhoneBackup(jsonData as PhoneBackupFormat);
+        break;
+
+      case "browser":
+        await processBrowserBackup(jsonData as BrowserBackupFormat);
+        break;
+      default:
+        throw new Error("Invalid backup format");
+    }
+    await loadInitialTransactions();
+    const isBaseUrl = location.pathname === "/";
+    if (isBaseUrl) {
+      navigate("/dashboard");
+      setTimeout(() => {
+        setLoading(false);
+      }, 400);
+    } else {
+      setLoading(false);
+    }
+  };
+
+  return {
+    uploadData,
+  };
+}

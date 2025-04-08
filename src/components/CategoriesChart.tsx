@@ -1,27 +1,100 @@
 import { useMemo, useState } from "react";
-import { MoneyMode } from "@/types/Transaction";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { formatCurrency } from "@/lib/utils";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { MoneyMode } from "@/types/Transaction";
+import { formatCurrency } from "@/lib/utils";
 import { FieldGroupSummary } from "@/lib/groupByField";
 import { SidepanelTransactions } from "@/stores/ui.store";
-import NoData from "./NoData";
 import { generateLivelyColor } from "@/lib/colorGenerator";
+import NoData from "./NoData";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+
+function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-background p-2 border rounded-md shadow-sm">
+        <p className="font-medium">{data.name}</p>
+        <p>
+          <span>Amount: </span>
+          <span className="font-medium">{formatCurrency(data.amount)}</span>
+        </p>
+        <p>
+          <span>No of Trs: </span>
+          <span className="font-medium">{data.count}</span>
+        </p>
+        <p>
+          <span>Percentage: </span>
+          <span className="font-medium">{data.amountPercentage.toFixed(1)}%</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
+
+type LegendData = {
+  name: string;
+  color: string;
+};
+// Custom legend component
+function CustomLegend({
+  currentLegendData,
+  totalPages,
+  currentPage,
+  setCurrentPage,
+}: {
+  currentLegendData: LegendData[];
+  totalPages: number;
+  currentPage: number;
+  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+}) {
+  return (
+    <div className="flex flex-col items-center mt-4">
+      <div className="flex flex-wrap justify-center gap-3 mb-2">
+        {currentLegendData.map((entry) => {
+          return (
+            <div key={entry.name} className="flex items-center gap-1">
+              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+              <span className="text-xs">{entry.name}</span>
+            </div>
+          );
+        })}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-1">
+          <ChevronLeft
+            size={16}
+            className={`cursor-pointer ${currentPage === 1 ? "text-gray-300" : ""}`}
+            onClick={() => currentPage > 1 && setCurrentPage((prev) => prev - 1)}
+          />
+          <span className="text-xs">
+            {currentPage}/{totalPages}
+          </span>
+          <ChevronRight
+            size={16}
+            className={`cursor-pointer ${currentPage === totalPages ? "text-gray-300" : ""}`}
+            onClick={() => currentPage < totalPages && setCurrentPage((prev) => prev + 1)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 interface CategoriesDonutChartProps {
-  title?: string;
   moneyMode: MoneyMode;
   groupedDataByAmount: FieldGroupSummary[];
   totalAmount: number;
   onItemClick?: (item: SidepanelTransactions) => void;
 }
 
-const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
+function CategoriesDonutChart({
   moneyMode,
   groupedDataByAmount,
   totalAmount,
   onItemClick,
-}) => {
+}: CategoriesDonutChartProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 3;
 
@@ -41,99 +114,17 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
     return chartData.slice(startIndex, startIndex + itemsPerPage);
   }, [chartData, currentPage]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-background p-2 border rounded-md shadow-sm">
-          <p className="font-medium">{data.name}</p>
-          <p>
-            <span>Amount: </span>
-            <span className="font-medium">{formatCurrency(data.amount)}</span>
-          </p>
-          <p>
-            <span>No of Trs: </span>
-            <span className="font-medium">{data.count}</span>
-          </p>
-          <p>
-            <span>Percentage: </span>
-            <span className="font-medium">
-              {data.amountPercentage.toFixed(1)}%
-            </span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Custom legend component
-  const CustomLegend = () => {
-    return (
-      <div className="flex flex-col items-center mt-4">
-        <div className="flex flex-wrap justify-center gap-3 mb-2">
-          {currentLegendData.map((entry, index) => {
-            return (
-              <div key={`legend-${index}`} className="flex items-center gap-1">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
-                <span className="text-xs">{entry.name}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 mt-1">
-            <ChevronLeft
-              size={16}
-              className={`cursor-pointer ${
-                currentPage === 1
-                  ? "text-gray-300"
-                  : ""
-              }`}
-              onClick={() =>
-                currentPage > 1 && setCurrentPage((prev) => prev - 1)
-              }
-            />
-            <span className="text-xs">
-              {currentPage}/{totalPages}
-            </span>
-            <ChevronRight
-              size={16}
-              className={`cursor-pointer ${
-                currentPage === totalPages
-                  ? "text-gray-300"
-                  : ""
-              }`}
-              onClick={() =>
-                currentPage < totalPages && setCurrentPage((prev) => prev + 1)
-              }
-            />
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <Card className="w-full h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
           <CardTitle
             className={`text-base font-medium ${
-              moneyMode === MoneyMode.MoneyIn
-                ? "text-money-in"
-                : "text-money-out"
+              moneyMode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"
             }`}
           >
-            <span>
-              Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}
-              :
-            </span>{" "}
-            ({formatCurrency(Math.abs(totalAmount))})
+            <span>Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:</span> (
+            {formatCurrency(Math.abs(totalAmount))})
           </CardTitle>
         </div>
       </CardHeader>
@@ -156,9 +147,9 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
                   animationEasing="ease-in-out"
                   className="border-none"
                 >
-                  {chartData.map((entry, index) => (
+                  {chartData.map((entry) => (
                     <Cell
-                      key={`cell-${index}`}
+                      key={entry.name}
                       fill={entry.color}
                       stroke="none"
                       className="cursor-pointer"
@@ -173,11 +164,16 @@ const CategoriesDonutChart: React.FC<CategoriesDonutChartProps> = ({
             <NoData />
           )}
 
-          <CustomLegend />
+          <CustomLegend
+            currentLegendData={currentLegendData}
+            totalPages={totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       </CardContent>
     </Card>
   );
-};
+}
 
 export default CategoriesDonutChart;

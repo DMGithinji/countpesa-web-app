@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Button } from "./ui/button";
 import { CheckIcon, ChevronsUpDown, PlusCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 interface SelectionDropdownProps {
@@ -14,20 +14,20 @@ interface SelectionDropdownProps {
   disabled?: boolean;
 }
 
-const SelectionDropdown = ({
+function SelectionDropdown({
   title,
   placeholder,
   options,
   value,
   onChange,
-  disabled = false
-}: SelectionDropdownProps) => {
+  disabled = false,
+}: SelectionDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter options based on search query
   const filteredOptions = searchQuery
-    ? options.filter(opt => opt.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? options.filter((opt) => opt.toLowerCase().includes(searchQuery.toLowerCase()))
     : options;
 
   return (
@@ -65,7 +65,7 @@ const SelectionDropdown = ({
                 }}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
-                Use "{searchQuery}"
+                Use &quot;{searchQuery}&quot;
               </Button>
             )}
 
@@ -85,10 +85,7 @@ const SelectionDropdown = ({
                   }}
                 >
                   <CheckIcon
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === option ? "opacity-100" : "opacity-0"
-                    )}
+                    className={cn("mr-2 h-4 w-4", value === option ? "opacity-100" : "opacity-0")}
                   />
                   {option}
                 </Button>
@@ -99,6 +96,6 @@ const SelectionDropdown = ({
       </Popover>
     </div>
   );
-};
+}
 
 export default SelectionDropdown;

@@ -1,27 +1,13 @@
-import {
-  FieldGroupSummary,
-  GroupByField,
-  groupedTrxByField,
-} from "@/lib/groupByField";
+import { FieldGroupSummary, GroupByField, groupedTrxByField } from "@/lib/groupByField";
 import { Transaction, TransactionTypes } from "@/types/Transaction";
 import promptText from "@/configs/prompt.txt?raw";
 import { CalculatedData } from "@/lib/getCalculatedData";
 import { getPeriodData, Period } from "@/lib/groupByPeriod";
 
-
 export async function getInitialPrompt(transactions: Transaction[]) {
-  const groupedByAccount = groupedTrxByField(
-    transactions,
-    GroupByField.Account
-  );
-  const groupedByCategory = groupedTrxByField(
-    transactions,
-    GroupByField.Category
-  );
-  const groupedBySubcategory = groupedTrxByField(
-    transactions,
-    GroupByField.Subcategory
-  );
+  const groupedByAccount = groupedTrxByField(transactions, GroupByField.Account);
+  const groupedByCategory = groupedTrxByField(transactions, GroupByField.Category);
+  const groupedBySubcategory = groupedTrxByField(transactions, GroupByField.Subcategory);
   const accountNames = groupedByAccount.map(({ name }) => name);
   const categoryNames = groupedByCategory.map(({ name }) => name);
   const subcategoryNames = groupedBySubcategory.map(({ name }) => name);
@@ -53,14 +39,11 @@ export function getCalculationSummary(
     topCategoriesMoneyOutByCount,
   } = calculatedData;
 
-  const { totalCount, totalAmount, moneyInAmount, moneyOutAmount } =
-    transactionTotals;
+  const { totalCount, totalAmount, moneyInAmount, moneyOutAmount } = transactionTotals;
 
   // Extract top 15 items and map to consistent format
   const getTopItems = (items: FieldGroupSummary[]) =>
-    items
-      .slice(0, 15)
-      .map(({ amount, count, name }) => ({ amount, count, name }));
+    items.slice(0, 15).map(({ amount, count, name }) => ({ amount, count, name }));
 
   const topData = {
     accountsSentToByAmt: getTopItems(topAccountsSentToByAmt),

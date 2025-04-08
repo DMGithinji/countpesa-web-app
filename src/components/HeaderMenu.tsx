@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Ellipsis, Database } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useTransactionRepository } from "@/context/RepositoryContext";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -7,8 +9,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useNavigate } from "react-router-dom";
-import { useTransactionRepository } from "@/context/DBContext";
 
 export function MoreActions() {
   const [open, setOpen] = useState(false);
@@ -17,7 +17,7 @@ export function MoreActions() {
 
   const handleClearData = async () => {
     await transactionRepository.clearAllData();
-    navigate('/')
+    navigate("/");
   };
 
   return (

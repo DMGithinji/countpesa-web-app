@@ -1,12 +1,10 @@
 import React, { useState } from "react";
+import { useUploadData } from "@/hooks/useUploadData";
 import backupHint from "../../assets/backup-hint.png";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useUploadData } from "@/hooks/useUploadData";
 
-const BackupRestoreSection: React.FC<{ setOpen: (open: boolean) => void }> = ({
-  setOpen,
-}) => {
+function BackupRestoreSection({ setOpen }: { setOpen: (open: boolean) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -33,9 +31,7 @@ const BackupRestoreSection: React.FC<{ setOpen: (open: boolean) => void }> = ({
       await uploadData(file);
     } catch (err) {
       console.error("Error restoring backup:", err);
-      setError(
-        err instanceof Error ? err.message : "Error processing backup file"
-      );
+      setError(err instanceof Error ? err.message : "Error processing backup file");
     } finally {
       setUploading(false);
       setOpen(false);
@@ -58,29 +54,18 @@ const BackupRestoreSection: React.FC<{ setOpen: (open: boolean) => void }> = ({
       </p>
 
       <div className="space-y-2">
-        <Input
-          id="backup"
-          type="file"
-          accept=".json"
-          onChange={handleFileChange}
-        />
+        <Input id="backup" type="file" accept=".json" onChange={handleFileChange} />
       </div>
 
-      <Button
-        disabled={uploading}
-        type="submit"
-        className="w-full bg-primary hover:bg-primary/90"
-      >
+      <Button disabled={uploading} type="submit" className="w-full bg-primary hover:bg-primary/90">
         {uploading ? "Uploading..." : "Load Data"}
       </Button>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      <p className="text-xs text-gray-500">
-        Your data is stored locally on your browser.
-      </p>
+      <p className="text-xs text-gray-500">Your data is stored locally on your browser.</p>
     </form>
   );
-};
+}
 
 export default BackupRestoreSection;

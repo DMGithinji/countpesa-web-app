@@ -27,7 +27,7 @@ export const validateAndAddFilters = (
     // Remove all existing 'date' filters
     updatedFilters = updatedFilters.filter((f) => f.field !== "date");
     // Add the new date range pair with FilterMode.AND mode
-    updatedFilters.push(...filtersToAdd.map(f => ({ ...f, mode: FilterMode.AND } as Filter)));
+    updatedFilters.push(...filtersToAdd.map((f) => ({ ...f, mode: FilterMode.AND }) as Filter));
     return updatedFilters;
   }
 
@@ -36,9 +36,7 @@ export const validateAndAddFilters = (
     const { field, operator, value } = newFilter; // Default mode to FilterMode.AND if unspecified
 
     // Find an existing filter with the same field
-    const existingFilterIndex = updatedFilters.findIndex(
-      (f) => f.field === field
-    );
+    const existingFilterIndex = updatedFilters.findIndex((f) => f.field === field);
 
     // If no existing filter for this field, add it as an FilterMode.AND filter
     if (existingFilterIndex === -1) {
@@ -49,7 +47,7 @@ export const validateAndAddFilters = (
     const existingFilter = updatedFilters[existingFilterIndex];
 
     // If no existing filter for this field, add it as an FilterMode.AND filter
-    if (existingFilter && ['!=', 'not-in'].includes(existingFilter.operator)) {
+    if (existingFilter && ["!=", "not-in"].includes(existingFilter.operator)) {
       updatedFilters.push({ ...newFilter, mode: FilterMode.AND });
       return;
     }
@@ -61,28 +59,28 @@ export const validateAndAddFilters = (
         field,
         operator,
         value: existingFilter.value, // Could use an array for 'in'-like behavior, but we'll replace logic
-        mode: FilterMode.OR
+        mode: FilterMode.OR,
       };
       updatedFilters.push({ ...newFilter, mode: FilterMode.OR });
       // Note: For true FilterMode.OR grouping, we'd need a composite structure; here we simulate by replacing
     }
     // Rule 2: Same field, opposite operators -> replace the previous filter
     else if (
-      (operator === '==' && existingFilter.operator === '!=') ||
-      (operator === '!=' && existingFilter.operator === '==') ||
-      (operator === '>' && existingFilter.operator === '<=') ||
-      (operator === '<' && existingFilter.operator === '>=') ||
-      (operator === '>=' && existingFilter.operator === '<') ||
-      (operator === '<=' && existingFilter.operator === '>')
+      (operator === "==" && existingFilter.operator === "!=") ||
+      (operator === "!=" && existingFilter.operator === "==") ||
+      (operator === ">" && existingFilter.operator === "<=") ||
+      (operator === "<" && existingFilter.operator === ">=") ||
+      (operator === ">=" && existingFilter.operator === "<") ||
+      (operator === "<=" && existingFilter.operator === ">")
     ) {
       updatedFilters[existingFilterIndex] = { ...newFilter, mode: FilterMode.AND }; // Replace with new filter, default to FilterMode.AND
     }
     // Rule 3: If filter already exists (same field, operator, value) -> replace it
-    else if (
-      existingFilter.operator === operator &&
-      existingFilter.value === value
-    ) {
-      updatedFilters[existingFilterIndex] = { ...newFilter, mode: existingFilter.mode || FilterMode.AND }; // Keep existing mode or default
+    else if (existingFilter.operator === operator && existingFilter.value === value) {
+      updatedFilters[existingFilterIndex] = {
+        ...newFilter,
+        mode: existingFilter.mode || FilterMode.AND,
+      }; // Keep existing mode or default
     }
     // Rule 4: Same field, different operator, different value -> add as FilterMode.AND
     else if (existingFilter.operator !== operator && existingFilter.value !== value) {
@@ -108,5 +106,5 @@ export const removeFilters = (
 
   const filters = Array.isArray(filter) ? filter : [filter];
 
-  return currentFilters.filter(f => !filters.includes(f));
+  return currentFilters.filter((f) => !filters.includes(f));
 };

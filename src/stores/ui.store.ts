@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { Transaction } from '@/types/Transaction';
+import { create } from "zustand";
+import { Transaction } from "@/types/Transaction";
 
 export enum SidepanelMode {
-  Closed = 'Closed',
-  Categories = 'Categories',
-  Transactions = 'Transactions',
-  Filters = 'Filters',
-  ChatPesa = 'ChatPesa',
+  Closed = "Closed",
+  Categories = "Categories",
+  Transactions = "Transactions",
+  Filters = "Filters",
+  ChatPesa = "ChatPesa",
 }
 
 export interface SidepanelTransactions {

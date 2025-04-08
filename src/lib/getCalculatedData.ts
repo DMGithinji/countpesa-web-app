@@ -1,6 +1,6 @@
+import { formatDate } from "date-fns";
 import { TransactionTotals } from "@/lib/getTotal";
 import { FieldGroupSummary } from "@/lib/groupByField";
-import { formatDate } from "date-fns";
 import { Transaction } from "@/types/Transaction";
 
 export interface CalculatedData {
@@ -46,6 +46,72 @@ export const DEFAULT_CALCULATED_DATA: CalculatedData = {
   topCategoriesMoneyInByCount: [],
 };
 
+// Helper type for grouping data
+interface GroupData {
+  amount: number;
+  transactions: Transaction[];
+}
+
+// Helper function to update a group with a transaction
+function updateGroup(groupMap: Map<string, GroupData>, key: string, tx: Transaction) {
+  const existing = groupMap.get(key) || { amount: 0, transactions: [] };
+  existing.amount += tx.amount;
+  existing.transactions.push(tx);
+  groupMap.set(key, existing);
+}
+
+// Extract category key (primary category before colon)
+function getCategoryKey(tx: Transaction): string {
+  return tx.category.includes(":") ? tx.category.split(":")[0] : tx.category;
+}
+
+// Create sorted summary objects from grouped data
+function createSortedGroupSummary(
+  groupMap: Map<string, GroupData>,
+  totalAmount: number,
+  totalCount: number,
+  sortBy: "amount" | "count" = "amount"
+): FieldGroupSummary[] {
+  return Array.from(groupMap.entries())
+    .map(([name, { amount, transactions }]) => ({
+      name,
+      amount: Math.abs(amount),
+      count: transactions.length,
+      amountPercentage: Math.abs(amount / totalAmount) * 100,
+      countPercentage: (transactions.length / totalCount) * 100,
+      transactions,
+    }))
+    .sort((a, b) => b[sortBy] - a[sortBy]);
+}
+
+// Create empty result for edge cases
+function createEmptyResult(): CalculatedData {
+  const emptyTotals: TransactionTotals = {
+    totalCount: 0,
+    totalAmount: 0,
+    moneyInTrs: [],
+    moneyInCount: 0,
+    moneyInAmount: 0,
+    moneyOutTrs: [],
+    moneyOutCount: 0,
+    moneyOutAmount: 0,
+  };
+
+  return {
+    transactionTotals: emptyTotals,
+    balance: 0,
+    balanceTrend: [],
+    topAccountsSentToByAmt: [],
+    topAccountsReceivedFromByAmt: [],
+    topAccountsSentToByCount: [],
+    topAccountsReceivedFromByCount: [],
+    topCategoriesMoneyOutByAmt: [],
+    topCategoriesMoneyInByAmt: [],
+    topCategoriesMoneyOutByCount: [],
+    topCategoriesMoneyInByCount: [],
+  };
+}
+
 // Optimized version of getCalculatedData
 export function getOptimizedCalculatedData(
   transactions: Transaction[],
@@ -84,10 +150,7 @@ export function getOptimizedCalculatedData(
   };
 
   // Calculate how many transactions to skip for balance trend sampling
-  const sampleInterval = Math.max(
-    1,
-    Math.floor(sortedTxs.length / options.balanceTrendMaxPoints)
-  );
+  const sampleInterval = Math.max(1, Math.floor(sortedTxs.length / options.balanceTrendMaxPoints));
 
   // Sampled balance trend points
   const balanceTrend: { date: string; balance: number }[] = [];
@@ -200,76 +263,6 @@ export function getOptimizedCalculatedData(
       accumulators.moneyInTrs.length,
       "count"
     ),
-  };
-}
-
-// Helper type for grouping data
-interface GroupData {
-  amount: number;
-  transactions: Transaction[];
-}
-
-// Helper function to update a group with a transaction
-function updateGroup(
-  groupMap: Map<string, GroupData>,
-  key: string,
-  tx: Transaction
-) {
-  const existing = groupMap.get(key) || { amount: 0, transactions: [] };
-  existing.amount += tx.amount;
-  existing.transactions.push(tx);
-  groupMap.set(key, existing);
-}
-
-// Extract category key (primary category before colon)
-function getCategoryKey(tx: Transaction): string {
-  return tx.category.includes(":") ? tx.category.split(":")[0] : tx.category;
-}
-
-// Create sorted summary objects from grouped data
-function createSortedGroupSummary(
-  groupMap: Map<string, GroupData>,
-  totalAmount: number,
-  totalCount: number,
-  sortBy: "amount" | "count" = "amount"
-): FieldGroupSummary[] {
-  return Array.from(groupMap.entries())
-    .map(([name, { amount, transactions }]) => ({
-      name,
-      amount: Math.abs(amount),
-      count: transactions.length,
-      amountPercentage: Math.abs(amount / totalAmount) * 100,
-      countPercentage: (transactions.length / totalCount) * 100,
-      transactions,
-    }))
-    .sort((a, b) => b[sortBy] - a[sortBy]);
-}
-
-// Create empty result for edge cases
-function createEmptyResult(): CalculatedData {
-  const emptyTotals: TransactionTotals = {
-    totalCount: 0,
-    totalAmount: 0,
-    moneyInTrs: [],
-    moneyInCount: 0,
-    moneyInAmount: 0,
-    moneyOutTrs: [],
-    moneyOutCount: 0,
-    moneyOutAmount: 0,
-  };
-
-  return {
-    transactionTotals: emptyTotals,
-    balance: 0,
-    balanceTrend: [],
-    topAccountsSentToByAmt: [],
-    topAccountsReceivedFromByAmt: [],
-    topAccountsSentToByCount: [],
-    topAccountsReceivedFromByCount: [],
-    topCategoriesMoneyOutByAmt: [],
-    topCategoriesMoneyInByAmt: [],
-    topCategoriesMoneyOutByCount: [],
-    topCategoriesMoneyInByCount: [],
   };
 }
 

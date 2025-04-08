@@ -1,3 +1,20 @@
+export enum TransactionTypes {
+  TillNo = "Till Number",
+  Paybill = "Paybill",
+  Fuliza = "Fuliza",
+  Airtime = "Airtime Purchase",
+  Mshwari = "Mshwari",
+  Agent = "Agent",
+  SendMoney = "Send Money",
+  KCBMpesa = "KCB M-Pesa",
+  MoneyTransfer = "Cash Transfer",
+}
+
+export enum MoneyMode {
+  MoneyIn = "moneyIn",
+  MoneyOut = "moneyOut",
+}
+
 export interface Transaction {
   id: string;
   code: string;
@@ -17,31 +34,14 @@ export interface Transaction {
   mode: MoneyMode;
 }
 
-export enum TransactionTypes {
-  TillNo = 'Till Number',
-  Paybill = 'Paybill',
-  Fuliza = 'Fuliza',
-  Airtime = 'Airtime Purchase',
-  Mshwari = 'Mshwari',
-  Agent = 'Agent',
-  SendMoney = 'Send Money',
-  KCBMpesa = 'KCB M-Pesa',
-  MoneyTransfer = 'Cash Transfer'
-}
-
 export interface ExtractedTransaction {
-    code: string;
-    date: number; // Unix timestamp of when transaction occured
-    description: string;
-    status: string;
-    amount: number;
-    account: string;
-    balance: number;
-    type: TransactionTypes;
-    category: string;
-}
-
-export enum MoneyMode {
-  MoneyIn = 'moneyIn',
-  MoneyOut = 'moneyOut',
+  code: string;
+  date: number; // Unix timestamp of when transaction occured
+  description: string;
+  status: string;
+  amount: number;
+  account: string;
+  balance: number;
+  type: TransactionTypes;
+  category: string;
 }

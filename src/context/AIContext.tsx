@@ -1,5 +1,4 @@
-import React, { createContext, useMemo, ReactNode, useContext } from "react";
-
+import { createContext, useMemo, ReactNode, useContext } from "react";
 import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
 
 interface AIContextType {
@@ -8,9 +7,7 @@ interface AIContextType {
 
 const AIContext = createContext<AIContextType | undefined>(undefined);
 
-export const AIContextProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export function AIContextProvider({ children }: { children: ReactNode }) {
   const AIChat = useMemo(() => {
     const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -20,14 +17,10 @@ export const AIContextProvider: React.FC<{ children: ReactNode }> = ({
     return chat;
   }, []);
 
-  const contextValue = {
-    AIChat,
-  };
+  const contextValue = useMemo(() => ({ AIChat }), [AIChat]);
 
-  return (
-    <AIContext.Provider value={contextValue}>{children}</AIContext.Provider>
-  );
-};
+  return <AIContext.Provider value={contextValue}>{children}</AIContext.Provider>;
+}
 
 export function useAIContext() {
   const context = useContext(AIContext);

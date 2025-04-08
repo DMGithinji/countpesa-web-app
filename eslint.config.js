@@ -1,28 +1,76 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { FlatCompat } from "@eslint/eslintrc";
+import prettierConfig from "eslint-config-prettier";
 
-export default tseslint.config(
-  { ignores: ['dist'] },
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+export default [
   {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    files: ["src/**/*.{js,ts,jsx,tsx}"],
+    // Explicitly ignore all other files
+    ignores: ["**/*", "!src/**/*"],
+  },
+  ...compat.extends(
+    "airbnb",
+    "airbnb/hooks",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ),
+  {
+    files: ["src/**/*.{js,ts,jsx,tsx}"],
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
+      parserOptions: {
+        projectService: true,
+        ecmaVersion: 2022,
+        sourceType: "module",
+      },
     },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
+      },
     },
+
     rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
+      "no-plusplus": "off",
+      "no-use-before-define": "off",
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-filename-extension": ["error", { extensions: [".jsx", ".tsx"] }],
+      "react/jsx-props-no-spreading": "off",
+      "react/require-default-props": "off",
+      "import/prefer-default-export": "off",
+      "import/no-extraneous-dependencies": [
+        "error",
+        {
+          devDependencies: true,
+          optionalDependencies: true,
+          peerDependencies: true,
+          packageDir: "./",
+        },
+      ],
+      "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          ts: "never",
+          tsx: "never",
+          js: "never",
+          jsx: "never",
+        },
       ],
     },
   },
-)
+  prettierConfig,
+];

@@ -8,26 +8,42 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  TooltipProps,
 } from "recharts";
 import { MoneyMode } from "@/types/Transaction";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { formatCurrency } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 
+import { SidepanelTransactions } from "@/stores/ui.store";
+import { FieldGroupSummary } from "@/lib/groupByField";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import NoData from "./NoData";
 
-// Function to format axis values
-const formatAxisValue = (value: number) => {
-  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-  if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-  return value.toString();
-};
+type DisplayMode = "amount" | "count";
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  displayMode,
+}: { displayMode: DisplayMode } & TooltipProps<number, string>) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background p-2 rounded-md shadow-sm text-sm">
+        <p className="mb-2">{label}</p>
+        {payload.map((entry) => (
+          <p key={entry.name} className="text-sm" style={{ color: entry.color }}>
+            {displayMode === "amount"
+              ? formatCurrency(entry.value as number)
+              : `No. of Transactions: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
 
 interface TopAccountsChartProps {
   moneyMode: MoneyMode;
@@ -37,15 +53,20 @@ interface TopAccountsChartProps {
   onItemClick?: (item: SidepanelTransactions) => void;
 }
 
-type DisplayMode = "amount" | "count";
+// Function to format axis values
+const formatAxisValue = (value: number) => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
+  if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+  return value.toString();
+};
 
-const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
+function TopAccountsChart({
   moneyMode,
   groupedDataByAmount,
   groupedDataByCount,
   totalAmount,
   onItemClick,
-}) => {
+}: TopAccountsChartProps) {
   const [displayCount, setDisplayCount] = useState<number>(15);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("amount");
 
@@ -57,10 +78,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
         .slice(0, displayCount)
         .map((item) => ({
           ...item,
-          name:
-            item.name.length > 20
-              ? `${item.name.substring(0, 18)}...`
-              : item.name,
+          name: item.name.length > 20 ? `${item.name.substring(0, 18)}...` : item.name,
         })),
     [displayCount, displayMode, groupedDataByAmount, groupedDataByCount]
   );
@@ -94,10 +112,7 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <ToggleGroup
-            type="single"
-            value={displayMode}
-          >
+          <ToggleGroup type="single" value={displayMode}>
             {[
               { value: "amount", label: "Amount" },
               { value: "count", label: "Count" },
@@ -124,41 +139,21 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
                 layout="vertical"
                 margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
               >
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  horizontal={true}
-                  vertical={false}
-                />
-                <XAxis
-                  type="number"
-                  tickFormatter={formatAxisValue}
-                  domain={[0, "auto"]}
-                />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  width={120}
-                  tick={{ fontSize: 12 }}
-                />
+                <CartesianGrid strokeDasharray="3 3" horizontal vertical={false} />
+                <XAxis type="number" tickFormatter={formatAxisValue} domain={[0, "auto"]} />
+                <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
                 <Tooltip
                   formatter={(value: number) => [
-                    `${
-                      displayMode === "amount" ? formatCurrency(value) : value
-                    }`,
+                    `${displayMode === "amount" ? formatCurrency(value) : value}`,
                     displayMode === "amount" ? "Amount" : "Count",
                   ]}
                   labelFormatter={(label) => `${label}`}
-                  content={
-                    <CustomTooltip
-                      moneyMode={moneyMode}
-                      displayMode={displayMode}
-                    />
-                  }
+                  content={<CustomTooltip displayMode={displayMode} />}
                 />
                 <Bar dataKey={displayMode} radius={[0, 4, 4, 0]}>
-                  {chartData.map((entry, index) => (
+                  {chartData.map((entry) => (
                     <Cell
-                      key={`cell-${index}`}
+                      key={entry.name}
                       fill={barColor}
                       className="cursor-pointer"
                       onClick={() => onItemClick && onItemClick(entry)}
@@ -175,13 +170,9 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
         <div className="flex justify-between items-center mt-4 text-sm">
           <div className="font-medium text-base">
             <span
-              className={` ${
-                moneyMode === MoneyMode.MoneyIn
-                  ? "text-money-in"
-                  : "text-money-out"
-              }`}
+              className={` ${moneyMode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"}`}
             >
-              Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:{' '}
+              Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:{" "}
               {formatCurrency(Math.abs(totalAmount))}
             </span>
           </div>
@@ -189,41 +180,6 @@ const TopAccountsChart: React.FC<TopAccountsChartProps> = ({
       </CardContent>
     </Card>
   );
-};
+}
 
 export default TopAccountsChart;
-
-import { TooltipProps } from "recharts";
-import { SidepanelTransactions } from "@/stores/ui.store";
-import { FieldGroupSummary } from "@/lib/groupByField";
-import NoData from "./NoData";
-
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-  displayMode,
-}: { moneyMode: MoneyMode; displayMode: DisplayMode } & TooltipProps<
-  number,
-  string
->) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background p-2 rounded-md shadow-sm text-sm">
-        <p className="mb-2">{label}</p>
-        {payload.map((entry, index) => (
-          <p
-            key={`item-${index}`}
-            className="text-sm"
-            style={{ color: entry.color }}
-          >
-            {displayMode === "amount"
-              ? formatCurrency(entry.value as number)
-              : `No. of Transactions: ${entry.value}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};

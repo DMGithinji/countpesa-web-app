@@ -10,7 +10,7 @@ import useTransactionStore from "@/stores/transactions.store";
 import { handleResponse } from "@/lib/processAIResponse";
 import { getInitialPrompt } from "@/lib/getAIPrompt";
 import { useAIContext } from "@/context/AIContext";
-import { useTransactionRepository } from "@/context/DBContext";
+import { useTransactionRepository } from "@/context/RepositoryContext";
 
 const defaultStarters = [
   "What are my total transaction costs?",
@@ -19,13 +19,10 @@ const defaultStarters = [
   "Show me the total amount I spend on electricity per month?",
 ];
 
-const ChatPanel = () => {
-
+function ChatPanel() {
   const { AIChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
-  const setCurrentFilters = useTransactionStore(
-    (state) => state.setCurrentFilters
-  );
+  const setCurrentFilters = useTransactionStore((state) => state.setCurrentFilters);
   const transactionsRepository = useTransactionRepository();
 
   const messages = useAIMessageStore((state) => state.messages);
@@ -82,10 +79,11 @@ const ChatPanel = () => {
       <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex gap-2 items-center pt-4.5 pb-3 text-white">
-            <Bot size={20} className="text-primary" />ChatPesa
+            <Bot size={20} className="text-primary" />
+            ChatPesa
           </CardTitle>
           <Button
-            variant={"ghost"}
+            variant="ghost"
             onClick={() => setSidepanel(SidepanelMode.Closed)}
             className="hover:bg-transparent hover:text-white"
           >
@@ -94,14 +92,11 @@ const ChatPanel = () => {
         </div>
       </CardHeader>
 
-      <ScrollArea
-        className="flex-1 px-4 pt-0 overflow-y-auto relative"
-        ref={scrollAreaRef}
-      >
+      <ScrollArea className="flex-1 px-4 pt-0 overflow-y-auto relative" ref={scrollAreaRef}>
         <div className="space-y-4 mb-16">
-          {messages.map((message, i) => (
+          {messages.map((message) => (
             <div
-              key={i}
+              key={message.text}
               className={`flex pt-4 mb-0 ${
                 message.sender === "user" ? "justify-end" : "justify-start"
               }`}
@@ -123,9 +118,9 @@ const ChatPanel = () => {
           {isLoading && (
             <div className="flex justify-start pt-4">
               <div className="flex items-center space-x-1">
-                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite]"></span>
-                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.2s]"></span>
-                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.4s]"></span>
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite]" />
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.2s]" />
+                <span className="h-2 w-2 bg-primary/50 rounded-full animate-[pulse_1.2s_infinite_0.4s]" />
               </div>
             </div>
           )}
@@ -177,6 +172,6 @@ const ChatPanel = () => {
       </CardFooter>
     </div>
   );
-};
+}
 
 export default ChatPanel;

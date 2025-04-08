@@ -1,7 +1,7 @@
+import { endOfDay, format, startOfDay } from "date-fns";
 import { UNCATEGORIZED } from "@/types/Categories";
 import { Filter, FilterField, FilterOperator, OperatorTranslations } from "@/types/Filters";
 import { MoneyMode, TransactionTypes } from "@/types/Transaction";
-import { endOfDay, format, startOfDay } from "date-fns";
 
 // Group field options by category for better organization
 export const fieldGroups = [
@@ -25,9 +25,7 @@ export const fieldGroups = [
   },
   {
     label: "Other",
-    fields: [
-      { value: "code", label: "Transaction Code" },
-    ],
+    fields: [{ value: "code", label: "Transaction Code" }],
   },
 ];
 
@@ -95,8 +93,7 @@ export const getModeOptions = () => [
   { value: MoneyMode.MoneyOut, label: "Money Out" },
 ];
 
-export const getTransactionTypeOptions = () =>
-  Object.values(TransactionTypes).map(type => type);
+export const getTransactionTypeOptions = () => Object.values(TransactionTypes).map((type) => type);
 
 export const getHourOptions = () => {
   const hours = [];
@@ -110,7 +107,7 @@ export const getHourOptions = () => {
 // Helper function to get formatted value for display
 export const getValueDisplayLabel = (
   field: string,
-  value: any,
+  value: string | number,
   date?: Date | undefined
 ) => {
   if (field === "date" && date) {
@@ -118,9 +115,7 @@ export const getValueDisplayLabel = (
   }
 
   if (field === "mode") {
-    const modeOption = getModeOptions().find(
-      (option) => option.value === value
-    );
+    const modeOption = getModeOptions().find((option) => option.value === value);
     return modeOption?.label || value;
   }
 
@@ -129,26 +124,24 @@ export const getValueDisplayLabel = (
 
 // Helper function to process date values for filtering
 export const getDateFilterValue = (date: Date, operator: string): number => {
-  return (operator === "<" || operator === "<=")
+  return operator === "<" || operator === "<="
     ? endOfDay(date).getTime()
     : startOfDay(date).getTime();
 };
 
-
 // Field name display mapping for better readability
 export const fieldDisplayNames: Record<string, string> = {
-  dayOfWeek: 'Day',
-  account: 'Sender/Receiver',
-  transactionType: 'Type',
-  mode: 'Direction',
-  date: 'Date',
-  hour: 'Time',
-  category: 'Category',
-  subcategory: 'Subcategory',
-  amount: 'Amount',
-  code: 'Code',
+  dayOfWeek: "Day",
+  account: "Sender/Receiver",
+  transactionType: "Type",
+  mode: "Direction",
+  date: "Date",
+  hour: "Time",
+  category: "Category",
+  subcategory: "Subcategory",
+  amount: "Amount",
+  code: "Code",
 };
-
 
 /**
  * Find date range pairs (>= and <= for the same field)
@@ -157,24 +150,20 @@ export const findRangePairs = (filters: Filter[]): Filter[][] => {
   const result: Filter[][] = [];
 
   // Look for >= and <= pairs
-  const startFilters = filters.filter(f => f.operator === ">=");
+  const startFilters = filters.filter((f) => f.operator === ">=");
 
-  for (const startFilter of startFilters) {
-    const endFilter = filters.find(f =>
-      f.operator === "<=" &&
-      f.field === startFilter.field
-    );
-
+  startFilters.forEach((startFilter) => {
+    const endFilter = filters.find((f) => f.operator === "<=" && f.field === startFilter.field);
     if (endFilter) {
       result.push([startFilter, endFilter]);
     }
-  }
+  });
 
   // Add any remaining filters as individual items
-  const pairedFilters = result.flatMap(pair => pair);
-  const remainingFilters = filters.filter(f => !pairedFilters.includes(f));
+  const pairedFilters = result.flatMap((pair) => pair);
+  const remainingFilters = filters.filter((f) => !pairedFilters.includes(f));
 
-  remainingFilters.forEach(filter => {
+  remainingFilters.forEach((filter) => {
     result.push([filter]);
   });
 
@@ -220,10 +209,10 @@ export const formatValue = (field: FilterField, value: unknown): string => {
 
   // Handle amount field
   if (field === "amount" && typeof value === "number") {
-    return new Intl.NumberFormat('en-KE', {
-      style: 'currency',
-      currency: 'KES',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("en-KE", {
+      style: "currency",
+      currency: "KES",
+      maximumFractionDigits: 0,
     }).format(value);
   }
 
@@ -231,7 +220,8 @@ export const formatValue = (field: FilterField, value: unknown): string => {
   if (Array.isArray(value)) {
     if (value.length === 0) return "nothing";
     if (value.length === 1) return formatValue(field, value[0]);
-    if (value.length === 2) return `${formatValue(field, value[0])} or ${formatValue(field, value[1])}`;
+    if (value.length === 2)
+      return `${formatValue(field, value[0])} or ${formatValue(field, value[1])}`;
     return `${value.length} values`;
   }
 
@@ -274,13 +264,13 @@ export const formatFilterTooltip = (filter: Filter): string => {
 export const formatDateFilter = (filters: Filter[]): string => {
   if (!filters || filters.length === 0) return "";
 
-  const field = filters[0].field;
+  const { field } = filters[0];
   const isDate = field === "date";
 
   // Handle range filters (>= and <= pair)
   if (filters.length === 2) {
-    const startFilter = filters.find(f => f.operator === ">=");
-    const endFilter = filters.find(f => f.operator === "<=");
+    const startFilter = filters.find((f) => f.operator === ">=");
+    const endFilter = filters.find((f) => f.operator === "<=");
 
     if (startFilter && endFilter) {
       const startDate = formatValue(field, startFilter.value);
@@ -300,10 +290,11 @@ export const formatDateFilter = (filters: Filter[]): string => {
       ">": "after",
       ">=": "on or after",
       "<": "before",
-      "<=": "on or before"
+      "<=": "on or before",
     };
 
-    const opText = opMap[filter.operator as keyof typeof opMap] || OperatorTranslations[filter.operator];
+    const opText =
+      opMap[filter.operator as keyof typeof opMap] || OperatorTranslations[filter.operator];
     return `${fieldName} ${opText} ${dateValue}`;
   }
 

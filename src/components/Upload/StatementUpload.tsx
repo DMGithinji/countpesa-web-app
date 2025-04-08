@@ -1,19 +1,15 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ExtractedTransaction } from "@/types/Transaction";
 import { useLoadTransactions } from "@/hooks/useLoadTransactions";
+import { useTransactionRepository } from "@/context/RepositoryContext";
+import useTransactionStore from "@/stores/transactions.store";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { useTransactionRepository } from "@/context/DBContext";
-import { useLocation, useNavigate } from "react-router-dom";
-import useTransactionStore from "@/stores/transactions.store";
 
-const MpesaUploadSection = ({
-  setOpen,
-}: {
-  setOpen: (open: boolean) => void;
-}) => {
+function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
   const db = useTransactionRepository();
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
@@ -25,8 +21,7 @@ const MpesaUploadSection = ({
   const location = useLocation();
 
   const { loadInitialTransactions } = useLoadTransactions();
-  const setLoading = useTransactionStore(state => state.setLoading);
-
+  const setLoading = useTransactionStore((state) => state.setLoading);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -78,8 +73,8 @@ const MpesaUploadSection = ({
       } else {
         throw new Error(data.message || "Failed to process statement");
       }
-    } catch (error) {
-      console.error("Error processing statement:", error);
+    } catch (err) {
+      console.error("Error processing statement:", err);
       setError("Error processing statement.");
     } finally {
       setIsLoading(false);
@@ -93,16 +88,14 @@ const MpesaUploadSection = ({
           <h3 className="font-medium">Below are steps to follow:</h3>
           <ol className="list-decimal pl-5 text-[15px]">
             <li>
-              Get your full mpesa statement from{" "}
-              <span className="font-medium">MySafaricom</span> app or by
-              dialling{" "}
+              Get your full mpesa statement from <span className="font-medium">MySafaricom</span>{" "}
+              app or by dialling{" "}
               <span className="font-medium">
                 *334# &gt; My Account &gt; M-PESA Statement &gt;...
               </span>
             </li>
             <li>
-              Upload the M-Pesa statement emailed to you and enter the password
-              sent to you via SMS.
+              Upload the M-Pesa statement emailed to you and enter the password sent to you via SMS.
             </li>
           </ol>
         </div>
@@ -146,16 +139,12 @@ const MpesaUploadSection = ({
         </div>
       </div>
 
-      <Button
-        disabled={isLoading}
-        type="submit"
-        className="w-full font-medium py-2 mt-2"
-      >
+      <Button disabled={isLoading} type="submit" className="w-full font-medium py-2 mt-2">
         {isLoading ? "Processing..." : "Process File"}
       </Button>
       {error && <p className="text-red-500 text-sm">{error}</p>}
     </form>
   );
-};
+}
 
 export default MpesaUploadSection;

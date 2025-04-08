@@ -1,5 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { marked } from "marked";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
+import { endOfDay, formatDate } from "date-fns";
 import {
   Drawer,
   DrawerClose,
@@ -9,26 +12,20 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { Button } from "./ui/button";
 import useSidepanelStore from "@/stores/ui.store";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollArea } from "./ui/scroll-area";
-import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
 
-import { endOfDay, formatDate } from "date-fns";
 import { SetDateRange } from "@/lib/getDateRangeData";
 import { getReportAnalysisId } from "@/database/AnalysisRepository";
 import { AnalysisReport, AssessmentMode } from "@/types/AITools";
-import {
-  GetPromptTemplate,
-  GetRoastPromptTemplate,
-} from "@/configs/PromptTemplate";
+import { GetPromptTemplate, GetRoastPromptTemplate } from "@/configs/PromptTemplate";
 import useAIMessageStore from "@/stores/aiMessages.store";
 import { getCalculationSummary } from "@/lib/getAIPrompt";
 import useTransactionStore from "@/stores/transactions.store";
-import { useAnalysisRepository } from "@/context/DBContext";
+import { useAnalysisRepository } from "@/context/RepositoryContext";
+import { ScrollArea } from "./ui/scroll-area";
+import { Button } from "./ui/button";
 
-const BottomDrawer = () => {
+function BottomDrawer() {
   const isOpen = useSidepanelStore((state) => state.drawerOpen);
   const setDrawerOpen = useSidepanelStore((state) => state.setDrawerOpen);
   const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
@@ -44,10 +41,7 @@ const BottomDrawer = () => {
   const formattedDateRange = useMemo(() => {
     return {
       ...dateRange,
-      to:
-        dateRange.to.getTime() > new Date().getTime()
-          ? endOfDay(new Date())
-          : dateRange.to,
+      to: dateRange.to.getTime() > new Date().getTime() ? endOfDay(new Date()) : dateRange.to,
     };
   }, [dateRange]);
 
@@ -71,25 +65,17 @@ const BottomDrawer = () => {
       setStreamingResponse("");
 
       try {
-        const genAI = new GoogleGenerativeAI(
-          import.meta.env.VITE_GEMINI_API_KEY
-        );
+        const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
         const promptFunction =
-          assessmentMode === AssessmentMode.SERIOUS
-            ? GetPromptTemplate
-            : GetRoastPromptTemplate;
-        const prompt = promptFunction(
-          calculationResults,
-          formattedDateRange as SetDateRange
-        );
-        const result = await model.generateContentStream(prompt);
+          assessmentMode === AssessmentMode.SERIOUS ? GetPromptTemplate : GetRoastPromptTemplate;
+        const prompt = promptFunction(calculationResults, formattedDateRange as SetDateRange);
 
-        for await (const chunk of result.stream) {
-          const chunkText = chunk.text();
-          setStreamingResponse((prev) => prev + chunkText);
-        }
+        // Use the non-streaming version of the API instead
+        const result = await model.generateContent(prompt);
+        const response = result.response.text();
+        setStreamingResponse(response);
       } catch (error) {
         console.error("Error generating AI assessment:", error);
         setStreamingResponse(
@@ -141,15 +127,14 @@ const BottomDrawer = () => {
           <DrawerTitle className="flex gap-2 items-center ">
             <Sparkle className="h-6 w-6" />
             <span className="!text-foreground">
-              AI Financial Assessment Report (
-              {formatDate(formattedDateRange.from, "MMMM d, yyyy")} -{" "}
-              {formatDate(formattedDateRange.to, "MMMM d, yyyy")})
+              AI Financial Assessment Report ({formatDate(formattedDateRange.from, "MMMM d, yyyy")}{" "}
+              - {formatDate(formattedDateRange.to, "MMMM d, yyyy")})
             </span>
           </DrawerTitle>
           <DrawerDescription className="mt-4">
             {isLoading ? (
               <div className="flex items-center justify-center py-16 gap-2">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3" />
                 <span>Analyzing your financial data...</span>
               </div>
             ) : (
@@ -206,6 +191,6 @@ const BottomDrawer = () => {
       </DrawerContent>
     </Drawer>
   );
-};
+}
 
 export default BottomDrawer;

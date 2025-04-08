@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -10,7 +10,7 @@ root {
   padding: 0 !important;
 }
 * {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 :root {
@@ -27,7 +27,7 @@ root {
   --secondary-foreground: oklch(0.669 0.195 140.4);
   --muted: oklch(98.73% 0.006672 295.4542);
   --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: #E9E9EF50;
+  --accent: #e9e9ef50;
   --accent-foreground: oklch(0.428 0.015 248.2);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.929 0.013 255.508);
@@ -39,23 +39,23 @@ root {
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
 
-  --money-in: #2AB57D;
-  --money-out: #FD625E;
+  --money-in: #2ab57d;
+  --money-out: #fd625e;
 }
 
 .dark {
   --background: #181818;
-  --foreground: #EEEEEE;
+  --foreground: #eeeeee;
   --card: #181818;
-  --card-foreground: #EEEEEE;
+  --card-foreground: #eeeeee;
   --popover: #1c1c1c;
-  --popover-foreground: #EEEEEE;
+  --popover-foreground: #eeeeee;
   --primary: oklch(0.669 0.195 140.4);
-  --primary-foreground: #EEEEEE;
+  --primary-foreground: #eeeeee;
   --secondary: #141414;
-  --secondary-foreground: #ADB5BD;
+  --secondary-foreground: #adb5bd;
   --muted: #181818;
-  --muted-foreground: #C4CACF;
+  --muted-foreground: #c4cacf;
   --accent: #0f0f0f;
   --accent-foreground: #d7d7d7;
   --destructive: oklch(0.704 0.191 22.216);
@@ -68,9 +68,9 @@ root {
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
 
-    /* Money in/out colors for light mode */
-    --money-in: #2AB57D;
-    --money-out: #FD625E;
+  /* Money in/out colors for light mode */
+  --money-in: #2ab57d;
+  --money-out: #fd625e;
 }
 
 @theme inline {
@@ -107,7 +107,8 @@ root {
 }
 
 /* Override green-600 and red-600 colors for dark mode */
-.dark .green-600, .dark .red-600 {
+.dark .green-600,
+.dark .red-600 {
   color: #1c1c1c;
 }
 

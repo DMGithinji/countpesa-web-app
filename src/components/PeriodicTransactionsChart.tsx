@@ -18,6 +18,23 @@ import { Transaction } from "@/types/Transaction";
 import ChartTransactions from "./ChartTransactions";
 import NoData from "./NoData";
 
+function CustomTooltip({ label, active, payload }: TooltipProps<number, string>) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background p-2 rounded-md shadow text-sm">
+        <p className="mb-2">{label}</p>
+        {payload.map((entry) => (
+          <p key={entry.name} className="text-sm" style={{ color: entry.color }}>
+            {entry.name === "moneyIn" ? "Money In: " : "Money Out: "}
+            {formatCurrency(entry.value || 0)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
 type PeriodicTransactionsChartProps = {
   transactions: Transaction[];
   defaultPeriod: Period;
@@ -31,12 +48,12 @@ enum MoneyFilter {
   out = "out",
 }
 
-const PeriodicTransactionsChart = ({
+function PeriodicTransactionsChart({
   transactions,
   defaultPeriod,
   periodOptions,
-  onPeriodChange
-}: PeriodicTransactionsChartProps) => {
+  onPeriodChange,
+}: PeriodicTransactionsChartProps) {
   const [filter, setFilter] = useState<MoneyFilter>(MoneyFilter.all);
   const [selectedTransactions, setSelectedTransactions] = useState<{
     title: string;
@@ -47,9 +64,7 @@ const PeriodicTransactionsChart = ({
   });
 
   const handleBarClick = useCallback(
-    (
-      activePayload: { payload: { dateRange: string; trs: Transaction[] } }[]
-    ) => {
+    (activePayload: { payload: { dateRange: string; trs: Transaction[] } }[]) => {
       const selectedTrs = activePayload.at(0)?.payload?.trs || [];
       setSelectedTransactions({
         title: activePayload.at(0)?.payload.dateRange || "Chart Transactions",
@@ -59,20 +74,16 @@ const PeriodicTransactionsChart = ({
     []
   );
 
-  // useEffect(() => {
-  //   setPeriod(defaultPeriod);
-  // }, [defaultPeriod]);
-
   const groupedTrs = useMemo(() => {
     if (!defaultPeriod) return [];
     const trsGroups = groupTransactionsByPeriod(transactions, defaultPeriod);
     const totals = Object.keys(trsGroups).map((g) => {
       const trs = trsGroups[g];
-      const totals = calculateTransactionTotals(trs);
+      const groupTotals = calculateTransactionTotals(trs);
       return {
         dateRange: g,
-        moneyIn: totals.moneyInAmount,
-        moneyOut: Math.abs(totals.moneyOutAmount),
+        moneyIn: groupTotals.moneyInAmount,
+        moneyOut: Math.abs(groupTotals.moneyOutAmount),
         trs,
       };
     });
@@ -84,9 +95,7 @@ const PeriodicTransactionsChart = ({
       <Card className="w-full h-full lg:col-span-3">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-1">
-            <CardTitle className="text-lg font-medium">
-              Total periodic transactions
-            </CardTitle>
+            <CardTitle className="text-lg font-medium">Total periodic transactions</CardTitle>
           </div>
 
           <ToggleGroup value={defaultPeriod} type="single">
@@ -108,7 +117,7 @@ const PeriodicTransactionsChart = ({
           <ToggleGroup type="single" value={filter}>
             {Object.values(MoneyFilter).map((filterVal) => (
               <ToggleGroupItem
-                className={"cursor-pointer capitalize"}
+                className="cursor-pointer capitalize"
                 onClick={() => setFilter(filterVal)}
                 value={filterVal}
                 key={filterVal}
@@ -121,10 +130,10 @@ const PeriodicTransactionsChart = ({
 
         <CardContent>
           <div className="h-76 w-full">
-            {
-              !groupedTrs.length ? (
-                <NoData />
-              ) : (<ResponsiveContainer width="100%" height="100%">
+            {!groupedTrs.length ? (
+              <NoData />
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={groupedTrs}
                   margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
@@ -138,7 +147,7 @@ const PeriodicTransactionsChart = ({
                   }}
                 >
                   <CartesianGrid
-                    horizontal={true}
+                    horizontal
                     vertical={false}
                     strokeDasharray="1 1"
                     stroke="#e5e7eb"
@@ -180,8 +189,7 @@ const PeriodicTransactionsChart = ({
                   )}
                 </BarChart>
               </ResponsiveContainer>
-              )
-            }
+            )}
           </div>
         </CardContent>
       </Card>
@@ -190,41 +198,13 @@ const PeriodicTransactionsChart = ({
           selected={selectedTransactions}
           defaultSortBy="date"
           defaultDisplayMode={
-            { all: "all", in: "moneyIn", out: "moneyOut" }[filter] as
-              | "all"
-              | "moneyIn"
-              | "moneyOut"
+            { all: "all", in: "moneyIn", out: "moneyOut" }[filter] as "all" | "moneyIn" | "moneyOut"
           }
           defaultSortDirection="desc"
         />
       </div>
     </div>
   );
-};
+}
 
 export default PeriodicTransactionsChart;
-
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: TooltipProps<number, string>) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background p-2 rounded-md shadow text-sm">
-        <p className="mb-2">{label}</p>
-        {payload.map((entry, index) => (
-          <p
-            key={`item-${index}`}
-            className="text-sm"
-            style={{ color: entry.color }}
-          >
-            {entry.name === "moneyIn" ? "Money In: " : "Money Out: "}
-            {formatCurrency(entry.value || 0)}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};

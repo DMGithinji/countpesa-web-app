@@ -8,7 +8,7 @@ import {
   getModeOptions,
   getHourOptions,
   getTransactionTypeOptions,
-  getValueDisplayLabel
+  getValueDisplayLabel,
 } from "@/lib/filterChipUtils";
 import useTransactionStore from "@/stores/transactions.store";
 
@@ -17,21 +17,27 @@ export interface UseFilterBuilderProps {
 }
 
 export const useFilterBuilder = ({ onAddFilter }: UseFilterBuilderProps) => {
-  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
+  const validateAndAddFilters = useTransactionStore((state) => state.validateAndAddFilters);
   const categoriesWithSubcategories = useCategoriesStore(
     (state) => state.categoriesWithSubcategories
   );
-  const accountsList = useTransactionStore(state => state.accountNames);
+  const accountsList = useTransactionStore((state) => state.accountNames);
 
   // State for the current filter being built
   const [selectedField, setSelectedField] = useState<string>("");
   const [selectedOperator, setSelectedOperator] = useState<string>("");
-  const [selectedValue, setSelectedValue] = useState<
-    string | number | Date | null
-  >("");
+  const [selectedValue, setSelectedValue] = useState<string | number>("");
 
   // Field-specific options
-  const [filterValueOptions, setFilterValueOptions] = useState<any[]>([]);
+  const [filterValueOptions, setFilterValueOptions] = useState<
+    (
+      | string
+      | {
+          value: string;
+          label: string;
+        }
+    )[]
+  >([]);
 
   // Get operators based on selected field
   const operatorOptions = useMemo(() => {
@@ -93,14 +99,10 @@ export const useFilterBuilder = ({ onAddFilter }: UseFilterBuilderProps) => {
     if (!selectedField || !selectedOperator) return;
 
     // Skip if value is empty (except for some operators that don't need values)
-    if (
-      selectedValue === "" &&
-      !["contains", "exists"].includes(selectedOperator)
-    )
-      return;
+    if (selectedValue === "" && !["contains", "exists"].includes(selectedOperator)) return;
 
     // Create filter based on selected options
-    let filterValue: any = selectedValue;
+    const filterValue = selectedValue as number | string;
 
     const filter: Filter = {
       field: selectedField as FilterField,
@@ -132,7 +134,8 @@ export const useFilterBuilder = ({ onAddFilter }: UseFilterBuilderProps) => {
       selectedField !== "" &&
       selectedOperator !== "" &&
       (selectedValue !== "" || ["contains", "exists"].includes(selectedOperator))
-  )}, [selectedField, selectedOperator, selectedValue]);
+    );
+  }, [selectedField, selectedOperator, selectedValue]);
 
   return {
     // State

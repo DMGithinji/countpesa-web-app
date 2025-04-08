@@ -1,21 +1,21 @@
-import DateRangePicker from "./DateRangePicker";
-import UploadStatementButton from "./Upload/LoadDataButton";
 import { DateRange } from "react-day-picker";
-import { Filter, FilterMode } from "@/types/Filters";
-import { FilterChips } from "./FilterChips";
-import AnalysisInitiator from "./AnalysisInitiator";
 import { useCallback } from "react";
-import { Button } from "./ui/button";
 import { Bot, ListFilter } from "lucide-react";
+import { Filter, FilterMode } from "@/types/Filters";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import useTransactionStore from "@/stores/transactions.store";
+import DateRangePicker from "./DateRangePicker";
+import UploadStatementButton from "./Upload/LoadDataButton";
+import { FilterChips } from "./FilterChips";
+import AnalysisInitiator from "./AnalysisInitiator";
+import { Button } from "./ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import FeedbackButton from "./FeedbackButton";
 import { MoreActions } from "./HeaderMenu";
 
-const Header = () => {
+function Header() {
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
-  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
+  const validateAndAddFilters = useTransactionStore((state) => state.validateAndAddFilters);
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
 
   const handleDateChange = useCallback(
@@ -46,22 +46,13 @@ const Header = () => {
     <header className="sticky top-0 w-full border-b pt-2 pb-4 px-2 sm:px-4 h-14">
       <div className="flex justify-between items-center">
         <div className="flex space-x-4 items-center">
-          <DateRangePicker
-            range={dateRangeData.dateRange}
-            onDateChange={handleDateChange}
-          />
-          <Button
-            variant="outline"
-            onClick={() => setSidepanel(SidepanelMode.Filters)}
-          >
+          <DateRangePicker range={dateRangeData.dateRange} onDateChange={handleDateChange} />
+          <Button variant="outline" onClick={() => setSidepanel(SidepanelMode.Filters)}>
             <ListFilter size={8} />
             <span className="hidden lg:block">Filter</span>
           </Button>
           <AnalysisInitiator />
-          <Button
-            variant="outline"
-            onClick={() => setSidepanel(SidepanelMode.ChatPesa)}
-          >
+          <Button variant="outline" onClick={() => setSidepanel(SidepanelMode.ChatPesa)}>
             <Bot size={8} />
             <span className="hidden lg:block">Chat</span>
           </Button>
@@ -75,11 +66,11 @@ const Header = () => {
       </div>
     </header>
   );
-};
+}
 
 export default Header;
 
-export const HeaderWithFilters = () => {
+export function HeaderWithFilters() {
   const currentFilters = useTransactionStore((state) => state.currentFilters);
 
   return (
@@ -87,4 +78,4 @@ export const HeaderWithFilters = () => {
       {currentFilters?.length ? <FilterChips /> : null}
     </div>
   );
-};
+}

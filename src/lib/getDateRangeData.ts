@@ -10,7 +10,6 @@ import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 import { Period } from "./groupByPeriod";
 
-
 export type SetDateRange = {
   from: Date;
   to: Date;
@@ -28,34 +27,25 @@ export const DEFAULT_DATE_RANGE_DATA: DateRangeData = {
   periodOptions: [Period.DATE, Period.WEEK, Period.MONTH],
 };
 
-
 export function getDateRangeData({
   transactions,
-  currentFilters
+  currentFilters,
 }: {
   transactions: Transaction[];
   currentFilters: Filter[] | undefined;
 }) {
   // Find date range filter if it exists
-  const dateRangeFilter = currentFilters?.find(
-    (fl) => fl.field === "date"
-  );
+  const dateRangeFilter = currentFilters?.find((fl) => fl.field === "date");
 
   let startDate: Date;
   let endDate: Date;
 
   if (dateRangeFilter) {
     // Extract dates from filter
-    const startFilter = currentFilters?.find(
-      (f) => f.field === "date" && f.operator === ">="
-    );
-    const endFilter = currentFilters?.find(
-      (f) => f.field === "date" && f.operator === "<="
-    );
+    const startFilter = currentFilters?.find((f) => f.field === "date" && f.operator === ">=");
+    const endFilter = currentFilters?.find((f) => f.field === "date" && f.operator === "<=");
 
-    startDate = startFilter
-      ? new Date(startFilter.value)
-      : startOfMonth(new Date());
+    startDate = startFilter ? new Date(startFilter.value) : startOfMonth(new Date());
     endDate = endFilter ? new Date(endFilter.value) : endOfMonth(new Date());
   } else if (transactions.length > 0) {
     // If no filter exists, use first and last transaction dates
@@ -100,4 +90,3 @@ export function getDateRangeData({
     periodOptions: validOptions,
   };
 }
-

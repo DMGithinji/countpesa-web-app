@@ -6,10 +6,7 @@ import {
   TransactionSummary,
 } from "@/lib/groupByField";
 import { filterTransactions, sortBy } from "@/lib/utils";
-import useSidepanelStore, {
-  SidepanelMode,
-  SidepanelTransactions,
-} from "@/stores/ui.store";
+import useSidepanelStore, { SidepanelMode, SidepanelTransactions } from "@/stores/ui.store";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import { TransactionSearch } from "@/components/SearchInput";
 import TopAccountsChart from "@/components/TopAccountsChart";
@@ -20,10 +17,10 @@ import { useTableActions } from "@/hooks/useTableActions";
 import { useTransactionColumns } from "@/hooks/useTransactionColumns";
 import useTransactionStore from "@/stores/transactions.store";
 
-const AccountsPage = () => {
+function AccountsPage() {
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
-  const validateAndAddFilters = useTransactionStore(state => state.validateAndAddFilters);
+  const validateAndAddFilters = useTransactionStore((state) => state.validateAndAddFilters);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const {
@@ -35,13 +32,10 @@ const AccountsPage = () => {
   } = calculatedData;
 
   const setSidepanelMode = useSidepanelStore((state) => state.setSidepanelMode);
-  const setTransactionsData = useSidepanelStore(
-    (state) => state.setSidepanelTransactions
-  );
+  const setTransactionsData = useSidepanelStore((state) => state.setSidepanelTransactions);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
 
   const [sortingState, setSortingState] = useState<SortBy>({
     desc: false,
@@ -51,11 +45,7 @@ const AccountsPage = () => {
   const groupedTrs = useMemo(() => {
     const filteredTrs = filterTransactions(transactions, searchQuery);
     const groupedTrx = groupedTrxByField(filteredTrs, GroupByField.Account);
-    return sortBy(
-      groupedTrx,
-      sortingState.id,
-      sortingState.desc ? "desc" : "asc"
-    );
+    return sortBy(groupedTrx, sortingState.id, sortingState.desc ? "desc" : "asc");
   }, [searchQuery, transactions, sortingState]);
 
   const handleChartClick = useCallback(
@@ -120,11 +110,11 @@ const AccountsPage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           transaction={selectedTransaction}
-          mode={"multiple"}
+          mode="multiple"
         />
       )}
     </>
   );
-};
+}
 
 export default AccountsPage;

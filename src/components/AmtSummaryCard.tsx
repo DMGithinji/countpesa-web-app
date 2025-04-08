@@ -1,8 +1,8 @@
+import { LucideIcon } from "lucide-react";
 import { Period, PeriodDict } from "@/lib/groupByPeriod";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { cn, formatCurrency } from "@/lib/utils";
 import { MoneyMode } from "@/types/Transaction";
-import { LucideIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 interface AmtSummaryCardProps {
   type: "Sent" | "Received";
@@ -13,15 +13,7 @@ interface AmtSummaryCardProps {
   period: Period;
   average?: number;
 }
-const AmtSummaryCard = ({
-  type,
-  count,
-  amount,
-  mode,
-  Icon,
-  average,
-  period,
-}: AmtSummaryCardProps) => {
+function AmtSummaryCard({ type, count, amount, mode, Icon, average, period }: AmtSummaryCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -29,9 +21,7 @@ const AmtSummaryCard = ({
           {type} ({count} Transactions)
         </CardTitle>
         <Icon
-          className={`h-4 w-4 ${
-            MoneyMode.MoneyIn === mode ? "text-money-in" : "text-money-out"
-          }`}
+          className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? "text-money-in" : "text-money-out"}`}
         />
       </CardHeader>
       <CardContent>
@@ -54,7 +44,6 @@ const AmtSummaryCard = ({
       </CardContent>
     </Card>
   );
-};
+}
 
 export default AmtSummaryCard;
-

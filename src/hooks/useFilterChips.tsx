@@ -10,8 +10,8 @@ export const useFilterChips = () => {
     if (!currentFilters || currentFilters.length === 0) return [];
 
     // Find date range pairs
-    const dateFilters = currentFilters.filter(f => f.field === "date");
-    const hourFilters = currentFilters.filter(f => f.field === "hour");
+    const dateFilters = currentFilters.filter((f) => f.field === "date");
+    const hourFilters = currentFilters.filter((f) => f.field === "hour");
 
     // Check for date ranges (>= and <= pairs)
     const dateRangePairs = findRangePairs(dateFilters);
@@ -19,18 +19,14 @@ export const useFilterChips = () => {
 
     // Get all filters that aren't part of a range pair
     const rangePairFilters = [
-      ...dateRangePairs.flatMap(pair => pair),
-      ...hourRangePairs.flatMap(pair => pair)
+      ...dateRangePairs.flatMap((pair) => pair),
+      ...hourRangePairs.flatMap((pair) => pair),
     ];
 
-    const individualFilters = currentFilters.filter(f => !rangePairFilters.includes(f));
+    const individualFilters = currentFilters.filter((f) => !rangePairFilters.includes(f));
 
     // Combine range pairs and individual filters
-    return [
-      ...dateRangePairs,
-      ...hourRangePairs,
-      ...individualFilters.map(filter => [filter])
-    ];
+    return [...dateRangePairs, ...hourRangePairs, ...individualFilters.map((filter) => [filter])];
   }, [currentFilters]);
 
   // Callback to clear all active filters
@@ -42,7 +38,6 @@ export const useFilterChips = () => {
     currentFilters,
     processedFilters,
     clearAllFilters,
-    removeFilter
+    removeFilter,
   };
 };
-

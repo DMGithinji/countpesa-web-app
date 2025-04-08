@@ -1,17 +1,13 @@
-import {
-  Category,
-  CombinedCategory,
-  Subcategory,
-  UNCATEGORIZED,
-} from "@/types/Categories";
-import db from "./schema";
-import TransactionRepository from "./TransactionRepository";
+import Dexie from "dexie";
+import { Category, CombinedCategory, Subcategory, UNCATEGORIZED } from "@/types/Categories";
 import { sortBy } from "@/lib/utils";
 import { formatTrCategory } from "@/lib/categoryUtils";
-import Dexie from "dexie";
+import db from "./schema";
+import TransactionRepository from "./TransactionRepository";
 
 export default class CategoryRepository {
   private isDemo: boolean;
+
   private transactionRepository: TransactionRepository;
 
   constructor(isDemo: boolean = false) {
@@ -36,20 +32,17 @@ export default class CategoryRepository {
   }
 
   async addCategory(category: Partial<Category>) {
-    const exists = await this.categoriesTable
-      .where({ name: category.name })
-      .first();
+    const exists = await this.categoriesTable.where({ name: category.name }).first();
     if (exists) {
       return exists.id;
     }
-    return await this.categoriesTable.add(category as Category);
+    return this.categoriesTable.add(category as Category);
   }
 
   async updateCategory(id: string, newName: string) {
     const oldCategory = await this.categoriesTable.get(id);
 
     if (!newName) {
-      console.log("New name is empty, returning");
       return;
     }
 
@@ -61,10 +54,7 @@ export default class CategoryRepository {
       [this.categoriesTable, this.subcategoriesTable, db.transactions],
       async () => {
         const oldCategName = `${oldCategory.name}:`;
-        this.transactionRepository.updateTransactionsWithCategories(
-          oldCategName,
-          newName
-        );
+        this.transactionRepository.updateTransactionsWithCategories(oldCategName, newName);
 
         await this.categoriesTable.update(id, { name: newName });
       }
@@ -87,10 +77,7 @@ export default class CategoryRepository {
       async () => {
         // Set transactions to "Uncategorized" if no replacement provided
         const oldCategName = `${oldCategory.name}:`;
-        this.transactionRepository.updateTransactionsWithCategories(
-          oldCategName,
-          UNCATEGORIZED
-        );
+        this.transactionRepository.updateTransactionsWithCategories(oldCategName, UNCATEGORIZED);
 
         // Delete subcategories of this category
         await this.subcategoriesTable.where({ categoryId: id }).delete();
@@ -130,20 +117,13 @@ export default class CategoryRepository {
 
     // If category is changing, verify new category exists
     if (newSubcategory !== existingSubcategory.name) {
-      const category = await this.categoriesTable.get(
-        existingSubcategory.categoryId
-      );
+      const category = await this.categoriesTable.get(existingSubcategory.categoryId);
       if (!category) {
-        throw new Error(
-          `Parent category ${existingSubcategory.categoryId} does not exist`
-        );
+        throw new Error(`Parent category ${existingSubcategory.categoryId} does not exist`);
       }
 
       // If only name is changing, update transactions
-      const oldCategorySubcategory = formatTrCategory(
-        category.name,
-        existingSubcategory.name
-      );
+      const oldCategorySubcategory = formatTrCategory(category.name, existingSubcategory.name);
 
       await this.transactionRepository.updateTransactionsSubcategory(
         oldCategorySubcategory,
@@ -151,7 +131,7 @@ export default class CategoryRepository {
       );
     }
 
-    return this.subcategoriesTable.update(id, { name: newSubcategory });
+    this.subcategoriesTable.update(id, { name: newSubcategory });
   }
 
   async deleteSubcategory(id: string) {
@@ -164,22 +144,14 @@ export default class CategoryRepository {
     // await db.transaction('rw', [this.subcategoriesTable, db.transactions], async () => {
     const category = await this.categoriesTable.get(subcategory.categoryId);
     if (!category) {
-      throw new Error(
-        `Parent category ${subcategory.categoryId} does not exist`
-      );
+      throw new Error(`Parent category ${subcategory.categoryId} does not exist`);
     }
 
     // Get the category:subcategory string for this subcategory
-    const categorySubcategory = formatTrCategory(
-      category.name,
-      subcategory.name
-    );
+    const categorySubcategory = formatTrCategory(category.name, subcategory.name);
 
     // Update transactions to use just the parent category without subcategory
-    await this.transactionRepository.updateTransactionsSubcategory(
-      categorySubcategory,
-      ""
-    );
+    await this.transactionRepository.updateTransactionsSubcategory(categorySubcategory, "");
 
     // Delete the subcategory
     await this.subcategoriesTable.delete(id);

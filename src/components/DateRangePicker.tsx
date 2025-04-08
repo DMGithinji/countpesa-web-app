@@ -1,5 +1,4 @@
 import type { DateRange } from "react-day-picker";
-import { Calendar } from "@/components/ui/calendar";
 import {
   addDays,
   format,
@@ -23,151 +22,12 @@ import {
   isAfter,
 } from "date-fns";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "./ui/button";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "./ui/button";
 
 type PeriodType = "day" | "week" | "month" | "year" | "custom";
-
-export default function DateRangePicker({
-  range,
-  onDateChange,
-}: {
-  range?: DateRange;
-  onDateChange: (date: DateRange) => void;
-}) {
-  const [date, setDate] = useState<DateRange | undefined>(
-    range || {
-      from: new Date(),
-      to: addDays(new Date(), 7),
-    }
-  );
-
-  useEffect(() => {
-    if (range) {
-      setDate(range);
-    }
-  }, [range]);
-
-  const [open, setOpen] = useState(false);
-
-  // Format the date range for display on the button
-  const formatDateRange = () => {
-    if (!date?.from) return "Select date range";
-    if (!date.to) return format(date.from, "PPP");
-    return `${format(date.from, "MMM d, yyyy")} - ${format(
-      date.to,
-      "MMM d, yyyy"
-    )}`;
-  };
-
-  const handleRangeSelection = (range: DateRange | undefined) => {
-    setDate(range);
-    if (!range) return;
-    onDateChange(range);
-  };
-
-  const nextDisabled = date?.to && isAfter(addDays(date.to, 1), new Date());
-
-  // Determine the period type and if navigation arrows should be shown
-  const { periodType, showNavigationArrows } = useMemo(
-    () => getPeriodPresets(date),
-    [date]
-  );
-  const navigateToPeriod = (change: number) => {
-    const newDateRange = goToPeriod(date, periodType, change);
-    if (!newDateRange) return;
-    handlePresetChange(newDateRange);
-    onDateChange(newDateRange);
-  };
-
-  // Handle preset selection
-  const handlePresetChange = (preset: DateRange | undefined) => {
-    if (!preset) return;
-    if (preset.to && isAfter(new Date(preset.to), new Date())) {
-      preset.to = endOfDay(new Date());
-    }
-    const newDateRange = preset;
-    setDate(newDateRange);
-    onDateChange(newDateRange);
-    setOpen(false);
-  };
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex gap-1 items-center">
-        {showNavigationArrows && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:text-foreground"
-            onClick={() => navigateToPeriod(-1)}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-        )}
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-[40px] md:w-[240px] justify-start text-left font-normal hover:text-foreground"
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            <span className="hidden md:block">{formatDateRange()}</span>
-          </Button>
-        </PopoverTrigger>
-        {showNavigationArrows && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:text-foreground"
-            disabled={nextDisabled}
-            onClick={() => navigateToPeriod(1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-      <PopoverContent className="w-auto p-0" align="start">
-        <div className="flex">
-          {/* Preset Options Column */}
-          <div className="w-32 border-r p-2 space-y-2">
-            {presets.map((preset) => (
-              <Button
-                key={preset.name}
-                variant="ghost"
-                size="sm"
-                className="text-sm justify-start font-normal w-full"
-                onClick={() => handlePresetChange(preset.getValue())}
-              >
-                {preset.name}
-              </Button>
-            ))}
-          </div>
-
-          <div className="p-2">
-            <Calendar
-              mode="range"
-              selected={date}
-              onSelect={handleRangeSelection}
-              numberOfMonths={2}
-              defaultMonth={date?.from}
-              weekStartsOn={1}
-            />
-          </div>
-        </div>
-        <div className="border-t p-3 flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
-            Close
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
 
 // Preset date ranges
 const presets = [
@@ -244,30 +104,21 @@ function getPeriodPresets(date: DateRange | undefined) {
   // Check if it's a year
   const yearStart = startOfYear(fromDate);
   const yearEnd = endOfYear(fromDate);
-  if (
-    isEqual(fromDate, yearStart) &&
-    (isEqual(toDate, yearEnd) || toDateIsToday)
-  ) {
+  if (isEqual(fromDate, yearStart) && (isEqual(toDate, yearEnd) || toDateIsToday)) {
     return { periodType: "year" as PeriodType, showNavigationArrows: true };
   }
 
   // Check if it's a month
   const monthStart = startOfMonth(fromDate);
   const monthEnd = endOfMonth(fromDate);
-  if (
-    isEqual(fromDate, monthStart) &&
-    (isEqual(toDate, monthEnd) || toDateIsToday)
-  ) {
+  if (isEqual(fromDate, monthStart) && (isEqual(toDate, monthEnd) || toDateIsToday)) {
     return { periodType: "month" as PeriodType, showNavigationArrows: true };
   }
 
   // Check if it's a week
   const weekStart = startOfWeek(fromDate, { weekStartsOn: 1 });
   const weekEnd = endOfWeek(fromDate, { weekStartsOn: 1 });
-  if (
-    isEqual(fromDate, weekStart) &&
-    (isEqual(toDate, weekEnd) || toDateIsToday)
-  ) {
+  if (isEqual(fromDate, weekStart) && (isEqual(toDate, weekEnd) || toDateIsToday)) {
     return { periodType: "week" as PeriodType, showNavigationArrows: true };
   }
 
@@ -280,18 +131,19 @@ function getPeriodPresets(date: DateRange | undefined) {
 }
 
 // Function to navigate to previous/next period
-function goToPeriod(
+function getGoToPeriod(
   date: DateRange | undefined,
   periodType: PeriodType,
   change: number
-) {
-  if (!date?.from || !date?.to) return;
+): DateRange | undefined {
+  if (!date?.from || !date?.to) return undefined;
 
-  let newFrom, newTo;
+  let newFrom;
+  let newTo;
 
   switch (periodType) {
     case "day":
-      newFrom = addDays(date.from, change)
+      newFrom = addDays(date.from, change);
       newTo = endOfDay(newFrom);
       break;
     case "week":
@@ -303,12 +155,142 @@ function goToPeriod(
       newTo = endOfMonth(newFrom);
       break;
     case "year":
-      newFrom = addYears(date.from, change)
+      newFrom = addYears(date.from, change);
       newTo = endOfYear(newFrom);
       break;
     default:
-      return;
+      return undefined;
   }
 
   return { from: newFrom, to: newTo };
+}
+
+export default function DateRangePicker({
+  range,
+  onDateChange,
+}: {
+  range?: DateRange;
+  onDateChange: (date: DateRange) => void;
+}) {
+  const [date, setDate] = useState<DateRange | undefined>(
+    range || {
+      from: new Date(),
+      to: addDays(new Date(), 7),
+    }
+  );
+
+  useEffect(() => {
+    if (range) {
+      setDate(range);
+    }
+  }, [range]);
+
+  const [open, setOpen] = useState(false);
+
+  // Format the date range for display on the button
+  const formatDateRange = () => {
+    if (!date?.from) return "Select date range";
+    if (!date.to) return format(date.from, "PPP");
+    return `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`;
+  };
+
+  const handleRangeSelection = (dateRange: DateRange | undefined) => {
+    setDate(dateRange);
+    if (!dateRange) return;
+    onDateChange(dateRange);
+  };
+
+  const nextDisabled = date?.to && isAfter(addDays(date.to, 1), new Date());
+
+  // Handle preset selection
+  const handlePresetChange = (preset: DateRange | undefined) => {
+    if (!preset) return;
+    if (preset.to && isAfter(new Date(preset.to), new Date())) {
+      Object.assign(preset, { to: endOfDay(new Date()) });
+    }
+    const newDateRange = preset;
+    setDate(newDateRange);
+    onDateChange(newDateRange);
+    setOpen(false);
+  };
+
+  // Determine the period type and if navigation arrows should be shown
+  const { periodType, showNavigationArrows } = useMemo(() => getPeriodPresets(date), [date]);
+  const navigateToPeriod = (change: number) => {
+    const newDateRange = getGoToPeriod(date, periodType, change);
+    if (!newDateRange) return;
+    handlePresetChange(newDateRange);
+    onDateChange(newDateRange);
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <div className="flex gap-1 items-center">
+        {showNavigationArrows && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 hover:text-foreground"
+            onClick={() => navigateToPeriod(-1)}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        )}
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-[40px] md:w-[240px] justify-start text-left font-normal hover:text-foreground"
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            <span className="hidden md:block">{formatDateRange()}</span>
+          </Button>
+        </PopoverTrigger>
+        {showNavigationArrows && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 hover:text-foreground"
+            disabled={nextDisabled}
+            onClick={() => navigateToPeriod(1)}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
+      <PopoverContent className="w-auto p-0" align="start">
+        <div className="flex">
+          {/* Preset Options Column */}
+          <div className="w-32 border-r p-2 space-y-2">
+            {presets.map((preset) => (
+              <Button
+                key={preset.name}
+                variant="ghost"
+                size="sm"
+                className="text-sm justify-start font-normal w-full"
+                onClick={() => handlePresetChange(preset.getValue())}
+              >
+                {preset.name}
+              </Button>
+            ))}
+          </div>
+
+          <div className="p-2">
+            <Calendar
+              mode="range"
+              selected={date}
+              onSelect={handleRangeSelection}
+              numberOfMonths={2}
+              defaultMonth={date?.from}
+              weekStartsOn={1}
+            />
+          </div>
+        </div>
+        <div className="border-t p-3 flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }

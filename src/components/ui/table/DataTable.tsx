@@ -1,5 +1,4 @@
-import { useState } from "react"
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,29 +12,22 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../table"
-import { DataTablePagination } from "./data-table-pagination";
+} from "@tanstack/react-table";
+import { cn } from "@/lib/utils";
 import NoData from "@/components/NoData";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../table";
+import { DataTablePagination } from "./data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  enablePagination?: boolean;
-  totalCount: number
-  pageIndex: number
-  pageSize?: number
-  onPageChange: (page: number) => void
-  onSortingChange?: (sorting: SortingState) => void
-  onRowClick?: (row: TData) => void
-  initialSorting?: SortingState
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  totalCount: number;
+  pageIndex: number;
+  pageSize?: number;
+  onPageChange: (page: number) => void;
+  onSortingChange?: (sorting: SortingState) => void;
+  onRowClick?: (row: TData) => void;
+  initialSorting?: SortingState;
 }
 
 export function DataTable<TData, TValue>({
@@ -49,19 +41,18 @@ export function DataTable<TData, TValue>({
   onRowClick,
   initialSorting = [],
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = useState({})
-  const [columnVisibility, setColumnVisibility] =
-    useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-    []
-  )
-  const [sorting, setSorting] = useState<SortingState>(initialSorting)
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>(initialSorting);
 
-  const handleSortingChange = (updaterOrValue: SortingState | ((prev: SortingState) => SortingState)) => {
+  const handleSortingChange = (
+    updaterOrValue: SortingState | ((prev: SortingState) => SortingState)
+  ) => {
     // Handle both function updaters and direct value assignments
     let newSorting: SortingState;
 
-    if (typeof updaterOrValue === 'function') {
+    if (typeof updaterOrValue === "function") {
       newSorting = updaterOrValue(sorting);
     } else {
       newSorting = updaterOrValue;
@@ -76,7 +67,6 @@ export function DataTable<TData, TValue>({
       onSortingChange(newSorting);
     }
   };
-
 
   const table = useReactTable({
     data,
@@ -93,7 +83,7 @@ export function DataTable<TData, TValue>({
       },
     },
     onPaginationChange: (updater) => {
-      if (typeof updater === 'function') {
+      if (typeof updater === "function") {
         const newState = updater({ pageIndex, pageSize });
         onPageChange(newState.pageIndex);
       }
@@ -110,11 +100,10 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-  })
-
+  });
 
   const handleRowClick = (e: React.MouseEvent, row: TData) => {
-    if ((e.target as HTMLElement).closest('.actions-menu')) {
+    if ((e.target as HTMLElement).closest(".actions-menu")) {
       return;
     }
     if (onRowClick) {
@@ -135,12 +124,9 @@ export function DataTable<TData, TValue>({
                     <TableHead key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -152,24 +138,18 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={(e) => handleRowClick(e, row.original)}
-                  className={cn(onRowClick ? 'cursor-pointer' : '')}
+                  className={cn(onRowClick ? "cursor-pointer" : "")}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns?.length || 0}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns?.length || 0} className="h-24 text-center">
                   <NoData />
                 </TableCell>
               </TableRow>
@@ -179,5 +159,5 @@ export function DataTable<TData, TValue>({
       </div>
       {totalCount > pageSize && <DataTablePagination table={table} />}
     </div>
-  )
+  );
 }

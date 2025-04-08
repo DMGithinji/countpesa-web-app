@@ -27,9 +27,7 @@ export const useTransactionColumns = ({
     const baseRows = [
       {
         headerTitle: "Actions",
-        rowElement: (row: TransactionSummary) => (
-          <TableRowActions row={row} actions={actions} />
-        ),
+        rowElement: (row: TransactionSummary) => <TableRowActions row={row} actions={actions} />,
       },
     ];
 

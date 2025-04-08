@@ -1,13 +1,19 @@
-import {
-  LineChart,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  TooltipProps,
-} from "recharts";
+import { LineChart, Line, ResponsiveContainer, Tooltip, TooltipProps } from "recharts";
 import { TrendingUpDown } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
+
+function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background p-2 rounded-md shadow-md text-sm">
+        <p className="font-mono">{`${payload[0].payload.date}`}</p>
+        <p className="font-medium">{`Balance: ${formatCurrency(payload[0].value || 0)}`}</p>
+      </div>
+    );
+  }
+  return null;
+}
 
 type BalanceTrendCardProps = {
   latestBalance: number;
@@ -17,7 +23,7 @@ type BalanceTrendCardProps = {
   }[];
 };
 
-const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
+function BalanceTrendCard({ latestBalance, data }: BalanceTrendCardProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -26,9 +32,7 @@ const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="flex gap-2 items-baseline">
-          <p className="text-lg md:text-2xl font-semibold">
-            {formatCurrency(latestBalance)}
-          </p>
+          <p className="text-lg md:text-2xl font-semibold">{formatCurrency(latestBalance)}</p>
           <span className="text-zinc-400 text-sm md:text-base">(Latest)</span>
         </div>
 
@@ -57,20 +61,6 @@ const BalanceTrendCard = ({ latestBalance, data }: BalanceTrendCardProps) => {
       </CardContent>
     </Card>
   );
-};
+}
 
 export default BalanceTrendCard;
-
-const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-background p-2 rounded-md shadow-md text-sm">
-        <p className="font-mono">{`${payload[0].payload.date}`}</p>
-        <p className="font-medium">{`Balance: ${formatCurrency(
-          payload[0].value || 0
-        )}`}</p>
-      </div>
-    );
-  }
-  return null;
-};

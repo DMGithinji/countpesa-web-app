@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import logoLg from "../assets/logo-lg.svg";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UploadStatementButton from "@/components/Upload/LoadDataButton";
 import { useLoadTransactions } from "@/hooks/useLoadTransactions";
+import logoLg from "../assets/logo-lg.svg";
 
-const CountPesaLanding = () => {
+function CountPesaLanding() {
   const { loadInitialTransactions } = useLoadTransactions();
   const goToDemo = async () => {
-    location.href = "/demo/dashboard";
+    window.location.href = "/demo/dashboard";
     await loadInitialTransactions();
   };
   const onDownload = () => {
@@ -27,6 +27,7 @@ const CountPesaLanding = () => {
             href="https://countpesa.com"
             target="_blank"
             className="flex items-center cursor-pointer"
+            rel="noreferrer"
           >
             {/* Logo Placeholder */}
             <img src={logoLg} alt="CheckPesa" className="w-36 h-16 mr-4" />
@@ -51,8 +52,8 @@ const CountPesaLanding = () => {
             Turn your M-Pesa data into clear, actionable insights.
           </p>
           <p className="text-lg text-muted-foreground mb-8">
-            All data is stored locally in your browser, with zero server
-            storage. <br /> <div className="pt-2">100% for your eyes only.</div>
+            All data is stored locally in your browser, with zero server storage. <br />{" "}
+            <div className="pt-2">100% for your eyes only.</div>
           </p>
 
           <div className="flex justify-center gap-4 mb-12">
@@ -68,11 +69,12 @@ const CountPesaLanding = () => {
           <div className="bg-black">
             <div className="relative mt-4 pb-[45.833%] h-0 rounded overflow-hidden">
               <iframe
+                title="CountPesa Demo Video"
                 src="https://www.loom.com/embed/f48117983d994fcb8b72fd4068a0a863?sid=aebc15da-e4db-4365-b654-bbaf734a59e6"
                 frameBorder="0"
                 allowFullScreen
                 className="absolute top-0 left-0 w-full h-full"
-              ></iframe>
+              />
             </div>
           </div>
         </div>
@@ -80,8 +82,7 @@ const CountPesaLanding = () => {
         {/* Value Proposition */}
         <div className="text-center mb-20">
           <p className="text-xl">
-            Discover patterns, pinpoint wasteful expenses, and take control of
-            your finances.
+            Discover patterns, pinpoint wasteful expenses, and take control of your finances.
           </p>
         </div>
 
@@ -96,15 +97,13 @@ const CountPesaLanding = () => {
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">📄</span>
                 </div>
-                <CardTitle className="text-xl font-bold">
-                  1. Get Full Statement
-                </CardTitle>
+                <CardTitle className="text-xl font-bold">1. Get Full Statement</CardTitle>
               </CardHeader>
               <CardContent className="text-center text-muted-foreground text-sm pt-2">
                 <p>
-                  Obtain your statement from the MySafaricom app or by dialing
-                  *334#. Follow the steps: "My Account &gt; M-PESA Statement..."
-                  to get your full M-PESA statement.
+                  Obtain your statement from the MySafaricom app or by dialing *334#. Follow the
+                  steps: &quot;My Account &gt; M-PESA Statement...&quot; to get your full M-PESA
+                  statement.
                 </p>
               </CardContent>
             </Card>
@@ -115,15 +114,12 @@ const CountPesaLanding = () => {
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">🔄</span>
                 </div>
-                <CardTitle className="text-xl font-bold">
-                  2. Data Transformation
-                </CardTitle>
+                <CardTitle className="text-xl font-bold">2. Data Transformation</CardTitle>
               </CardHeader>
               <CardContent className="text-center text-muted-foreground text-sm pt-2">
                 <p>
-                  Upload the emailed statement and enter the SMS-sent password.
-                  We'll transform your statement into an easily analyzable
-                  format.
+                  Upload the emailed statement and enter the SMS-sent password. We&apos;ll transform
+                  your statement into an easily analyzable format.
                 </p>
               </CardContent>
             </Card>
@@ -134,30 +130,26 @@ const CountPesaLanding = () => {
                 <div className="w-16 h-16 bg-gray-300/10 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">📊</span>
                 </div>
-                <CardTitle className="text-xl font-bold">
-                  3. Count Pesa
-                </CardTitle>
+                <CardTitle className="text-xl font-bold">3. Count Pesa</CardTitle>
               </CardHeader>
               <CardContent className="text-center text-muted-foreground text-sm pt-2">
                 <p>
-                  Analyze your transactions using our powerful interactive
-                  dashboards, aided by an AI copilot. Understand your spending
-                  patterns and find opportunities to save!
+                  Analyze your transactions using our powerful interactive dashboards, aided by an
+                  AI copilot. Understand your spending patterns and find opportunities to save!
                 </p>
               </CardContent>
             </Card>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="text-center pt-6 border-t">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} CountPesa. All rights reserved.
-          </p>
-        </footer>
       </div>
+      {/* Footer */}
+      <footer className="text-center py-6 border-t">
+        <p className="text-sm text-muted-foreground">
+          © {new Date().getFullYear()} CountPesa. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
-};
+}
 
 export default CountPesaLanding;

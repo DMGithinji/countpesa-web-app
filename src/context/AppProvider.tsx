@@ -1,23 +1,22 @@
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
+import { DefaultErrorFallback, ErrorBoundary } from "@/components/ErrorBoundary";
 import { AIContextProvider } from "./AIContext";
-import {
-  DefaultErrorFallback,
-  ErrorBoundary,
-} from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./ThemeProvider";
-import { RepositoryProvider } from "./DBContext";
+import { RepositoryProvider } from "./RepositoryContext";
 
 interface AppProvidersProps {
   children: ReactNode;
 }
 
-export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
+const errorFallbackRenderer = (error: Error, reset: () => void) => (
+  <DefaultErrorFallback error={error} resetError={reset} />
+);
+
+export function AppProviders({ children }: AppProvidersProps) {
   return (
     <ErrorBoundary
-      fallback={(error, reset) => (
-        <DefaultErrorFallback error={error} resetError={reset} />
-      )}
+      fallback={errorFallbackRenderer}
       onError={(error, info) => {
         console.error("Application Error:", error, info);
         // Would be nice to add an error reporting service here
@@ -32,4 +31,4 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
       </ThemeProvider>
     </ErrorBoundary>
   );
-};
+}

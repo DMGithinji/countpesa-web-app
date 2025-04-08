@@ -10,8 +10,7 @@ import {
 } from "../dropdown-menu";
 import { Button } from "../button";
 
-interface DataTableColumnHeaderProps<TData, TValue>
-  extends React.HTMLAttributes<HTMLDivElement> {
+interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
 }
@@ -24,24 +23,20 @@ export function DataTableColumnHeader<TData, TValue>({
   if (!column.getCanSort()) {
     return <div className={cn(className)}>{title}</div>;
   }
+  let SortIcon = ChevronsUpDown;
+  if (column.getIsSorted() === "desc") {
+    SortIcon = ArrowDown;
+  } else if (column.getIsSorted() === "asc") {
+    SortIcon = ArrowUp;
+  }
 
   return (
     <div className={cn("flex items-center space-x-2", className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="-ml-3 h-8 data-[state=open]:bg-accent"
-          >
+          <Button variant="ghost" size="sm" className="-ml-3 h-8 data-[state=open]:bg-accent">
             <span>{title}</span>
-            {column.getIsSorted() === "desc" ? (
-              <ArrowDown />
-            ) : column.getIsSorted() === "asc" ? (
-              <ArrowUp />
-            ) : (
-              <ChevronsUpDown />
-            )}
+            <SortIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">

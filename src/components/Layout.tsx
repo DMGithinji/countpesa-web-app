@@ -1,26 +1,20 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  ChevronLeft,
-  LayoutDashboard,
-  Users,
-  Tags,
-  AlignJustify,
-} from "lucide-react";
+import { ChevronLeft, LayoutDashboard, Users, Tags, AlignJustify } from "lucide-react";
+import { useDemoMode } from "@/context/RepositoryContext";
+import { cn } from "@/lib/utils";
 import logoLg from "../assets/logo-lg.svg";
 import { Button } from "./ui/button";
 import Header, { HeaderWithFilters } from "./Header";
 import { Sidepanel } from "./Sidepanel";
 import AIAnalysisSheet from "./AIAnalysisSheet";
 import AppPromo from "./AppPromo";
-import { useDemoMode } from "@/context/DBContext";
-import { cn } from "@/lib/utils";
 
 type MainLayoutProps = {
   children: React.ReactNode;
 };
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+function MainLayout({ children }: MainLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
@@ -85,7 +79,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           This is Demo Data
         </div>
       )}
-      <div className={cn("flex flex-col h-screen overflow-hidden sm:flex-row font-font-inter", isDemoMode && "h-[calc(100vh-1rem)]")}>
+      <div
+        className={cn(
+          "flex flex-col h-screen overflow-hidden sm:flex-row font-font-inter",
+          isDemoMode && "h-[calc(100vh-1rem)]"
+        )}
+      >
         {/* Sidebar - Hidden on mobile, minimized on md */}
         {!isMobile && (
           <div
@@ -96,18 +95,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             {/* Logo */}
             <div className="p-4 flex items-center justify-between h-16">
               <Link to="/" className="flex items-center">
-                {!collapsed && (
-                  <img
-                    src={logoLg}
-                    alt="CheckPesa"
-                    className="w-36 h-16 mr-4"
-                  />
-                )}
-                {collapsed && (
-                  <div className="text-primary font-bold px-2 py-1 rounded">
-                    CP
-                  </div>
-                )}
+                {!collapsed && <img src={logoLg} alt="CheckPesa" className="w-36 h-16 mr-4" />}
+                {collapsed && <div className="text-primary font-bold px-2 py-1 rounded">CP</div>}
               </Link>
               <Button
                 variant="outline"
@@ -132,14 +121,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     <Link
                       to={item.path}
                       className={`flex items-center px-3 py-2 rounded-lg transition-colors text-[15px] text-foreground/90 font-[500] ${
-                        location.pathname === item.path
-                          ? "text-primary"
-                          : "hover:text-primary"
+                        location.pathname === item.path ? "text-primary" : "hover:text-primary"
                       }`}
                     >
-                      <span className={collapsed ? "mx-auto" : "mr-3"}>
-                        {item.icon}
-                      </span>
+                      <span className={collapsed ? "mx-auto" : "mr-3"}>{item.icon}</span>
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
                   </li>
@@ -189,6 +174,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </div>
     </div>
   );
-};
+}
 
 export default MainLayout;
