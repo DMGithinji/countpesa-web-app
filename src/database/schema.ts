@@ -1,5 +1,5 @@
 import Dexie, { Table } from "dexie";
-import { AnalysisReport } from "@/types/AITools";
+import { AnalysisReport } from "@/prompts/types";
 import { Transaction } from "../types/Transaction";
 import { Category, Subcategory } from "../types/Categories";
 

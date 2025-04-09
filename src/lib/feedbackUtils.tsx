@@ -25,7 +25,7 @@ export const submitData = async ({ message, email, type }: Message) => {
     type: type === "error" ? "Error Report" : "Web App Feedback",
   };
 
-  const endpoint = "https://feedback-to-sheets.onrender.com/feedback/";
+  const endpoint = import.meta.env.VITE_FEEDBACK_ENDPOINT;
 
   fetch(endpoint, {
     method: "POST",

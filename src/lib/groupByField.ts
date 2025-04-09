@@ -1,5 +1,6 @@
 import { Transaction } from "@/types/Transaction";
 import { UNCATEGORIZED } from "@/types/Categories";
+import { Filter } from "@/types/Filters";
 import { calculateTransactionTotals, getTotals, TransactionTotals } from "./getTotal";
 
 export enum GroupByField {
@@ -155,37 +156,26 @@ interface MoneyGroupsData {
 
 export const getGroupByCategoryOrSubcategory = (
   topCategoriesMoneyInByAmt: FieldGroupSummary[],
-  topCategoriesMoneyOutByAmt: FieldGroupSummary[]
+  topCategoriesMoneyOutByAmt: FieldGroupSummary[],
+  currentFilters?: Filter[]
 ): MoneyGroupsData => {
-  const isSingleMoneyOutCategory =
-    topCategoriesMoneyOutByAmt.length === 1 && topCategoriesMoneyOutByAmt[0].name !== UNCATEGORIZED;
-
-  const isSingleMoneyInCategory =
-    topCategoriesMoneyInByAmt.length === 1 && topCategoriesMoneyInByAmt[0].name !== UNCATEGORIZED;
-
-  const isSubcategory =
-    (!topCategoriesMoneyInByAmt.length && isSingleMoneyOutCategory) ||
-    (!topCategoriesMoneyOutByAmt.length && isSingleMoneyInCategory) ||
-    (isSingleMoneyInCategory &&
-      isSingleMoneyOutCategory &&
-      topCategoriesMoneyInByAmt[0].name === topCategoriesMoneyOutByAmt[0].name);
+  const categoryFilters = currentFilters?.filter((f) => f.field === "category");
+  const categorizeBySubcategory = categoryFilters?.length === 1;
 
   return {
-    title: isSubcategory ? "Subcategories" : "Categories",
-    groupByField: isSubcategory ? GroupByField.Subcategory : GroupByField.Category,
-    moneyOutGroups:
-      isSingleMoneyInCategory && isSubcategory
-        ? groupTrxByFieldAndSummarize(
-            topCategoriesMoneyOutByAmt[0]?.transactions || [],
-            GroupByField.Subcategory
-          )
-        : topCategoriesMoneyOutByAmt,
-    moneyInGroups:
-      isSingleMoneyOutCategory && isSubcategory
-        ? groupTrxByFieldAndSummarize(
-            topCategoriesMoneyInByAmt[0]?.transactions || [],
-            GroupByField.Subcategory
-          )
-        : topCategoriesMoneyInByAmt,
+    title: categorizeBySubcategory ? "Subcategories" : "Categories",
+    groupByField: categorizeBySubcategory ? GroupByField.Subcategory : GroupByField.Category,
+    moneyOutGroups: categorizeBySubcategory
+      ? groupTrxByFieldAndSummarize(
+          topCategoriesMoneyOutByAmt[0]?.transactions || [],
+          GroupByField.Subcategory
+        )
+      : topCategoriesMoneyOutByAmt,
+    moneyInGroups: categorizeBySubcategory
+      ? groupTrxByFieldAndSummarize(
+          topCategoriesMoneyInByAmt[0]?.transactions || [],
+          GroupByField.Subcategory
+        )
+      : topCategoriesMoneyInByAmt,
   };
 };

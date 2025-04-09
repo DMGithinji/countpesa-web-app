@@ -1,7 +1,7 @@
 import { Query } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 import Dexie from "dexie";
-import { applyFilters } from "./queryUtils";
+import { filterTransactions } from "@/lib/filterUtils/filter";
 
 export abstract class AbstractQuery {
   /**
@@ -26,7 +26,10 @@ export abstract class AbstractQuery {
 
       // Apply filters if present
       if (filters && filters.length > 0) {
-        collection = applyFilters(collection, filters);
+        collection = filterTransactions(
+          collection as unknown as Transaction[],
+          filters
+        ) as unknown as Dexie.Collection<Transaction, number>;
       }
 
       // Apply offset and limit

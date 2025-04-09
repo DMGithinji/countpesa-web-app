@@ -1,16 +1,14 @@
-import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
-import MainLayout from "./components/Layout";
 import { AppProviders } from "./context/AppProvider";
 import useAppInitializer from "./hooks/useAppInitializer";
 import LandingPage from "./pages/LandingPage";
+import DashboardPage from "./pages/DashboardPage";
+import TransactionsPage from "./pages/TransactionsPage";
+import AccountsPage from "./pages/AccountsPage";
+import CategoriesPage from "./pages/CategoriesPage";
+import Layout from "./components/Layout";
 import useTransactionStore from "./stores/transactions.store";
 import Loader from "./components/Loader";
-
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const TransactionsPage = lazy(() => import("./pages/TransactionsPage"));
-const AccountsPage = lazy(() => import("./pages/AccountsPage"));
-const CategoriesPage = lazy(() => import("./pages/CategoriesPage"));
 
 function AppRoutes() {
   useAppInitializer();
@@ -32,18 +30,14 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
 
       {routes.map((route) => (
-        <Route
-          key={route.path}
-          path={route.path}
-          element={<MainLayout>{route.element}</MainLayout>}
-        />
+        <Route key={route.path} path={route.path} element={<Layout>{route.element}</Layout>} />
       ))}
 
       {routes.map((route) => (
         <Route
           key={`demo${route.path}`}
           path={`/demo${route.path}`}
-          element={<MainLayout>{route.element}</MainLayout>}
+          element={<Layout>{route.element}</Layout>}
         />
       ))}
     </Routes>

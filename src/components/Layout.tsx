@@ -10,11 +10,11 @@ import { Sidepanel } from "./Sidepanel";
 import AIAnalysisSheet from "./AIAnalysisSheet";
 import AppPromo from "./AppPromo";
 
-type MainLayoutProps = {
+type LayoutProps = {
   children: React.ReactNode;
 };
 
-function MainLayout({ children }: MainLayoutProps) {
+function Layout({ children }: LayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const location = useLocation();
@@ -180,4 +180,4 @@ function MainLayout({ children }: MainLayoutProps) {
   );
 }
 
-export default MainLayout;
+export default Layout;

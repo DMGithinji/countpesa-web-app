@@ -1,11 +1,11 @@
 import { Transaction } from "@/types/Transaction";
 import { DerivedState } from "@/stores/transactions.store";
-import { AssessmentMode } from "@/types/AITools";
 import { createInitialPrompt } from "./templates/initialPrompt";
 import { createFollowUpPrompt } from "./templates/followUpPrompt";
 import { getSeriousAnalysisPromptTemplate } from "./templates/seriousAnalysisPrompt";
 import { getRoastAnalysisPromptTemplate } from "./templates/roastAnalysisPrompt";
 import { getCalculationSummary } from "./utils/generateSummary";
+import { AssessmentMode } from "./types";
 
 export async function getInitialPrompt(transactions: Transaction[], userQuery: string) {
   return createInitialPrompt(transactions, userQuery);

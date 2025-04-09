@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import useSidepanelStore from "@/stores/ui.store";
-import { AssessmentMode } from "@/types/AITools";
+import { AssessmentMode } from "@/prompts/types";
 import useAIMessageStore from "@/stores/aiMessages.store";
 
 function AnalysisInitiator() {
@@ -17,7 +17,6 @@ function AnalysisInitiator() {
 
   const handleAssessment = useCallback(
     (mode: AssessmentMode) => {
-      console.log(mode);
       setAssessmentMode(mode);
       openDrawer(true);
     },
@@ -30,7 +29,7 @@ function AnalysisInitiator() {
         <DropdownMenuTrigger asChild>
           <Button variant="outline" className="flex items-center gap-2">
             <Sparkle className="h-4 w-4" />
-            <span className="hidden lg:block">Analyze</span>
+            <span className="hidden lg:block">Analyse</span>
             <ChevronDown className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>

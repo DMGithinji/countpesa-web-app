@@ -64,7 +64,7 @@ function Trend({ mode, data }: BalanceTrendCardProps) {
   );
 }
 
-interface AmtSummaryCardProps {
+interface AmtSummaryCardWithTrendProps {
   type: "Sent" | "Received";
   count: number;
   amount: number;
@@ -74,7 +74,7 @@ interface AmtSummaryCardProps {
   defaultPeriod: Period;
   periodAverages: PeriodAverages;
 }
-function AmtSummaryCard({
+function AmtSummaryCardWithTrend({
   type,
   count,
   amount,
@@ -83,7 +83,7 @@ function AmtSummaryCard({
   periodOptions,
   defaultPeriod,
   periodAverages,
-}: AmtSummaryCardProps) {
+}: AmtSummaryCardWithTrendProps) {
   const [chartPeriod, setChartPeriod] = useState<Period>(defaultPeriod);
   const chartData = useMemo(() => {
     const groupedTrs = groupTransactionsByPeriod(transactions, chartPeriod);
@@ -101,7 +101,7 @@ function AmtSummaryCard({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-normal mb-0 pb-0">
-          Total {type} ({count} Transactions)
+          Total {type} ({count} Trs)
         </CardTitle>
         {mode === MoneyMode.MoneyIn ? (
           <ArrowUpCircle size={18} className="text-money-in" />
@@ -154,4 +154,4 @@ function AmtSummaryCard({
   );
 }
 
-export default AmtSummaryCard;
+export default AmtSummaryCardWithTrend;

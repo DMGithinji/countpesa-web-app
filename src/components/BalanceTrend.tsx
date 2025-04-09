@@ -26,13 +26,13 @@ type BalanceTrendCardProps = {
 function BalanceTrendCard({ latestBalance, data }: BalanceTrendCardProps) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="font-normal text-sm md:text-base">Balance Trend</CardTitle>
         <TrendingUpDown className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
         <div className="flex gap-2 items-baseline">
-          <p className="text-lg md:text-2xl font-semibold">{formatCurrency(latestBalance)}</p>
+          <p className="text-lg md:text-xl font-semibold">{formatCurrency(latestBalance)}</p>
           <span className="text-zinc-400 text-sm md:text-base">(Latest)</span>
         </div>
 

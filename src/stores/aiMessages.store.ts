@@ -1,5 +1,10 @@
+import { AssessmentMode } from "@/prompts/types";
 import { create } from "zustand";
-import { AssessmentMode, Message } from "@/types/AITools";
+
+export interface Message {
+  sender: "user" | "bot";
+  text: string;
+}
 
 export const DEFAULT_AI_MESSAGES: Message[] = [
   {

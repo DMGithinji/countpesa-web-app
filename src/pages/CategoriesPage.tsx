@@ -18,6 +18,7 @@ import useTransactionStore from "@/stores/transactions.store";
 
 function CategoriesPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const currentFilters = useTransactionStore((state) => state.currentFilters);
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
   const validateAndAddFilters = useTransactionStore((state) => state.validateAndAddFilters);
@@ -45,8 +46,13 @@ function CategoriesPage() {
 
   /** When focused on a category, show the subcategories */
   const { title, groupByField, moneyOutGroups, moneyInGroups } = useMemo(
-    () => getGroupByCategoryOrSubcategory(topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt),
-    [topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt]
+    () =>
+      getGroupByCategoryOrSubcategory(
+        topCategoriesMoneyInByAmt,
+        topCategoriesMoneyOutByAmt,
+        currentFilters
+      ),
+    [currentFilters, topCategoriesMoneyInByAmt, topCategoriesMoneyOutByAmt]
   );
 
   const handlePieChartClick = useCallback(

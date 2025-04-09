@@ -78,11 +78,13 @@ function ChartTransactions({
         <div className="flex flex-row items-center justify-between space-y-0">
           <div className="flex gap-2 items-center">
             <IconButton
+              title="Toggle sort by date"
               isActive={sortByField === "date"}
               onClick={() => toggleSort("date")}
               Icon={Calendar}
             />
             <IconButton
+              title="Toggle sort by amount"
               isActive={sortByField === "amount"}
               onClick={() => toggleSort("amount")}
               Icon={Banknote}
@@ -92,16 +94,19 @@ function ChartTransactions({
           {showDisplayMode && (
             <div className="flex space-x-2">
               <IconButton
+                title="Show all transactions"
                 isActive={display === "all"}
                 onClick={() => toggleDisplayMode("all")}
                 Icon={ArrowUpDown}
               />
               <IconButton
+                title="Show only money-in transactions"
                 isActive={display === "moneyIn"}
                 onClick={() => toggleDisplayMode("moneyIn")}
                 Icon={ArrowUp}
               />
               <IconButton
+                title="Show only money-out transactions"
                 isActive={display === "moneyOut"}
                 onClick={() => toggleDisplayMode("moneyOut")}
                 Icon={ArrowDown}

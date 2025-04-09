@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import Dexie from "dexie";
 import { SetDateRange } from "@/lib/getDateRangeData";
-import { AnalysisReport, AssessmentMode } from "@/types/AITools";
+import { AnalysisReport, AssessmentMode } from "@/prompts/types";
 import db from "./schema";
 
 export default class AnalysisRepository {

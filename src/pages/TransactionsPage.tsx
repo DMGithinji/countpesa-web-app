@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { TransactionSearch } from "@/components/SearchInput";
-import AmtSummaryCard2 from "@/components/AmtSummaryCard2";
+import AmtSummaryCardWithTrend from "@/components/AmtSummaryCardWithTrend";
 import { SortBy as IndividualSortBy } from "@/components/TransactionsTable/IndividualTrsTable";
 import { SortBy as GroupedSortBy } from "@/components/GroupedTrsTable/Table";
 import { Period } from "@/lib/groupByPeriod";
@@ -41,7 +41,7 @@ function TransactionsPage() {
   return (
     <div className="flex flex-col gap-12">
       <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
-        <AmtSummaryCard2
+        <AmtSummaryCardWithTrend
           type="Received"
           count={transactionTotals.moneyInCount}
           amount={transactionTotals.moneyInAmount}
@@ -51,7 +51,7 @@ function TransactionsPage() {
           defaultPeriod={defaultPeriod}
           periodAverages={periodAverages}
         />
-        <AmtSummaryCard2
+        <AmtSummaryCardWithTrend
           type="Sent"
           count={transactionTotals.moneyOutCount}
           amount={transactionTotals.moneyOutAmount}

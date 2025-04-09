@@ -138,7 +138,7 @@ export function FilterChips({ className }: { className?: string }) {
           variant="outline"
           size="sm"
           title="Clear all filters"
-          className="px-3 py-1.5 h-auto rounded-full text-xs !bg-background !text-red-600 border-1 !border-red-600 flex items-center z-10"
+          className="px-3 py-1.5 h-auto rounded-full text-xs !bg-background !text-red-500 border-1 !border-red-500 flex items-center z-10"
           aria-label="Clear all filters"
         >
           <span className="font-semibold">Clear All Filters</span>

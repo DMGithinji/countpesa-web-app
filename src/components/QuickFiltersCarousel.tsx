@@ -124,7 +124,7 @@ function QuickFiltersCarousel() {
   }
 
   return (
-    <Card className="w-full overflow-hidden relative h-48 p-0">
+    <Card className="w-full overflow-hidden relative h-40 p-0">
       <CardContent className="p-4 pt-0 flex flex-col items-center justify-center h-full">
         <div className="absolute top-1/2 left-4 transform -translate-y-1/2">
           <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" onClick={prevSlide}>

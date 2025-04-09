@@ -158,6 +158,8 @@ export function useLoadTransactions() {
       }
     } catch {
       setError("Failed to fetch transactions");
+    } finally {
+      setTimeout(() => setLoading(false), 100);
     }
   }, [
     isDemoMode,

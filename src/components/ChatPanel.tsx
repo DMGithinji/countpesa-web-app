@@ -10,8 +10,8 @@ import { useCallback, useEffect, useRef } from "react";
 
 const SAMPLE_QUESTIONS = [
   "What are my total transaction costs?",
+  "How's my debt looking like this year?",
   "Exclude all Transfer and Uncategorized transactions?",
-  "Show me how much I have transacted through Fuliza?",
   "Show me the total amount I spend on electricity per month?",
 ];
 

@@ -1,7 +1,7 @@
 import json5 from "json5";
 import { Filter, FilterMode } from "@/types/Filters";
-import { GenAiOutput } from "@/types/AITools";
 import { endOfDay, startOfDay } from "date-fns";
+import { GenAiOutput } from "../types";
 
 export function validateFilters(filters: Filter[] | undefined | false): boolean {
   if (!filters) {

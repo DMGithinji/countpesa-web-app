@@ -6,7 +6,7 @@ import { submitData } from "@/lib/feedbackUtils";
 import { getAnalysisPrompt } from "@/prompts/composer";
 import { getReportAnalysisId } from "@/database/AnalysisRepository";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AnalysisReport } from "@/types/AITools";
+import { AnalysisReport } from "@/prompts/types";
 
 export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: boolean }) => {
   const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
