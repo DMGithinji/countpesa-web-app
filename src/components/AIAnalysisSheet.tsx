@@ -1,8 +1,6 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { marked } from "marked";
-import { useCallback, useEffect, useMemo, useState } from "react";
 import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
-import { endOfDay, formatDate } from "date-fns";
+import { formatDate } from "date-fns";
 import {
   Drawer,
   DrawerClose,
@@ -12,123 +10,29 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import useSidepanelStore from "@/stores/ui.store";
 
-import { SetDateRange } from "@/lib/getDateRangeData";
-import { getReportAnalysisId } from "@/database/AnalysisRepository";
-import { AnalysisReport, AssessmentMode } from "@/types/AITools";
-import { GetPromptTemplate, GetRoastPromptTemplate } from "@/configs/PromptTemplate";
-import useAIMessageStore from "@/stores/aiMessages.store";
-import { getCalculationSummary } from "@/lib/getAIPrompt";
-import useTransactionStore from "@/stores/transactions.store";
-import { useAnalysisRepository } from "@/context/RepositoryContext";
-import { submitData } from "@/lib/feedbackUtils";
+import { useAIAnalysis } from "@/hooks/useAIAnalysis";
+import useUiStore from "@/stores/ui.store";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 
-function BottomDrawer() {
-  const isOpen = useSidepanelStore((state) => state.drawerOpen);
-  const setDrawerOpen = useSidepanelStore((state) => state.setDrawerOpen);
-  const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
-  const [streamingResponse, setStreamingResponse] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const transactions = useTransactionStore((state) => state.transactions);
-  const calculatedData = useTransactionStore((state) => state.calculatedData);
-  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
-  const analysisRepository = useAnalysisRepository();
+function AIAnalysisSheet() {
+  const isOpen = useUiStore((state) => state.drawerOpen);
+  const setDrawerOpen = useUiStore((state) => state.setDrawerOpen);
 
-  const { dateRange } = dateRangeData;
-  const formattedDateRange = useMemo(() => {
-    return {
-      ...dateRange,
-      to: dateRange.to.getTime() > new Date().getTime() ? endOfDay(new Date()) : dateRange.to,
-    };
-  }, [dateRange]);
-
-  const calculationResults = useMemo(() => {
-    return getCalculationSummary({
-      dateRangeData,
-      calculatedData,
-      transactions,
-    });
-  }, [calculatedData, dateRangeData, transactions]);
-
-  const generateAssessment = useCallback(
-    async (ignorePast = false) => {
-      setIsLoading(true);
-      const reportId = getReportAnalysisId(formattedDateRange, assessmentMode);
-      const existingReport = await analysisRepository.getReport(reportId);
-
-      if (existingReport && !ignorePast) {
-        setStreamingResponse(existingReport.report);
-        setIsLoading(false);
-        return;
-      }
-
-      setStreamingResponse("");
-
-      try {
-        const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-        const promptFunction =
-          assessmentMode === AssessmentMode.SERIOUS ? GetPromptTemplate : GetRoastPromptTemplate;
-        const prompt = promptFunction(calculationResults, formattedDateRange as SetDateRange);
-
-        // Use the non-streaming version of the API instead
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-        setStreamingResponse(response);
-      } catch (error) {
-        setStreamingResponse(
-          "Sorry, there was an error generating your financial assessment. Please try again."
-        );
-        submitData({
-          type: "error",
-          message: JSON.stringify({
-            name: `Error generating AI assessment`,
-            error,
-            timestamp: new Date().toISOString(),
-          }),
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [formattedDateRange, assessmentMode, analysisRepository, calculationResults]
-  );
-
-  useEffect(() => {
-    if (isOpen && calculationResults) {
-      generateAssessment();
-    }
-  }, [isOpen, calculationResults, generateAssessment]);
+  const {
+    isLoading,
+    aiResponse,
+    reportRange,
+    copied,
+    saveOnClose,
+    copyToClipboard,
+    generateAssessment,
+  } = useAIAnalysis({ isAnalysisSheetOpen: isOpen });
 
   const handleOnClose = async () => {
-    const reportId = getReportAnalysisId(formattedDateRange, assessmentMode);
-    if (streamingResponse) {
-      await analysisRepository.saveReport({
-        id: reportId,
-        report: streamingResponse,
-        createdAt: new Date(),
-      } as AnalysisReport);
-      setDrawerOpen(false);
-    } else {
-      setDrawerOpen(false);
-    }
-  };
-
-  const copyToClipboard = () => {
-    const plainText = streamingResponse;
-    navigator.clipboard.writeText(plainText).then(() => {
-      setCopied(true);
-      setTimeout(() => {
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-      }, 0);
-    });
+    await saveOnClose();
+    setDrawerOpen(false);
   };
 
   return (
@@ -138,8 +42,8 @@ function BottomDrawer() {
           <DrawerTitle className="flex gap-2 items-center ">
             <Sparkle className="h-6 w-6" />
             <span className="!text-foreground">
-              AI Financial Assessment Report ({formatDate(formattedDateRange.from, "MMMM d, yyyy")}{" "}
-              - {formatDate(formattedDateRange.to, "MMMM d, yyyy")})
+              AI Financial Assessment Report ({formatDate(reportRange.from, "MMMM d, yyyy")} -{" "}
+              {formatDate(reportRange.to, "MMMM d, yyyy")})
             </span>
           </DrawerTitle>
           <DrawerDescription className="mt-4">
@@ -150,10 +54,10 @@ function BottomDrawer() {
               </div>
             ) : (
               <ScrollArea className="whitespace-pre-wrap prose h-[400px] rounded-md border max-w-none pt-4 px-4">
-                {streamingResponse ? (
+                {aiResponse ? (
                   <div
                     dangerouslySetInnerHTML={{
-                      __html: marked.parse(streamingResponse),
+                      __html: marked.parse(aiResponse),
                     }}
                   />
                 ) : (
@@ -177,7 +81,7 @@ function BottomDrawer() {
               <Button
                 variant="secondary"
                 onClick={copyToClipboard}
-                disabled={isLoading || !streamingResponse}
+                disabled={isLoading || !aiResponse}
                 className="flex items-center gap-2 cursor-pointer text-foreground"
               >
                 {copied ? (
@@ -204,4 +108,4 @@ function BottomDrawer() {
   );
 }
 
-export default BottomDrawer;
+export default AIAnalysisSheet;

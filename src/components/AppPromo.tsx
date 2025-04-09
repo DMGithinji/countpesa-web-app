@@ -12,7 +12,7 @@ function AppPromo() {
   return (
     <div className="bg-background rounded-sm px-6 pb-4 pt-2 flex flex-col items-center text-center mt-8 mx-6 shadow-sm">
       <div className="relative">
-        <img src={promoImage} alt="CheckPesa Logo" className="w-24 h-24" />
+        <img src={promoImage} alt="CountPesa Logo" className="w-24 h-24" />
       </div>
       <h2 className="text-sm font-semibold text-primary/90 mt-4 mb-2 text-[15px]">
         Available on

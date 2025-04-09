@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { DefaultErrorFallback, ErrorBoundary } from "@/components/ErrorBoundary";
+import { submitData } from "@/lib/feedbackUtils";
 import { AIContextProvider } from "./AIContext";
 import { ThemeProvider } from "./ThemeProvider";
 import { RepositoryProvider } from "./RepositoryContext";
@@ -18,8 +19,15 @@ export function AppProviders({ children }: AppProvidersProps) {
     <ErrorBoundary
       fallback={errorFallbackRenderer}
       onError={(error, info) => {
-        console.error("Application Error:", error, info);
-        // Would be nice to add an error reporting service here
+        submitData({
+          type: "error",
+          message: JSON.stringify({
+            name: `Application Error`,
+            error,
+            info,
+            timestamp: new Date().toISOString(),
+          }),
+        });
       }}
     >
       <ThemeProvider>

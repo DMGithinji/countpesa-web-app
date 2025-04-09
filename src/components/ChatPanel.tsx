@@ -1,23 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { Bot, RefreshCcw, Send, X } from "lucide-react";
 import { marked } from "marked";
-import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
-import useAIMessageStore from "@/stores/aiMessages.store";
-import useTransactionStore, { getDerivedState } from "@/stores/transactions.store";
-import { handleResponse } from "@/lib/processAIResponse";
-import { getCalculationSummary, getInitialPrompt } from "@/lib/getAIPrompt";
-import { useAIContext } from "@/context/AIContext";
-import { useTransactionRepository } from "@/context/RepositoryContext";
-import { submitData } from "@/lib/feedbackUtils";
-import { FollowUpPromptTemplate } from "@/configs/PromptTemplate";
-import { Filter } from "@/types/Filters";
+import { useChatPesa } from "@/hooks/useChatPesa";
+import { useCallback, useEffect, useRef } from "react";
 
-const defaultStarters = [
+const SAMPLE_QUESTIONS = [
   "What are my total transaction costs?",
   "Exclude all Transfer and Uncategorized transactions?",
   "Show me how much I have transacted through Fuliza?",
@@ -25,101 +16,18 @@ const defaultStarters = [
 ];
 
 function ChatPanel() {
-  const { filterChat, analysisModel, refreshChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
-  const setCurrentFilters = useTransactionStore((state) => state.setCurrentFilters);
-  const transactionsRepository = useTransactionRepository();
-  const allTransactions = useTransactionStore((state) => state.allTransactions);
+  const { messages, isLoading, input, setInput, handleSendMessage, refreshChat } = useChatPesa();
 
-  const messages = useAIMessageStore((state) => state.messages);
-  const setMessage = useAIMessageStore((state) => state.setMessage);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollToBottom = () => {
+
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages.length]);
-
-  const doFollowUpAnalysis = useCallback(
-    async (question: string, setFilters: Filter[]) => {
-      const derivedState = getDerivedState(allTransactions, setFilters);
-      if (!derivedState?.transactions.length) return;
-      const { dateRangeData } = derivedState;
-      const calculationResults = getCalculationSummary(derivedState);
-      const formattedDateRange = {
-        from: format(dateRangeData.dateRange.from, "do MMM yyyy"),
-        to: format(dateRangeData.dateRange.to, "do MMM yyyy"),
-      };
-      const prompt = FollowUpPromptTemplate(calculationResults, formattedDateRange, question);
-      const result = await analysisModel.generateContent(prompt);
-      const response = result.response.text();
-      const processedResponse = handleResponse(response);
-      console.log({ response, processedResponse });
-      setMessage({ sender: "bot", text: processedResponse.message });
-    },
-    [allTransactions, analysisModel, setMessage]
-  );
-
-  const handleSendMessage = useCallback(
-    async (message: string) => {
-      const isFirst = messages.length === 1;
-      let prompt = message;
-      if (isFirst) {
-        const allTrs = await transactionsRepository.getTransactions();
-        const intializationPrompt = await getInitialPrompt(allTrs);
-        prompt = `${intializationPrompt}. ${message}`;
-      }
-
-      setInput("");
-      setMessage({ sender: "user", text: message });
-      setTimeout(async () => {
-        setIsLoading(true);
-        try {
-          const result = await filterChat.sendMessage(prompt);
-          const response = result.response.text();
-          const processedResponse = handleResponse(response);
-          console.log({ response, processedResponse });
-          setMessage({ sender: "bot", text: processedResponse.message });
-          setIsLoading(false);
-
-          if (processedResponse.filters?.length) {
-            setCurrentFilters(processedResponse.filters);
-            setIsLoading(true);
-            await doFollowUpAnalysis(message, processedResponse.filters);
-            setIsLoading(false);
-          }
-        } catch (error) {
-          submitData({
-            type: "error",
-            message: JSON.stringify({
-              name: `Chatpesa Error`,
-              error,
-              timestamp: new Date().toISOString(),
-            }),
-          });
-          setIsLoading(false);
-          setMessage({
-            sender: "bot",
-            text: "Sorry, there was an error generating your financial assessment. Please try again.",
-          });
-        }
-      }, 600);
-    },
-    [
-      filterChat,
-      doFollowUpAnalysis,
-      messages.length,
-      setCurrentFilters,
-      setMessage,
-      transactionsRepository,
-    ]
-  );
+  }, [messages.length, scrollToBottom]);
 
   return (
     <div className="flex flex-col h-full">
@@ -149,7 +57,7 @@ function ChatPanel() {
         </div>
       </CardHeader>
 
-      <ScrollArea className="flex-1 px-4 pt-0 overflow-y-auto relative" ref={scrollAreaRef}>
+      <ScrollArea className="flex-1 px-4 pt-0 overflow-y-auto relative">
         <div className="space-y-4 mb-16">
           {messages.map((message) => (
             <div
@@ -190,7 +98,7 @@ function ChatPanel() {
         {messages.length <= 2 && (
           <div className="absolute bottom-2 pr-4">
             <div className="grid grid-cols-2 gap-2">
-              {defaultStarters.map((starter) => (
+              {SAMPLE_QUESTIONS.map((starter) => (
                 <Card
                   key={starter}
                   className="text-[14px] text-foreground/95  p-4 cursor-pointer"

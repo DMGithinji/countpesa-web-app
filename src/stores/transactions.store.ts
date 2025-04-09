@@ -38,6 +38,7 @@ export type DerivedState = {
   transactions: Transaction[];
   dateRangeData: DateRangeData;
   calculatedData: CalculatedData;
+  periodAverages?: PeriodAverages;
 };
 export const getDerivedState = (
   transactions: Transaction[],

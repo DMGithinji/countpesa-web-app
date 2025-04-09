@@ -33,7 +33,7 @@ function CountPesaLanding() {
             rel="noreferrer"
           >
             {/* Logo Placeholder */}
-            <img src={logoLg} alt="CheckPesa" className="w-36 h-16 mr-4" />
+            <img src={logoLg} alt="CountPesa" className="w-36 h-16 mr-4" />
           </a>
 
           <div className="flex items-center gap-4">
