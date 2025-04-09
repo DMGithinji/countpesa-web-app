@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Bot, RefreshCcw, Send, X } from "lucide-react";
+import { marked } from "marked";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +25,7 @@ const defaultStarters = [
 ];
 
 function ChatPanel() {
-  const { AIChat, refreshChat } = useAIContext();
+  const { filterChat, analysisModel, refreshChat } = useAIContext();
   const setSidepanel = useSidepanelStore((state) => state.setSidepanelMode);
   const setCurrentFilters = useTransactionStore((state) => state.setCurrentFilters);
   const transactionsRepository = useTransactionRepository();
@@ -48,7 +49,7 @@ function ChatPanel() {
   const doFollowUpAnalysis = useCallback(
     async (question: string, setFilters: Filter[]) => {
       const derivedState = getDerivedState(allTransactions, setFilters);
-      if (!derivedState) return;
+      if (!derivedState?.transactions.length) return;
       const { dateRangeData } = derivedState;
       const calculationResults = getCalculationSummary(derivedState);
       const formattedDateRange = {
@@ -56,13 +57,13 @@ function ChatPanel() {
         to: format(dateRangeData.dateRange.to, "do MMM yyyy"),
       };
       const prompt = FollowUpPromptTemplate(calculationResults, formattedDateRange, question);
-      const result = await AIChat.sendMessage(prompt);
+      const result = await analysisModel.generateContent(prompt);
       const response = result.response.text();
       const processedResponse = handleResponse(response);
       console.log({ response, processedResponse });
       setMessage({ sender: "bot", text: processedResponse.message });
     },
-    [AIChat, allTransactions, setMessage]
+    [allTransactions, analysisModel, setMessage]
   );
 
   const handleSendMessage = useCallback(
@@ -80,7 +81,7 @@ function ChatPanel() {
       setTimeout(async () => {
         setIsLoading(true);
         try {
-          const result = await AIChat.sendMessage(prompt);
+          const result = await filterChat.sendMessage(prompt);
           const response = result.response.text();
           const processedResponse = handleResponse(response);
           console.log({ response, processedResponse });
@@ -111,7 +112,7 @@ function ChatPanel() {
       }, 600);
     },
     [
-      AIChat,
+      filterChat,
       doFollowUpAnalysis,
       messages.length,
       setCurrentFilters,
@@ -164,10 +165,14 @@ function ChatPanel() {
                     : "bg-[#D4F0E5] dark:text-background text-foreground"
                 }`}
               >
-                <span className="font-semibold">
+                <span className="font-semibold pb-2">
                   {message.sender === "user" ? "Me" : "ChatPesa"}
                 </span>
-                <span>{message.text}</span>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: marked.parse(message.text),
+                  }}
+                />
               </div>
             </div>
           ))}

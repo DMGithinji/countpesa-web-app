@@ -1,9 +1,10 @@
 import { createContext, useMemo, ReactNode, useContext, useState, useCallback } from "react";
-import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
+import { ChatSession, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
 import useAIMessageStore from "@/stores/aiMessages.store";
 
 interface AIContextType {
-  AIChat: ChatSession;
+  filterChat: ChatSession;
+  analysisModel: GenerativeModel;
   refreshChat: () => void;
 }
 
@@ -14,12 +15,13 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   const clearMessages = useAIMessageStore((state) => state.clearMessages);
 
   const AIChat = useMemo(() => {
-    const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const chat = model.startChat({
-      history: [],
-    });
-    return chat;
+    const filterGeneratorAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+    const filteringModel = filterGeneratorAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const filterChat = filteringModel.startChat({ history: [] });
+
+    const analysisAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+    const analysisModel = analysisAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    return { filterChat, analysisModel };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshCount]);
 
@@ -28,7 +30,7 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
     clearMessages();
   }, [clearMessages]);
 
-  const contextValue = useMemo(() => ({ AIChat, refreshChat }), [AIChat, refreshChat]);
+  const contextValue = useMemo(() => ({ ...AIChat, refreshChat }), [AIChat, refreshChat]);
 
   return <AIContext.Provider value={contextValue}>{children}</AIContext.Provider>;
 }

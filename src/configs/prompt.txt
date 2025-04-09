@@ -25,24 +25,18 @@ interface Transaction {
   id: string;
   code: string;
   date: string; // "2023-03-22"
-  description: string;
-  status: string;
   amount: number;
   account: string; // The Sender or Receiver
-  balance: number;
   category: string;
 
   // Precalculated fields
-  year: number; // Examples 2024, 2023
-  month: number; // 1-12
   dayOfWeek: string; // Examples "Monday", "Saturday", "Sunday"
   hour: string; // Examples "17:00", "05:00", "04:00"
-  mode: "moneyIn" | "moneyOut";
 }
 
 interface Filter {
-  field: 'id' | 'code' | 'date' | 'description' | 'status' | 'amount' | 'account' | 'balance' | 'transactionType' | 'category' | 'subcategory' | 'year' | 'month' | 'dayOfWeek' | 'hour' | 'mode';
-  operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'contains' | 'contains-any' | 'in' | 'not-in';
+  field: 'code' | 'date' | 'amount' | 'account' | 'category' | "subcategory" | "hour" | "dayOfWeek";
+  operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'contains' | 'in' | 'not-in';
   value: string | number;
   mode: 'and' | 'or';
 }
@@ -830,23 +824,6 @@ Expected Output:
   "isPromptValid": false,
   "displayType": "text",
   "message": <YOUR ASSESSMENT OF THEIR [transactionDataSummary]>
-}
-
-```
-
-Ensure the response you provide is a valid JSON.
-
-- When asked a question in the style:
-How would you respond to this question: "[QUESTION]?" Given the following data: [FINANCIAL DATA] for transactions from [DATE RANGE]",
-Analyze this financial data and provide brief helpful insights to answer the question. Do it in a conversational friendly way. Currency is Ksh. No need to include decimals
-Use a valid json output format:
-Expected Output:
-
-```json
-{
-  "isPromptValid": false,
-  "displayType": "text",
-  "message": <YOUR ASSESSMENT OF THE DATA>
 }
 
 ```
