@@ -194,12 +194,12 @@ export default function DateRangePicker({
     return `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`;
   };
 
-  const handleRangeSelection = (dateRange: DateRange | undefined) => {
-    setDate(dateRange);
-    if (!dateRange || !dateRange.from || !dateRange.to) return;
-    Object.assign(dateRange, { to: endOfDay(dateRange.from) });
-    Object.assign(dateRange, { from: startOfDay(dateRange.from) });
-    onDateChange(dateRange);
+  const handleRangeSelection = (selectedRange: DateRange | undefined) => {
+    const newFrom = selectedRange?.from ? startOfDay(selectedRange.from) : selectedRange?.from;
+    const newTo = selectedRange?.to ? endOfDay(selectedRange.to) : selectedRange?.to;
+    const newDateRange = { from: newFrom, to: newTo };
+    setDate(newDateRange);
+    onDateChange(newDateRange);
   };
 
   const nextDisabled = date?.to && isAfter(addDays(date.to, 1), new Date());
