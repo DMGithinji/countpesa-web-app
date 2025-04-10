@@ -1,12 +1,15 @@
-# CountPesa - M-Pesa Financial Analytics App
+# CountPesa - M-Pesa Financial Analytics Web App
 
 CountPesa is a financial analytics tool designed specifically for M-Pesa users, enabling them to visualize and gain insights from their transaction history. The application processes M-Pesa statements, provides interactive visualizations, and offers AI-assisted analysis to help users understand their spending patterns.
 
+For privacy purposes, the app does not store any user data. All data is stored locally in the user's browser. No financial data is stored on any external servers.
+
 ## Relevant Links
 
-- [Website](https://app.countpesa.com)
-- [Checkout Web App](https://countpesa.com)
+- [Website](https://countpesa.com)
+- [Web App](https://app.countpesa.com)
 - [Download App from Google Play](https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo)
+- [Backend Service](https://github.com/DMGithinji/countpesa-server) - Simple API to process M-Pesa statements
 
 ## Key Features
 
@@ -14,16 +17,14 @@ CountPesa is a financial analytics tool designed specifically for M-Pesa users, 
 
 - **M-Pesa Statement Processing**: Upload M-Pesa PDF statements with automated transaction parsing
 - **Transaction Categorization**: Organize transactions into categories and subcategories
-- **Advanced Filtering**: Filter transactions by date, account, category, and more
-- **Interactive Dashboard**: View financial metrics, balance trends, and spending patterns
-- **Multi-dimensional Analysis**: Analyze spending by category, time period, or recipient
-- **Mobile App Data Analysis** - Analyze CountPesa app transactions from a web interface by uploading the backup file
+- **Advanced Filtering & Multi-dimensional Analysis**: Filter transactions by date, account, category, and reveal insights into spending patterns
+- **Mobile App Data Analysis** - Analyze CountPesa App's transactions from a web interface by uploading the backup file
 
 ### AI-Powered Features
 
 - **ChatPesa AI Assistant**: Ask questions about your finances in natural language to filter transactions and analyze results
+- **Transaction Discovery**: Find transactions with queries like "How much did I spend on food last week?" or "How have I been managing my debt this year?"
 - **AI Financial Assessment**: Get personalized insights in either "Serious" or "Roast" mode
-- **Transaction Discovery**: Find transactions with queries like "How much did I spend on food last week?"
 
 ### User Experience
 
@@ -59,8 +60,7 @@ yarn install # or npm install --legacy-peer-deps
 
 ```
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
-VITE_SECRET_KEY=your_secret_key
-VITE_IV_STRING=your_iv_string
+VITE_API_URL=backend_api_url
 ```
 
 3. Start the development server:
@@ -73,13 +73,15 @@ Application will be available at <http://localhost:5173>
 
 ## Project Structure
 
-The app has the following pages:
+The app has the following views:
 
 - Dashboard for overview metrics
 - Transaction listing and filtering
 - Category management
 - Accounts analysis
 - AI chat assistant (Sidepanel)
+
+Being a simple web app,it uses a layered architecture with the following structure:
 
 ```
 src/
@@ -143,4 +145,4 @@ The AI financial assessment feature:
 
 ## Privacy
 
-CountPesa is designed with privacy as a top priority. All transaction data is processed and stored locally in your browser using IndexedDB. No financial data is stored on any external servers.
+CountPesa is designed to help you understand your spending habits and make informed financial decisions, but with privacy as a top priority.
