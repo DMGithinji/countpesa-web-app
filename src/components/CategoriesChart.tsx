@@ -119,9 +119,7 @@ function CategoriesDonutChart({
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div className="flex items-center gap-2">
           <CardTitle
-            className={`text-base font-medium ${
-              moneyMode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"
-            }`}
+            className={`text-base font-medium ${moneyMode === MoneyMode.MoneyIn ? "text-money-in" : "text-money-out"}`}
           >
             <span>Total {moneyMode === MoneyMode.MoneyIn ? "Money In" : "Money Out"}:</span> (
             {formatCurrency(Math.abs(totalAmount))})

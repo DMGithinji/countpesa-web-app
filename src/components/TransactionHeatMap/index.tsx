@@ -8,14 +8,22 @@ import { formatCurrency } from "@/lib/utils";
 import { MoneyMode, Transaction } from "@/types/Transaction";
 import ChartTransactions from "../ChartTransactions";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "../ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "../ui/select";
 import { useTransactionHeatmap, HeatmapValue } from "./useTransactionHeatMap";
 
 interface TransactionHeatmapProps {
   transactions: Transaction[];
 }
 
-export default function TransactionHeatmap({ transactions }: TransactionHeatmapProps) {
+export default function TransactionHeatmap({
+  transactions,
+}: TransactionHeatmapProps) {
   const {
     mode,
     setMode,
@@ -54,7 +62,11 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
           </CardTitle>
           <ToggleGroup type="single" value={mode}>
             {Object.values(MoneyMode).map((filterVal) => (
-              <ToggleGroupItem onClick={() => setMode(filterVal)} value={filterVal} key={filterVal}>
+              <ToggleGroupItem
+                onClick={() => setMode(filterVal)}
+                value={filterVal}
+                key={filterVal}
+              >
                 {filterVal === MoneyMode.MoneyIn ? "In" : "Out"}
               </ToggleGroupItem>
             ))}
@@ -66,18 +78,25 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
               startDate={new Date(`${selectedYear}-01-01`)}
               endDate={new Date(`${selectedYear}-12-31`)}
               values={values}
-              classForValue={(value) => (value ? getColorClass(value.amount) : "color-empty")}
-              onClick={(value) => value && handleCellClick(value as HeatmapValue)}
+              classForValue={(value) =>
+                value ? getColorClass(value.amount) : "color-empty"
+              }
+              onClick={(value) =>
+                value && handleCellClick(value as HeatmapValue)
+              }
               showWeekdayLabels
               tooltipDataAttrs={(value) => {
                 if (!value || !value.date) {
-                  return { "data-tooltip-id": "", "data-tooltip-content": "" } as TooltipDataAttrs;
+                  return {
+                    "data-tooltip-id": "",
+                    "data-tooltip-content": "",
+                  } as TooltipDataAttrs;
                 }
                 return {
                   "data-tooltip-id": "heatmap-tooltip",
                   "data-tooltip-content": `${format(
                     new Date(value.date),
-                    "EEE, do MMM yyyy"
+                    "EEE, do MMM yyyy",
                   )}: ${formatCurrency(value.amount)}`,
                 } as TooltipDataAttrs;
               }}

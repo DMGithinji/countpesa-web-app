@@ -73,7 +73,10 @@ export const validateAndAddFilters = (
       (operator === ">=" && existingFilter.operator === "<") ||
       (operator === "<=" && existingFilter.operator === ">")
     ) {
-      updatedFilters[existingFilterIndex] = { ...newFilter, mode: FilterMode.AND }; // Replace with new filter, default to FilterMode.AND
+      updatedFilters[existingFilterIndex] = {
+        ...newFilter,
+        mode: FilterMode.AND,
+      }; // Replace with new filter, default to FilterMode.AND
     }
     // Rule 3: If filter already exists (same field, operator, value) -> replace it
     else if (existingFilter.operator === operator && existingFilter.value === value) {

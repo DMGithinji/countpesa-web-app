@@ -62,9 +62,7 @@ function ChatPanel() {
           {messages.map((message) => (
             <div
               key={message.text}
-              className={`flex pt-4 mb-0 ${
-                message.sender === "user" ? "justify-end" : "justify-start"
-              }`}
+              className={`flex pt-4 mb-0 ${message.sender === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
                 className={`max-w-[80%] flex flex-col p-3 space-y-1 rounded-lg text-sm ${

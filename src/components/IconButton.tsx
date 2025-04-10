@@ -14,7 +14,9 @@ function IconButton({ isActive, onClick, Icon, size = 16, title }: IconButtonPro
     <Button
       variant="ghost"
       title={title}
-      className={cn("p-1 rounded cursor-pointer", { "text-primary hover:text-primary": isActive })}
+      className={cn("p-1 rounded cursor-pointer", {
+        "text-primary hover:text-primary": isActive,
+      })}
       onClick={onClick}
     >
       <Icon size={size} />

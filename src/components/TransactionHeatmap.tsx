@@ -125,7 +125,10 @@ export default function TransactionHeatmap({ transactions }: TransactionHeatmapP
               showWeekdayLabels
               tooltipDataAttrs={(value) => {
                 if (!value || !value.date) {
-                  return { "data-tooltip-id": "", "data-tooltip-content": "" } as TooltipDataAttrs;
+                  return {
+                    "data-tooltip-id": "",
+                    "data-tooltip-content": "",
+                  } as TooltipDataAttrs;
                 }
                 return {
                   "data-tooltip-id": "heatmap-tooltip",

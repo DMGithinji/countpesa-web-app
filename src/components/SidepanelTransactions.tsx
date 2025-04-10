@@ -124,9 +124,7 @@ function SidepanelTransactions() {
                       <p className="text-xs text-gray-500">{formattedDate}</p>
                     </div>
                     <p
-                      className={`font-medium text-[13px] ${
-                        isPositive ? "text-money-in" : "text-money-out"
-                      }`}
+                      className={`font-medium text-[13px] ${isPositive ? "text-money-in" : "text-money-out"}`}
                     >
                       {formatCurrency(transaction.amount)}
                     </p>

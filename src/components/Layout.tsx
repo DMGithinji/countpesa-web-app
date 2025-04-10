@@ -110,9 +110,7 @@ function Layout({ children }: LayoutProps) {
               >
                 <ChevronLeft
                   size={20}
-                  className={`transform transition-transform text-foreground/60 ${
-                    collapsed ? "rotate-180" : ""
-                  }`}
+                  className={`transform transition-transform text-foreground/60 ${collapsed ? "rotate-180" : ""}`}
                 />
               </Button>
             </div>

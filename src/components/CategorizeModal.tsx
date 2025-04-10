@@ -18,9 +18,7 @@ function TransactionDetails({ transaction }: { transaction: Transaction }) {
         <p className="text-sm">
           <span className="font-medium">Amount:</span>{" "}
           <span
-            className={`font-semibold ${
-              transaction.amount < 0 ? "text-money-out" : "text-money-in"
-            }`}
+            className={`font-semibold ${transaction.amount < 0 ? "text-money-out" : "text-money-in"}`}
           >
             {formatCurrency(transaction.amount)}
           </span>

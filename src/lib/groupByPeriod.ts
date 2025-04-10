@@ -112,7 +112,12 @@ export const getPeriodData = (transactions: Transaction[], period: Period) => {
   // Using Object.entries instead of for...in loop
   Object.entries(groupedTransactions).forEach(([periodKey, periodTxs]) => {
     const { totalAmount, moneyInAmount, moneyOutAmount } = calculateTransactionTotals(periodTxs);
-    result.push({ period: periodKey, totalAmount, moneyInAmount, moneyOutAmount });
+    result.push({
+      period: periodKey,
+      totalAmount,
+      moneyInAmount,
+      moneyOutAmount,
+    });
   });
 
   return result;
