@@ -43,21 +43,21 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
       formData.append("statement", file);
       formData.append("password", password);
 
-      const response = await fetch("http://localhost:8000/process_pdf/", {
+      const endpoint = `${import.meta.env.VITE_API_URL}/process-pdf/`;
+
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
 
-      const data = (await response.json()) as {
+      const { status, data, message } = (await response.json()) as {
         message: string;
         status: string;
-        results: {
-          transactions: ExtractedTransaction[];
-        };
+        data: { transactions: ExtractedTransaction[] };
       };
 
-      if (data.status === "success") {
-        await db.processMpesaStatementData(data.results.transactions, accountTransactionDict);
+      if (status === "success") {
+        await db.processMpesaStatementData(data.transactions, accountTransactionDict);
         loadInitialTransactions().then(() => {
           const isBaseUrl = location.pathname === "/";
           if (isBaseUrl) {
@@ -72,7 +72,7 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
         setFile(null);
         setPassword("");
       } else {
-        throw new Error(data.message || "Failed to process statement");
+        throw new Error(message || "Failed to process statement");
       }
     } catch (err) {
       console.error("Error processing statement:", err);
