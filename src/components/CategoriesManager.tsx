@@ -189,7 +189,7 @@ function CategoriesManager() {
 
   return (
     <div>
-      <CardHeader className="bg-zinc-900 text-white sticky top-0 z-50 pl-4 pr-0">
+      <CardHeader className="bg-secondary text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center pt-4.5 pb-4 text-white">
             Manage Categories

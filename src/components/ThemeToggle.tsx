@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
-import { Toggle } from "@/components/ui/toggle";
 
-export function ThemeToggle() {
+export function ThemeToggle({ showLabel = true }: { showLabel?: boolean }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Ensure the component is mounted before accessing theme
-  // This prevents hydration mismatch between server and client
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -20,12 +17,14 @@ export function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <Toggle
-      aria-label="Toggle theme"
-      pressed={isDark}
-      onPressedChange={(pressed) => setTheme(pressed ? "dark" : "light")}
+    <div
+      role="none"
+      title="Toggle theme"
+      className="hover:bg-secondary focus:bg-secondary cursor-pointer pr-2 py-2 rounded-full flex gap-2 items-center"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {isDark ? <Moon className="h-8 w-8" /> : <Sun className="h-8 w-8" />}
-    </Toggle>
+      {isDark ? <Moon size={18} /> : <Sun size={18} />}
+      {showLabel && <span className="block md:hidden">Toggle Theme</span>}
+    </div>
   );
 }

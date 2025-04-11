@@ -73,6 +73,9 @@ export function getDateRangeData({
   if (isSameDay(start, end)) {
     defaultPeriod = Period.HOUR;
     validOptions = [Period.HOUR];
+  } else if (differenceInDays(end, start) >= 365) {
+    defaultPeriod = Period.YEAR;
+    validOptions = [Period.DATE, Period.WEEK, Period.MONTH, Period.YEAR];
   } else if (differenceInDays(end, start) >= 61) {
     defaultPeriod = Period.MONTH;
     validOptions = [Period.DATE, Period.WEEK, Period.MONTH];

@@ -24,7 +24,7 @@ function CountPesaLanding() {
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       {/* Navigation */}
-      <nav className="sticky top-0 bg-background shadow z-50">
+      <nav className="sticky top-0 bg-background border-b border-foreground/15 z-50">
         <div className="flex h-14 items-center justify-between mx-auto px-4">
           <a
             href="https://countpesa.com"
@@ -47,7 +47,7 @@ function CountPesaLanding() {
                 </Button>
               </Link>
             )}
-            <ThemeToggle />
+            <ThemeToggle showLabel={false} />
           </div>
         </div>
       </nav>
@@ -153,7 +153,7 @@ function CountPesaLanding() {
         </section>
       </div>
       {/* Footer */}
-      <footer className="text-center py-6 border-t">
+      <footer className="text-center py-6 border-t border-foreground/15">
         <p className="text-sm text-muted-foreground">
           © {new Date().getFullYear()} CountPesa. All rights reserved.
         </p>

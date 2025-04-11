@@ -17,7 +17,7 @@ interface Transaction {
 
 interface Filter {
   field: 'code' | 'date' | 'amount' | 'account' | 'category' | "subcategory" | "hour" | "dayOfWeek" | "mode";
-  operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'contains' | 'in' | 'not-in';
+  operator: '==' | '!=' | '<' | '<=' | '>' | '>=' | 'contains';
   value: string | number;
   mode: 'and' | 'or';
 }

@@ -94,7 +94,7 @@ function PeriodicTransactionsChart({
     <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-4">
       <Card className="w-full h-full lg:col-span-3">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div className="flex items-center gap-1">
+          <div className="hidden md:flex">
             <CardTitle className="text-lg font-medium">Total periodic transactions</CardTitle>
           </div>
 
@@ -193,7 +193,7 @@ function PeriodicTransactionsChart({
           </div>
         </CardContent>
       </Card>
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 hidden sm:block">
         <ChartTransactions
           selected={selectedTransactions}
           defaultSortBy="date"

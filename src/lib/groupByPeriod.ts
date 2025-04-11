@@ -79,7 +79,7 @@ export function groupTransactionsByPeriod(
 
       case Period.MONTH:
         // Format: "January 2023", "February 2023", etc.
-        groupKey = format(date, "MMMM yyyy");
+        groupKey = format(date, "MMM yyyy");
         break;
 
       case Period.YEAR:

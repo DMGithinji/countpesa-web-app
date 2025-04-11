@@ -21,7 +21,6 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
   const location = useLocation();
 
   const { loadInitialTransactions } = useLoadTransactions();
-  const setLoading = useTransactionStore((state) => state.setLoading);
   const accountTransactionDict = useTransactionStore((state) => state.accountCategoryDict);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,7 +42,7 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
       formData.append("statement", file);
       formData.append("password", password);
 
-      const endpoint = `${import.meta.env.VITE_API_URL}/process-pdf/`;
+      const endpoint = `${import.meta.env.VITE_API_URL}/process-mpesa-statement/`;
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -62,9 +61,6 @@ function MpesaUploadSection({ setOpen }: { setOpen: (open: boolean) => void }) {
           const isBaseUrl = location.pathname === "/";
           if (isBaseUrl) {
             navigate("/dashboard");
-            setTimeout(() => {
-              setLoading(false);
-            }, 200);
           }
         });
 

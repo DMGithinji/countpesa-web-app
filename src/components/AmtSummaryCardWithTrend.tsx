@@ -22,7 +22,7 @@ function CustomTooltip({
             "font-medium",
             mode === MoneyMode.MoneyOut ? "text-money-out" : "text-money-in"
           )}
-        >{`Balance: ${formatCurrency(payload[0].value || 0)}`}</p>
+        >{`${mode === MoneyMode.MoneyIn ? "Received" : "Spent"} ${formatCurrency(payload[0].value || 0)}`}</p>
       </div>
     );
   }
@@ -101,12 +101,12 @@ function AmtSummaryCardWithTrend({
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-normal mb-0 pb-0">
-          Total {type} ({count} Trs)
+          {type} ({count.toLocaleString()} Transactions)
         </CardTitle>
         {mode === MoneyMode.MoneyIn ? (
-          <ArrowUpCircle size={18} className="text-money-in" />
+          <ArrowDownCircle size={18} className="text-money-in" />
         ) : (
-          <ArrowDownCircle size={18} className="text-money-out" />
+          <ArrowUpCircle size={18} className="text-money-out" />
         )}
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">

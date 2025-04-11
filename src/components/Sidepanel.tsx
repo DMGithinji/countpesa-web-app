@@ -25,7 +25,7 @@ export function Sidepanel() {
 
   return (
     <Sheet open={sidepanelMode !== SidepanelMode.Closed}>
-      <SheetContent className="p-0">
+      <SheetContent className="p-0 w-full sm:w-xl">
         <Display mode={sidepanelMode} />
       </SheetContent>
     </Sheet>

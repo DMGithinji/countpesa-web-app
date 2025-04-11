@@ -95,10 +95,8 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
     navigator.clipboard.writeText(plainText).then(() => {
       setCopied(true);
       setTimeout(() => {
-        setTimeout(() => {
-          setCopied(false);
-        }, 2000);
-      }, 0);
+        setCopied(false);
+      }, 2000);
     });
   };
 

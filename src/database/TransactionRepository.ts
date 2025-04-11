@@ -10,6 +10,11 @@ import { AbstractQuery } from "./AbstractQuery";
 const getTrId = (amount: number, code: string): string => {
   return `${amount}_${code}`;
 };
+
+export const clearData = () => {
+  return db.delete();
+};
+
 export default class TransactionRepository extends AbstractQuery {
   protected tableDb: Dexie.Table<Transaction, string, Transaction>;
 
@@ -164,14 +169,5 @@ export default class TransactionRepository extends AbstractQuery {
 
     // Perform batch update
     await this.bulkUpdate(updates);
-  }
-
-  clearAllData() {
-    return Promise.all([
-      this.tableDb.clear(),
-      db.analysisReports.clear(),
-      db.categories.clear(),
-      db.subcategories.clear(),
-    ]);
   }
 }

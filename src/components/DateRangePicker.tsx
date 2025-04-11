@@ -21,7 +21,7 @@ import {
   addYears,
   isAfter,
 } from "date-fns";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -165,7 +165,7 @@ function getGoToPeriod(
   return { from: newFrom, to: newTo };
 }
 
-export default function DateRangePicker({
+function DateRangePicker({
   range,
   onDateChange,
 }: {
@@ -188,42 +188,50 @@ export default function DateRangePicker({
   const [open, setOpen] = useState(false);
 
   // Format the date range for display on the button
-  const formatDateRange = () => {
+  const formatDateRange = useCallback(() => {
     if (!date?.from) return "Select date range";
     if (!date.to) return format(date.from, "PPP");
     return `${format(date.from, "MMM d, yyyy")} - ${format(date.to, "MMM d, yyyy")}`;
-  };
+  }, [date]);
 
-  const handleRangeSelection = (selectedRange: DateRange | undefined) => {
-    const newFrom = selectedRange?.from ? startOfDay(selectedRange.from) : selectedRange?.from;
-    const newTo = selectedRange?.to ? endOfDay(selectedRange.to) : selectedRange?.to;
-    const newDateRange = { from: newFrom, to: newTo };
-    setDate(newDateRange);
-    onDateChange(newDateRange);
-  };
+  const handleRangeSelection = useCallback(
+    (selectedRange: DateRange | undefined) => {
+      const newFrom = selectedRange?.from ? startOfDay(selectedRange.from) : selectedRange?.from;
+      const newTo = selectedRange?.to ? endOfDay(selectedRange.to) : selectedRange?.to;
+      const newDateRange = { from: newFrom, to: newTo };
+      setDate(newDateRange);
+      onDateChange(newDateRange);
+    },
+    [onDateChange]
+  );
 
   const nextDisabled = date?.to && isAfter(addDays(date.to, 1), new Date());
 
   // Handle preset selection
-  const handlePresetChange = (preset: DateRange | undefined) => {
-    if (!preset) return;
-    if (preset.to && isAfter(new Date(preset.to), new Date())) {
-      Object.assign(preset, { to: endOfDay(new Date()) });
-    }
-    const newDateRange = preset;
-    setDate(newDateRange);
-    onDateChange(newDateRange);
-    setOpen(false);
-  };
+  const handlePresetChange = useCallback(
+    (preset: DateRange | undefined) => {
+      if (!preset) return;
+      if (preset.to && isAfter(new Date(preset.to), new Date())) {
+        Object.assign(preset, { to: endOfDay(new Date()) });
+      }
+      const newDateRange = preset;
+      setDate(newDateRange);
+      onDateChange(newDateRange);
+      setOpen(false);
+    },
+    [onDateChange]
+  );
 
   // Determine the period type and if navigation arrows should be shown
   const { periodType, showNavigationArrows } = useMemo(() => getPeriodPresets(date), [date]);
-  const navigateToPeriod = (change: number) => {
-    const newDateRange = getGoToPeriod(date, periodType, change);
-    if (!newDateRange) return;
-    handlePresetChange(newDateRange);
-    onDateChange(newDateRange);
-  };
+  const navigateToPeriod = useCallback(
+    (change: number) => {
+      const newDateRange = getGoToPeriod(date, periodType, change);
+      if (!newDateRange) return;
+      onDateChange(newDateRange);
+    },
+    [date, periodType, onDateChange]
+  );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -296,3 +304,5 @@ export default function DateRangePicker({
     </Popover>
   );
 }
+
+export default memo(DateRangePicker);

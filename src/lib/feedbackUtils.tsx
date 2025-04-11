@@ -19,13 +19,13 @@ export interface Message {
 
 export const submitData = async ({ message, email, type }: Message) => {
   const submissionData = {
-    google_sheet: GoogleSheet.CountpesaFeedback,
+    google_sheet_name: GoogleSheet.CountpesaFeedback,
     message,
     email,
     type: type === "error" ? "Error Report" : "Web App Feedback",
   };
 
-  const endpoint = `${import.meta.env.VITE_FEEDBACK_ENDPOINT}/feedback/`;
+  const endpoint = `${import.meta.env.VITE_API_URL}/feedback/`;
 
   fetch(endpoint, {
     method: "POST",

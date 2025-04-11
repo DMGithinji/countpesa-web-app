@@ -1,9 +1,10 @@
 import { useCallback, useState } from "react";
 import { Ellipsis, Database, HardDriveDownload } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useCategoryRepository, useTransactionRepository } from "@/context/RepositoryContext";
 import { getEncrypted } from "@/lib/encryptionUtils";
 import { format } from "date-fns";
+import { Separator } from "@radix-ui/react-select";
+import { clearData } from "@/database/TransactionRepository";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -11,16 +12,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function MoreActions() {
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const transactionRepository = useTransactionRepository();
   const categoryRepository = useCategoryRepository();
 
   const handleClearData = async () => {
-    await transactionRepository.clearAllData();
-    navigate("/");
+    await clearData();
+    window.location.reload();
   };
 
   const handleBackup = useCallback(async () => {
@@ -58,6 +59,12 @@ export function MoreActions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-40">
+        <div className="flex flex-col md:hidden">
+          <DropdownMenuItem className="flex items-center gap-2 pt-2 cursor-pointer">
+            <ThemeToggle />
+          </DropdownMenuItem>
+          <Separator className="border-1" />
+        </div>
         <DropdownMenuItem
           onClick={handleBackup}
           className="flex items-center gap-2 py-3  cursor-pointer"

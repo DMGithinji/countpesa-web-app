@@ -209,9 +209,6 @@ export function useUploadData() {
     const isBaseUrl = location.pathname === "/";
     if (isBaseUrl) {
       navigate("/dashboard");
-      setTimeout(() => {
-        setLoading(false);
-      }, 400);
     } else {
       setLoading(false);
     }

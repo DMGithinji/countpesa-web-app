@@ -159,6 +159,7 @@ export function useLoadTransactions() {
     } catch {
       setError("Failed to fetch transactions");
     } finally {
+      // set timeout allows animation of charts on load
       setTimeout(() => setLoading(false), 100);
     }
   }, [

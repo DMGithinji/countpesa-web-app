@@ -139,10 +139,9 @@ function Layout({ children }: LayoutProps) {
 
         {/* Main content */}
         <div className="flex-1 flex flex-col overflow-hidden relative">
-          {/* Content area - Add bottom padding on mobile for the navigation bar */}
           <Header />
           <main className="flex-1 overflow-y-auto ">
-            <div className="mx-auto p-6 pb-20 pt-0 sm:pb-8 relative">
+            <div className="mx-auto p-2 md:p-4 pb-20 pt-0 sm:pb-8 relative">
               <HeaderWithFilters />
               <div className="pt-2">{children}</div>
             </div>
@@ -157,9 +156,7 @@ function Layout({ children }: LayoutProps) {
                     <Link
                       to={item.path}
                       className={`flex flex-col items-center justify-center h-full py-1 ${
-                        location.pathname === item.path
-                          ? "text-green-primary"
-                          : "text-gray-500 hover:text-green-primary"
+                        location.pathname === item.path ? "text-primary" : "text-gray-500"
                       }`}
                     >
                       {item.icon}

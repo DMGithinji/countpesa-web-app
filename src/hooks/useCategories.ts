@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import useCategoriesStore from "@/stores/categories.store";
 import { DEFAULT_CATEGORIES } from "@/types/Categories";
 import { useCategoryRepository } from "@/context/RepositoryContext";
@@ -10,6 +11,7 @@ import { useCategoryRepository } from "@/context/RepositoryContext";
 export function useCategories() {
   const categoryRepository = useCategoryRepository();
   const setCombinedCategories = useCategoriesStore((state) => state.setCombinedCategories);
+  const { pathname } = useLocation();
 
   const loadCategories = useCallback(async () => {
     const combinedCategories = await categoryRepository.getCategoriesWithSubcategories();
@@ -17,7 +19,13 @@ export function useCategories() {
   }, [categoryRepository, setCombinedCategories]);
 
   const preloadDefaultCategories = useCallback(async () => {
+    const isDashboard = pathname.includes("dashboard");
     try {
+      const categoriesExist = await categoryRepository.getAllCategories();
+      if (categoriesExist.length > 0 || !isDashboard) {
+        loadCategories();
+        return;
+      }
       // Process categories sequentially with reduce
       await DEFAULT_CATEGORIES.reduce(async (previousPromise, category) => {
         // Wait for the previous category to be processed
@@ -49,7 +57,7 @@ export function useCategories() {
     } catch (error) {
       console.error("Error preloading categories:", error);
     }
-  }, [categoryRepository, loadCategories]);
+  }, [categoryRepository, loadCategories, pathname]);
 
   return {
     preloadDefaultCategories,

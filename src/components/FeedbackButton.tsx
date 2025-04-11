@@ -41,14 +41,15 @@ function FeedbackButton() {
 
   return (
     <>
-      <Button
-        variant="ghost"
+      <div
+        role="none"
+        className="hover:bg-secondary focus:bg-secondary cursor-pointer px-2 py-2 rounded-full flex gap-2 items-center"
         onClick={() => setOpen(true)}
-        aria-label="Provide feedback"
         title="Provide feedback"
       >
-        <MessageSquare className="h-4 w-4" />
-      </Button>
+        <MessageSquare size={18} />
+        <span className="block md:hidden">Feedback</span>
+      </div>
 
       <Dialog
         open={open}

@@ -16,12 +16,13 @@ interface AmtSummaryCardProps {
 function AmtSummaryCard({ type, count, amount, mode, Icon, average, period }: AmtSummaryCardProps) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-sm md:text-base font-normal">
-          {type} ({count} Transactions)
+          {type} ({count.toLocaleString()} Transactions)
         </CardTitle>
         <Icon
-          className={`h-4 w-4 ${MoneyMode.MoneyIn === mode ? "text-money-in" : "text-money-out"}`}
+          size={18}
+          className={`${MoneyMode.MoneyIn === mode ? "text-money-in" : "text-money-out"}`}
         />
       </CardHeader>
       <CardContent>

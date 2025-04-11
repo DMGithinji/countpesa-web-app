@@ -5,6 +5,8 @@ import useTransactionStore from "@/stores/transactions.store";
 import TopTrsGroupedByField from "./TopTrsGroupedByField";
 import ChartTransactions from "./ChartTransactions";
 
+const TOP_COUNT = 6;
+
 function TopGroups() {
   const [selectedTransactions, setSelectedTransactions] = useState<{
     title: string;
@@ -30,22 +32,22 @@ function TopGroups() {
       <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
         <TopTrsGroupedByField
           groupedBy={GroupByField.Account}
-          moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, 5)}
-          moneyOutSummaryByAmt={topAccountsSentToByAmt.slice(0, 5)}
-          moneyInSummaryByCount={topAccountsReceivedFromByCount.slice(0, 5)}
-          moneyOutSummaryByCount={topAccountsSentToByCount.slice(0, 5)}
+          moneyInSummaryByAmt={topAccountsReceivedFromByAmt.slice(0, TOP_COUNT)}
+          moneyOutSummaryByAmt={topAccountsSentToByAmt.slice(0, TOP_COUNT)}
+          moneyInSummaryByCount={topAccountsReceivedFromByCount.slice(0, TOP_COUNT)}
+          moneyOutSummaryByCount={topAccountsSentToByCount.slice(0, TOP_COUNT)}
           onSelectGroup={setSelectedTransactions}
         />
         <TopTrsGroupedByField
           groupedBy={GroupByField.Category}
-          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, 5)}
-          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, 5)}
-          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, 5)}
-          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, 5)}
+          moneyInSummaryByAmt={topCategoriesMoneyInByAmt.slice(0, TOP_COUNT)}
+          moneyOutSummaryByAmt={topCategoriesMoneyOutByAmt.slice(0, TOP_COUNT)}
+          moneyInSummaryByCount={topCategoriesMoneyInByCount.slice(0, TOP_COUNT)}
+          moneyOutSummaryByCount={topCategoriesMoneyOutByCount.slice(0, TOP_COUNT)}
           onSelectGroup={setSelectedTransactions}
         />
       </div>
-      <div className="lg:col-span-1">
+      <div className="lg:col-span-1 hidden sm:block">
         <ChartTransactions
           selected={selectedTransactions}
           defaultDisplayMode="all"
