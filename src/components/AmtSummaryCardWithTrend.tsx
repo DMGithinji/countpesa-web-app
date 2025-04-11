@@ -132,7 +132,7 @@ function AmtSummaryCardWithTrend({
           </span>
           <span className="text-muted-foreground">{PeriodDict[chartPeriod]} Avg </span>
         </div>
-        <div className="md:mt-[-24px]">
+        <div className="md:mt-[-24px] hidden sm:block">
           <div>
             <Select value={chartPeriod} onValueChange={(value) => setChartPeriod(value as Period)}>
               <SelectTrigger className="h-7 w-auto border-none px-1 shadow-none flex gap-2 items-center focus:border-none focus:ring-none focus:outline-none capitalize">

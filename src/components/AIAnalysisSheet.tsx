@@ -1,5 +1,6 @@
+import { useRef } from "react";
 import { marked } from "marked";
-import { ClipboardCheck, ClipboardCopy, Sparkle } from "lucide-react";
+import { Download, Sparkle } from "lucide-react";
 import { formatDate } from "date-fns";
 import {
   Drawer,
@@ -13,22 +14,19 @@ import {
 
 import { useAIAnalysis } from "@/hooks/useAIAnalysis";
 import useUiStore from "@/stores/ui.store";
+import usePrint from "@/hooks/usePrint";
 import { ScrollArea } from "./ui/scroll-area";
 import { Button } from "./ui/button";
 
 function AIAnalysisSheet() {
   const isOpen = useUiStore((state) => state.drawerOpen);
   const setDrawerOpen = useUiStore((state) => state.setDrawerOpen);
+  const reportContentRef = useRef(null);
 
-  const {
-    isLoading,
-    aiResponse,
-    reportRange,
-    copied,
-    saveOnClose,
-    copyToClipboard,
-    generateAssessment,
-  } = useAIAnalysis({ isAnalysisSheetOpen: isOpen });
+  const printReport = usePrint();
+  const { isLoading, aiResponse, reportRange, saveOnClose, generateAssessment } = useAIAnalysis({
+    isAnalysisSheetOpen: isOpen,
+  });
 
   const handleOnClose = async () => {
     await saveOnClose();
@@ -39,7 +37,7 @@ function AIAnalysisSheet() {
     <Drawer open={isOpen} onClose={handleOnClose}>
       <DrawerContent className="container mx-auto max-w-4xl">
         <DrawerHeader>
-          <DrawerTitle className="flex gap-2 items-center ">
+          <DrawerTitle className="flex gap-2 items-center">
             <Sparkle className="h-6 w-6" />
             <span className="!text-foreground">
               AI Financial Assessment Report ({formatDate(reportRange.from, "MMMM d, yyyy")} -{" "}
@@ -54,15 +52,17 @@ function AIAnalysisSheet() {
               </div>
             ) : (
               <ScrollArea className="whitespace-pre-wrap prose h-[400px] rounded-md border max-w-none pt-4 px-4">
-                {aiResponse ? (
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: marked.parse(aiResponse),
-                    }}
-                  />
-                ) : (
-                  "Preparing your financial assessment..."
-                )}
+                <div
+                  id="report-content-container"
+                  ref={reportContentRef}
+                  className="p-4 report-content"
+                  data-report-content="true"
+                  dangerouslySetInnerHTML={{
+                    __html: aiResponse
+                      ? marked.parse(aiResponse)
+                      : "<p>Preparing your financial assessment...</p>",
+                  }}
+                />
               </ScrollArea>
             )}
           </DrawerDescription>
@@ -80,16 +80,12 @@ function AIAnalysisSheet() {
             <div className="flex gap-2">
               <Button
                 variant="secondary"
-                onClick={copyToClipboard}
+                onClick={() => printReport({ aiResponse, reportRange })}
                 disabled={isLoading || !aiResponse}
                 className="flex items-center gap-2 cursor-pointer text-foreground"
               >
-                {copied ? (
-                  <ClipboardCheck className="h-4 w-4" />
-                ) : (
-                  <ClipboardCopy className="h-4 w-4" />
-                )}
-                Copy
+                <Download className="h-4 w-4" />
+                Print Report
               </Button>
               <DrawerClose>
                 <Button

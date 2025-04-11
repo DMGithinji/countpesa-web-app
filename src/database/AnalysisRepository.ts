@@ -1,7 +1,5 @@
-import { format } from "date-fns";
 import Dexie from "dexie";
-import { SetDateRange } from "@/lib/getDateRangeData";
-import { AnalysisReport, AssessmentMode } from "@/prompts/types";
+import { AnalysisReport } from "@/prompts/types";
 import db from "./schema";
 
 export default class AnalysisRepository {
@@ -27,6 +25,3 @@ export default class AnalysisRepository {
     return this.getReportTable().get(id);
   }
 }
-
-export const getReportAnalysisId = (dateRange: SetDateRange, assessmentMode: AssessmentMode) =>
-  `${format(dateRange.from, "dd-MM-yyyy")}-${format(dateRange.to, "dd-MM-yyyy")}_${assessmentMode}`;

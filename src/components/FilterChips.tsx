@@ -99,7 +99,7 @@ export function FilterChips({ className }: { className?: string }) {
 
   return (
     <div
-      className={`flex gap-2 flex-wrap overflow-x-auto w-full pb-1 ${className}`}
+      className={`flex gap-2 flex-wrap overflow-x-auto w-full py-1 ${className}`}
       role="region"
       aria-label="Active filters"
     >

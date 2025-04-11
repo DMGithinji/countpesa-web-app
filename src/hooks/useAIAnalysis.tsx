@@ -4,9 +4,24 @@ import useTransactionStore from "@/stores/transactions.store";
 import { useAnalysisRepository } from "@/context/RepositoryContext";
 import { submitData } from "@/lib/feedbackUtils";
 import { getAnalysisPrompt } from "@/prompts/composer";
-import { getReportAnalysisId } from "@/database/AnalysisRepository";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AnalysisReport } from "@/prompts/types";
+import { AnalysisReport, AssessmentMode } from "@/prompts/types";
+import { SetDateRange } from "@/lib/getDateRangeData";
+import { Filter } from "@/types/Filters";
+import { format } from "date-fns";
+import { sortBy } from "@/lib/utils";
+
+export const getReportAnalysisId = (
+  dateRange: SetDateRange,
+  assessmentMode: AssessmentMode,
+  filters: Filter[]
+) =>
+  `${format(dateRange.from, "dd-MM-yyyy")}-${format(dateRange.to, "dd-MM-yyyy")}_${assessmentMode}_${sortBy(
+    filters,
+    "field"
+  )
+    .map((f) => `${f.field}_${f.operator}_${f.value}`)
+    .join("_")}`;
 
 export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: boolean }) => {
   const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
@@ -15,6 +30,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
   const [copied, setCopied] = useState(false);
   const analysisRepository = useAnalysisRepository();
 
+  const filters = useTransactionStore((state) => state.currentFilters || []);
   const dateRangeData = useTransactionStore((state) => state.dateRangeData);
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
@@ -33,7 +49,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
   const generateAssessment = useCallback(
     async (ignorePast = false) => {
       setIsLoading(true);
-      const reportId = getReportAnalysisId(dateRange, assessmentMode);
+      const reportId = getReportAnalysisId(dateRange, assessmentMode, filters);
       const existingReport = await analysisRepository.getReport(reportId);
 
       if (existingReport && !ignorePast) {
@@ -48,7 +64,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        const prompt = getAnalysisPrompt(assessmentMode, derivedState);
+        const prompt = getAnalysisPrompt(assessmentMode, derivedState, filters);
 
         // Use the non-streaming version of the API instead
         const result = await model.generateContent(prompt);
@@ -70,7 +86,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         setIsLoading(false);
       }
     },
-    [dateRange, assessmentMode, analysisRepository, derivedState]
+    [dateRange, assessmentMode, filters, analysisRepository, derivedState]
   );
 
   useEffect(() => {
@@ -80,7 +96,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
   }, [generateAssessment, derivedState.calculatedData, isAnalysisSheetOpen]);
 
   const saveOnClose = async () => {
-    const reportId = getReportAnalysisId(dateRange, assessmentMode);
+    const reportId = getReportAnalysisId(dateRange, assessmentMode, filters);
     if (aiResponse) {
       await analysisRepository.saveReport({
         id: reportId,

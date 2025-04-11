@@ -40,7 +40,7 @@ function TransactionsPage() {
 
   return (
     <div className="flex flex-col gap-12">
-      <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-8 grid-cols-2 md:grid-cols-2">
         <AmtSummaryCardWithTrend
           type="Received"
           count={transactionTotals.moneyInCount}

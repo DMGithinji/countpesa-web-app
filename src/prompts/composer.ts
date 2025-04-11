@@ -1,5 +1,6 @@
 import { Transaction } from "@/types/Transaction";
 import { DerivedState } from "@/stores/transactions.store";
+import { Filter } from "@/types/Filters";
 import { createInitialPrompt } from "./templates/initialPrompt";
 import { createFollowUpPrompt } from "./templates/followUpPrompt";
 import { getSeriousAnalysisPromptTemplate } from "./templates/seriousAnalysisPrompt";
@@ -21,14 +22,18 @@ export const getFollowUpPrompt = (derivedData: DerivedState, originalQuery: stri
   );
 };
 
-export const getAnalysisPrompt = (type: AssessmentMode, derivedData: DerivedState) => {
+export const getAnalysisPrompt = (
+  type: AssessmentMode,
+  derivedData: DerivedState,
+  filters: Filter[]
+) => {
   const calculatedSummary = getCalculationSummary(derivedData);
   const { dateRange } = derivedData.dateRangeData;
   switch (type) {
     case AssessmentMode.SERIOUS:
-      return getSeriousAnalysisPromptTemplate(calculatedSummary, dateRange);
+      return getSeriousAnalysisPromptTemplate(calculatedSummary, dateRange, filters);
     case AssessmentMode.ROAST:
-      return getRoastAnalysisPromptTemplate(calculatedSummary, dateRange);
+      return getRoastAnalysisPromptTemplate(calculatedSummary, dateRange, filters);
     default:
       throw new Error("Invalid analysis type");
   }
