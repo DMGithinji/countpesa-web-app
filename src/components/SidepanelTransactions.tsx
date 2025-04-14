@@ -52,7 +52,7 @@ function SidepanelTransactions() {
 
   return (
     <div>
-      <CardHeader className="bg-secondary text-white sticky top-0 z-50 pt-2 pb-2 pl-4 pr-0">
+      <CardHeader className="bg-[#222] text-white sticky top-0 z-50 pt-2 pb-2 pl-4 pr-0">
         <div className="flex flex-row items-start justify-between space-y-0">
           <div className="text-base font-medium">
             {transactionSummary?.name

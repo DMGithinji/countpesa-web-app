@@ -61,10 +61,10 @@ function CountPesaLanding() {
           <p className="text-lg text-muted-foreground mb-2">
             Turn your M-Pesa data into clear, actionable insights.
           </p>
-          <p className="text-lg text-muted-foreground mb-8">
-            All data is stored locally in your browser, with zero server storage. <br />{" "}
-            <div className="pt-2">100% for your eyes only.</div>
-          </p>
+          <div className="text-lg text-muted-foreground mb-8">
+            <p>All data is stored locally in your browser, with zero server storage.</p>
+            <p className="pt-2">100% for your eyes only.</p>
+          </div>
 
           <div className="flex justify-center gap-4 mb-12">
             <UploadStatementButton variant="default" />
