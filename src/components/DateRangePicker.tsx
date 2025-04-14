@@ -25,6 +25,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 
 type PeriodType = "day" | "week" | "month" | "year" | "custom";
@@ -235,7 +236,7 @@ function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex gap-1 items-center">
+      <div className="2xl:-ml-4 flex gap-1 items-center ">
         {showNavigationArrows && (
           <Button
             variant="ghost"
@@ -276,7 +277,14 @@ function DateRangePicker({
                 key={preset.name}
                 variant="ghost"
                 size="sm"
-                className="text-sm justify-start font-normal w-full"
+                className={cn(
+                  "text-sm justify-start font-normal w-full",
+                  date?.to &&
+                    date?.from &&
+                    isSameDay(date.to, preset.getValue().to) &&
+                    isSameDay(date.from, preset.getValue().from) &&
+                    "bg-primary !text-primary-foreground hover:bg-primary!"
+                )}
                 onClick={() => handlePresetChange(preset.getValue())}
               >
                 {preset.name}
