@@ -2,7 +2,7 @@ import { endOfWeek, format, formatDate, startOfWeek } from "date-fns";
 import { Transaction } from "@/types/Transaction";
 import { calculateTransactionTotals } from "./getTotal";
 import { CalculatedData } from "./getCalculatedData";
-import { DateRangeData } from "./getDateRangeData";
+import { DateRangeData } from "./dateUtils/getDateRangeData";
 
 export enum Period {
   HOUR = "hour",

@@ -236,7 +236,7 @@ function DateRangePicker({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="2xl:-ml-4 flex gap-1 items-center ">
+      <div className="flex gap-1 items-center ">
         {showNavigationArrows && (
           <Button
             variant="ghost"

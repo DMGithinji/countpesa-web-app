@@ -1,6 +1,6 @@
 import { Transaction } from "@/types/Transaction";
 import { deconstructTrCategory } from "@/lib/categoryUtils";
-import { getDateRangeData } from "@/lib/getDateRangeData";
+import { getDateRangeData } from "@/lib/dateUtils";
 import { getCalculatedData } from "@/lib/getCalculatedData";
 import { PromptContext } from "../types";
 import { getSystemInfo } from "../components/system";

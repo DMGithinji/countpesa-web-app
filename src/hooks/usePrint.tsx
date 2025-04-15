@@ -1,4 +1,4 @@
-import { SetDateRange } from "@/lib/getDateRangeData";
+import { SetDateRange } from "@/lib/dateUtils";
 import { formatDate } from "date-fns";
 import { marked } from "marked";
 

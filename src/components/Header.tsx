@@ -47,7 +47,7 @@ function Header() {
 
   return (
     <header className="sticky top-0 w-full border-b pt-2 pb-4 h-14">
-      <div className="flex justify-between items-center max-w-7xl mx-auto">
+      <div className="flex justify-between items-center max-w-[1820px] mx-auto">
         <div className="flex space-x-4 items-center">
           <DateRangePicker range={dateRangeData.dateRange} onDateChange={handleDateChange} />
           <Button variant="outline" onClick={() => setSidepanel(SidepanelMode.Filters)}>
@@ -91,7 +91,7 @@ export function HeaderWithFilters() {
   const currentFilters = useTransactionStore((state) => state.currentFilters);
 
   return (
-    <div className="sticky top-0 max-w-7xl mx-auto pt-2 z-[10]">
+    <div className="sticky top-0 max-w-[1820px] mx-auto pt-2 z-[10]">
       {currentFilters?.length ? <FilterChips /> : null}
     </div>
   );

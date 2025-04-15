@@ -1,6 +1,6 @@
 import Dexie from "dexie";
 import { AnalysisReport, AssessmentMode } from "@/prompts/types";
-import { SetDateRange } from "@/lib/getDateRangeData";
+import { SetDateRange } from "@/lib/dateUtils";
 import { Filter } from "@/types/Filters";
 import { format } from "date-fns";
 import { sortBy } from "@/lib/utils";

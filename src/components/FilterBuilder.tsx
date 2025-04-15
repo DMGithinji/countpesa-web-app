@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import { useFilterBuilder } from "@/hooks/useFilterBuilder";
-import { fieldOptions } from "@/lib/filterChipUtils";
+import { fieldOptions } from "@/lib/filterUtils";
 import { FilterChips } from "./FilterChips";
 import SelectionDropdown from "./SelectionDropDown";
 import { Input } from "./ui/input";

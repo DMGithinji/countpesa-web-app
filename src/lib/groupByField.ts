@@ -92,7 +92,7 @@ export function groupTrxByField(
   return result.sort((a, b) => Math.abs(b[sortBy]) - Math.abs(a[sortBy]));
 }
 
-export function groupTrxByFieldAndSummarize(
+function groupTrxByFieldAndSummarize(
   transactions: Transaction[],
   field: GroupByField,
   sortBy: "amount" | "count" = "amount"

@@ -143,7 +143,7 @@ function Layout({ children }: LayoutProps) {
           <main className="flex-1 overflow-y-auto ">
             <div className="mx-auto px-2 md:px-4 pb-20 sm:pb-8 relative">
               <HeaderWithFilters />
-              <div className="pt-2 max-w-7xl mx-auto">{children}</div>
+              <div className="pt-2 max-w-[1820px] mx-auto">{children}</div>
             </div>
           </main>
 
