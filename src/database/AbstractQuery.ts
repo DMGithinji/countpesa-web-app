@@ -1,7 +1,7 @@
 import { Query } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
 import Dexie from "dexie";
-import { filterTransactions } from "@/lib/filterUtils/filter";
+import { filterTransactions } from "@/lib/filterUtils";
 
 export abstract class AbstractQuery {
   /**

@@ -9,7 +9,7 @@ import {
   getHourOptions,
   getTransactionTypeOptions,
   getValueDisplayLabel,
-} from "@/lib/filterChipUtils";
+} from "@/lib/filterUtils";
 import useTransactionStore from "@/stores/transactions.store";
 
 export interface UseFilterBuilderProps {

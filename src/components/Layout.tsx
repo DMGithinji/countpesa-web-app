@@ -106,7 +106,7 @@ function Layout({ children }: LayoutProps) {
                 variant="outline"
                 size="sm"
                 onClick={toggleSidebar}
-                className="bg-secondary shadow cursor-pointer w-5 h-5 z-50 mr-[-26px] mb-[-48px] hover:text-background-foreground opacity-50 hover:opacity-100"
+                className="bg-secondary shadow cursor-pointer w-5 h-5 z-50 mr-[-26px] mb-[-48px] hover:text-background-foreground opacity-30 hover:opacity-100"
               >
                 <ChevronLeft
                   size={20}
@@ -143,7 +143,7 @@ function Layout({ children }: LayoutProps) {
           <main className="flex-1 overflow-y-auto ">
             <div className="mx-auto px-2 md:px-4 pb-20 sm:pb-8 relative">
               <HeaderWithFilters />
-              <div className="pt-2 max-w-7xl mx-auto">{children}</div>
+              <div className="pt-2 max-w-[1820px] mx-auto">{children}</div>
             </div>
           </main>
 

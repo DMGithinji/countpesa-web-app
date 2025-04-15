@@ -1,6 +1,6 @@
 import { MoneyMode, Transaction, TransactionTypes } from "@/types/Transaction";
 import { Filter, FilterMode } from "@/types/Filters";
-import { filterTransactions } from "@/lib/filterUtils/filter";
+import { filterTransactions } from "@/lib/filterUtils";
 
 const mockTransactions: Transaction[] = [
   {

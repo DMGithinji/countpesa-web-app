@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useSidepanelStore, { SidepanelMode } from "@/stores/ui.store";
 import { useFilterBuilder } from "@/hooks/useFilterBuilder";
-import { fieldOptions } from "@/lib/filterChipUtils";
+import { fieldOptions } from "@/lib/filterUtils";
 import { FilterChips } from "./FilterChips";
 import SelectionDropdown from "./SelectionDropDown";
 import { Input } from "./ui/input";
@@ -49,15 +49,15 @@ function FilterBuilder() {
 
   return (
     <div className="flex flex-col h-full">
-      <CardHeader className="bg-secondary text-white sticky top-0 z-50 pl-4 pr-0">
+      <CardHeader className="bg-[#222] text-white sticky top-0 z-50 pl-4 pr-0">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex gap-2 items-center pt-4.5 pb-3 text-white">
-            <ListFilter size={20} className="text-primary" /> Filter Builder
+          <CardTitle className="flex gap-2 items-center pt-4.5 pb-4 text-white">
+            <ListFilter size={20} className="text-white" /> Filter Builder
           </CardTitle>
           <Button
             variant="ghost"
             onClick={() => setSidepanel(SidepanelMode.Closed)}
-            className="hover:bg-transparent hover:text-white"
+            className="hover:bg-transparent text-white hover:text-white"
           >
             <X size={16} />
           </Button>

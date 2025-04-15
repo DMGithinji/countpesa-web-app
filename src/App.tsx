@@ -10,7 +10,6 @@ import LandingPage from "./pages/LandingPage";
 import useTransactionStore from "./stores/transactions.store";
 import Loader from "./components/Loader";
 
-// A component that handles initialization for app routes
 function AppInitializer({ children }: { children: React.ReactNode }) {
   useAppInitializer();
   const loading = useTransactionStore((state) => state.loading);
@@ -20,14 +19,14 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   return children;
 }
 
-function AppRoutes() {
-  const routes = [
-    { path: "/dashboard", element: <DashboardPage /> },
-    { path: "/transactions", element: <TransactionsPage /> },
-    { path: "/accounts", element: <AccountsPage /> },
-    { path: "/categories", element: <CategoriesPage /> },
-  ];
+const routes = [
+  { path: "/dashboard", element: <DashboardPage /> },
+  { path: "/transactions", element: <TransactionsPage /> },
+  { path: "/accounts", element: <AccountsPage /> },
+  { path: "/categories", element: <CategoriesPage /> },
+];
 
+function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />

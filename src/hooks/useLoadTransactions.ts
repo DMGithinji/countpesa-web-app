@@ -62,7 +62,7 @@ const getDemoData = async () => {
       .filter((tr) => tr !== null); // Remove null transactions (future dates)
 
     // Add new year's transactions to the collection
-    allTransactions = [...allTransactions, ...yearTransactions];
+    allTransactions = [...yearTransactions];
   }
 
   return allTransactions;
