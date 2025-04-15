@@ -7,7 +7,7 @@ import {
   DEFAULT_CALCULATED_DATA,
   getCalculatedData,
 } from "@/lib/getCalculatedData";
-import { DateRangeData, DEFAULT_DATE_RANGE_DATA, getDateRangeData } from "@/lib/getDateRangeData";
+import { DateRangeData, DEFAULT_DATE_RANGE_DATA, getDateRangeData } from "@/lib/dateUtils";
 import { getAllAccountNames } from "@/lib/groupByField";
 import { filterTransactions } from "@/lib/filterUtils/filter";
 import { getPeriodAverages, PeriodAverages } from "@/lib/groupByPeriod";
