@@ -15,7 +15,7 @@ import { getPeriodAverages, PeriodAverages } from "@/lib/groupByPeriod";
 interface TransactionState {
   allTransactions: Transaction[];
   transactions: Transaction[];
-  currentFilters: undefined | Filter[];
+  currentFilters: Filter[];
   loading: boolean;
   error: string;
 

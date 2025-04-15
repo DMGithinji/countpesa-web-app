@@ -1,5 +1,9 @@
 import Dexie from "dexie";
-import { AnalysisReport } from "@/prompts/types";
+import { AnalysisReport, AssessmentMode } from "@/prompts/types";
+import { SetDateRange } from "@/lib/getDateRangeData";
+import { Filter } from "@/types/Filters";
+import { format } from "date-fns";
+import { sortBy } from "@/lib/utils";
 import db from "./schema";
 
 export default class AnalysisRepository {
@@ -25,3 +29,15 @@ export default class AnalysisRepository {
     return this.getReportTable().get(id);
   }
 }
+
+export const getReportAnalysisId = (
+  dateRange: SetDateRange,
+  assessmentMode: AssessmentMode,
+  filters: Filter[]
+) =>
+  `${format(dateRange.from, "dd-MM-yyyy")}-${format(dateRange.to, "dd-MM-yyyy")}_${assessmentMode}_${sortBy(
+    filters,
+    "field"
+  )
+    .map((f) => `${f.field}_${f.operator}_${f.value}`)
+    .join("_")}`;
