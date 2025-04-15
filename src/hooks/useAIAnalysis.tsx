@@ -1,27 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useAIMessageStore from "@/stores/aiMessages.store";
 import useTransactionStore from "@/stores/transactions.store";
 import { useAnalysisRepository } from "@/context/RepositoryContext";
 import { submitData } from "@/lib/feedbackUtils";
 import { getAnalysisPrompt } from "@/prompts/composer";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AnalysisReport, AssessmentMode } from "@/prompts/types";
-import { SetDateRange } from "@/lib/getDateRangeData";
-import { Filter } from "@/types/Filters";
-import { format } from "date-fns";
-import { sortBy } from "@/lib/utils";
-
-export const getReportAnalysisId = (
-  dateRange: SetDateRange,
-  assessmentMode: AssessmentMode,
-  filters: Filter[]
-) =>
-  `${format(dateRange.from, "dd-MM-yyyy")}-${format(dateRange.to, "dd-MM-yyyy")}_${assessmentMode}_${sortBy(
-    filters,
-    "field"
-  )
-    .map((f) => `${f.field}_${f.operator}_${f.value}`)
-    .join("_")}`;
+import { AnalysisReport } from "@/prompts/types";
+import { getReportAnalysisId } from "@/database/AnalysisRepository";
 
 export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: boolean }) => {
   const assessmentMode = useAIMessageStore((state) => state.assessmentMode);
@@ -30,21 +15,11 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
   const [copied, setCopied] = useState(false);
   const analysisRepository = useAnalysisRepository();
 
-  const filters = useTransactionStore((state) => state.currentFilters || []);
-  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const filters = useTransactionStore((state) => state.currentFilters);
   const transactions = useTransactionStore((state) => state.transactions);
   const calculatedData = useTransactionStore((state) => state.calculatedData);
-  const { dateRange, derivedState } = useMemo(
-    () => ({
-      dateRange: dateRangeData.dateRange,
-      derivedState: {
-        transactions,
-        calculatedData,
-        dateRangeData,
-      },
-    }),
-    [calculatedData, dateRangeData, transactions]
-  );
+  const dateRangeData = useTransactionStore((state) => state.dateRangeData);
+  const { dateRange } = dateRangeData;
 
   const generateAssessment = useCallback(
     async (ignorePast = false) => {
@@ -64,9 +39,13 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        const prompt = getAnalysisPrompt(assessmentMode, derivedState, filters);
+        const derivedData = {
+          transactions,
+          calculatedData,
+          dateRangeData,
+        };
+        const prompt = getAnalysisPrompt(assessmentMode, derivedData, filters);
 
-        // Use the non-streaming version of the API instead
         const result = await model.generateContent(prompt);
         const response = result.response.text();
         setAIResponse(response);
@@ -86,16 +65,24 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         setIsLoading(false);
       }
     },
-    [dateRange, assessmentMode, filters, analysisRepository, derivedState]
+    [
+      dateRange,
+      assessmentMode,
+      filters,
+      analysisRepository,
+      transactions,
+      calculatedData,
+      dateRangeData,
+    ]
   );
 
   useEffect(() => {
-    if (isAnalysisSheetOpen && derivedState.calculatedData) {
+    if (isAnalysisSheetOpen && !!calculatedData) {
       generateAssessment();
     }
-  }, [generateAssessment, derivedState.calculatedData, isAnalysisSheetOpen]);
+  }, [generateAssessment, isAnalysisSheetOpen, calculatedData]);
 
-  const saveOnClose = async () => {
+  const saveOnClose = useCallback(async () => {
     const reportId = getReportAnalysisId(dateRange, assessmentMode, filters);
     if (aiResponse) {
       await analysisRepository.saveReport({
@@ -104,9 +91,9 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         createdAt: new Date(),
       } as AnalysisReport);
     }
-  };
+  }, [dateRange, assessmentMode, filters, aiResponse, analysisRepository]);
 
-  const copyToClipboard = () => {
+  const copyToClipboard = useCallback(() => {
     const plainText = aiResponse;
     navigator.clipboard.writeText(plainText).then(() => {
       setCopied(true);
@@ -114,7 +101,7 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
         setCopied(false);
       }, 2000);
     });
-  };
+  }, [aiResponse]);
 
   return {
     generateAssessment,

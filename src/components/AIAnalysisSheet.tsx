@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { marked } from "marked";
 import { Download, Sparkle } from "lucide-react";
 import { formatDate } from "date-fns";
@@ -28,10 +28,10 @@ function AIAnalysisSheet() {
     isAnalysisSheetOpen: isOpen,
   });
 
-  const handleOnClose = async () => {
+  const handleOnClose = useCallback(async () => {
     await saveOnClose();
     setDrawerOpen(false);
-  };
+  }, [saveOnClose, setDrawerOpen]);
 
   return (
     <Drawer open={isOpen} onClose={handleOnClose}>
