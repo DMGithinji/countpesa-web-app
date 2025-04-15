@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
-import { removeFilters, validateAndAddFilters } from "@/lib/filterUtils/validateFilters";
+import { removeFilters, validateAndAddFilters, filterTransactions } from "@/lib/filterUtils";
 import {
   CalculatedData,
   DEFAULT_CALCULATED_DATA,
@@ -9,7 +9,6 @@ import {
 } from "@/lib/getCalculatedData";
 import { DateRangeData, DEFAULT_DATE_RANGE_DATA, getDateRangeData } from "@/lib/dateUtils";
 import { getAllAccountNames } from "@/lib/groupByField";
-import { filterTransactions } from "@/lib/filterUtils/filter";
 import { getPeriodAverages, PeriodAverages } from "@/lib/groupByPeriod";
 
 interface TransactionState {
