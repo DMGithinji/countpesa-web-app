@@ -66,7 +66,7 @@ const useTransactionStore = create<TransactionState>((set) => ({
   // Initial state
   allTransactions: [],
   transactions: [],
-  currentFilters: undefined,
+  currentFilters: [],
   loading: true,
   error: "",
   accountNames: [],
