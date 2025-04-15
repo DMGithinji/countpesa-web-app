@@ -1,14 +1,20 @@
+import { memo, useEffect, useState } from "react";
+import { Home } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import UploadStatementButton from "@/components/Upload/LoadDataButton";
 import useTransactionStore from "@/stores/transactions.store";
-import { Home } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useTransactionRepository } from "@/context/RepositoryContext";
+import Loader from "@/components/Loader";
 import logoLg from "../assets/logo-lg.svg";
 
 function CountPesaLanding() {
+  const navigate = useNavigate();
+  const [loading, setIsLoading] = useState(true);
   const trs = useTransactionStore((state) => state.transactions);
+  const transactionRepository = useTransactionRepository();
 
   const goToDemo = async () => {
     window.location.href = "/demo/dashboard";
@@ -20,6 +26,23 @@ function CountPesaLanding() {
       "_blank"
     );
   };
+
+  useEffect(() => {
+    const defaultRedirect = async () => {
+      const hasTrs = (await transactionRepository.getTransactions()).length > 0;
+      if (hasTrs) {
+        navigate("/dashboard");
+        return;
+      }
+      setIsLoading(false);
+    };
+
+    defaultRedirect().catch(console.error);
+  }, [navigate, transactionRepository]);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground relative">
@@ -162,4 +185,4 @@ function CountPesaLanding() {
   );
 }
 
-export default CountPesaLanding;
+export default memo(CountPesaLanding);
