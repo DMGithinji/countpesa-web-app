@@ -8,7 +8,7 @@ import {
 } from "date-fns";
 import { Filter } from "@/types/Filters";
 import { Transaction } from "@/types/Transaction";
-import { Period } from "./groupByPeriod";
+import { Period } from "../groupByPeriod";
 
 export type SetDateRange = {
   from: Date;
@@ -32,7 +32,7 @@ export function getDateRangeData({
   currentFilters,
 }: {
   transactions: Transaction[];
-  currentFilters?: Filter[] | undefined;
+  currentFilters?: Filter[];
 }) {
   // Find date range filter if it exists
   const dateRangeFilter = currentFilters?.find((fl) => fl.field === "date");
@@ -73,7 +73,7 @@ export function getDateRangeData({
   if (isSameDay(start, end)) {
     defaultPeriod = Period.HOUR;
     validOptions = [Period.HOUR];
-  } else if (differenceInDays(end, start) >= 365) {
+  } else if (differenceInDays(end, start) >= 366) {
     defaultPeriod = Period.YEAR;
     validOptions = [Period.DATE, Period.WEEK, Period.MONTH, Period.YEAR];
   } else if (differenceInDays(end, start) >= 61) {
