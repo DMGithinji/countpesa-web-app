@@ -6,10 +6,11 @@ For privacy purposes, the app does not store any user data. All data is stored l
 
 ## Relevant Links
 
-- [Website](https://countpesa.com)
-- [Web App](https://app.countpesa.com)
-- [Download App from Google Play](https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo)
+- [Live Site](https://app.countpesa.com)
+- [Detailed Documentation](https://deepwiki.com/DMGithinji/countpesa-web-app)
+- [Download Mobile App from Google Play](https://play.google.com/store/apps/details?id=com.countpesa&utm_source=website&utm_medium=hero&utm_campaign=web_app_promo)
 - [Backend Service](https://github.com/DMGithinji/countpesa-server) - Simple API to process M-Pesa statements
+- [CountPesa Website](https://countpesa.com)
 
 ## Key Features
 
