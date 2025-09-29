@@ -17,13 +17,13 @@ export function AIContextProvider({ children }: { children: ReactNode }) {
   const AIChat = useMemo(() => {
     const filterGeneratorAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     const filteringModel = filterGeneratorAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
     });
     const filterChat = filteringModel.startChat({ history: [] });
 
     const analysisAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
     const analysisModel = analysisAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
     });
     return { filterChat, analysisModel };
     // eslint-disable-next-line react-hooks/exhaustive-deps
