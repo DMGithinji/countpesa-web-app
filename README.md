@@ -61,6 +61,12 @@ yarn install # or npm install --legacy-peer-deps
 ```
 VITE_GEMINI_API_KEY=your_gemini_api_key_here
 VITE_API_URL=backend_api_url
+VITE_SECRET_KEY=hex_aes_key_shared_with_the_phone_app
+VITE_IV_STRING=hex_aes_iv_shared_with_the_phone_app
+# Optional: enables "Sync from Google Drive" (pulls the phone app's Drive backup).
+# Must be a Web OAuth client ID created in the SAME Google Cloud project as the
+# Android app's OAuth client, otherwise the Drive appDataFolder is not shared.
+VITE_GOOGLE_CLIENT_ID=your_web_oauth_client_id.apps.googleusercontent.com
 ```
 
 3. Start the development server:

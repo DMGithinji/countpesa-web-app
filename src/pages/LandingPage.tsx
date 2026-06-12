@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from "react";
-import { Home } from "lucide-react";
+import { Home, Play } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,12 +7,15 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import UploadStatementButton from "@/components/Upload/LoadDataButton";
 import useTransactionStore from "@/stores/transactions.store";
 import { useTransactionRepository } from "@/context/RepositoryContext";
+import { isDriveSyncConfigured } from "@/lib/googleDrive";
 import Loader from "@/components/Loader";
 import logoLg from "../assets/logo-lg.svg";
+import demoPreview from "../assets/demo-video-preview.gif";
 
 function CountPesaLanding() {
   const navigate = useNavigate();
   const [loading, setIsLoading] = useState(true);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const trs = useTransactionStore((state) => state.transactions);
   const transactionRepository = useTransactionRepository();
 
@@ -82,33 +85,58 @@ function CountPesaLanding() {
             Transform M-Pesa Data into Actionable Insights
           </h1>
           <p className="text-lg text-muted-foreground mb-2">
-            Turn your M-Pesa data into clear, actionable insights.
+            Automatic categorization, interactive dashboards, and an AI copilot for your mobile
+            money spending.
           </p>
           <div className="text-lg text-muted-foreground mb-8">
-            <p>All data is stored locally in your browser, with zero server storage.</p>
-            <p className="pt-2">100% for your eyes only.</p>
+            <p>All data stays in your browser — zero server storage, 100% for your eyes only.</p>
+            {isDriveSyncConfigured() && (
+              <p className="pt-2">
+                Already on the CountPesa app? Pull your data straight from your own Google Drive.
+              </p>
+            )}
           </div>
 
           <div className="flex justify-center gap-4 mb-12">
-            <UploadStatementButton variant="default" />
+            <UploadStatementButton variant="default" label="Get Started" />
             <Button variant="outline" size="lg" onClick={goToDemo}>
               Explore Demo
             </Button>
           </div>
         </header>
 
-        {/* Loom Video Embed */}
+        {/* Demo video — poster facade first, Loom iframe only loads on click */}
         <div className="mb-8 overflow-hidden rounded-lg shadow-lg mx-auto max-w-4xl">
-          <div className="bg-black">
-            <div className="relative mt-4 pb-[45.833%] h-0 rounded overflow-hidden">
+          <div className="relative pb-[56.25%] h-0 bg-black">
+            {videoPlaying ? (
               <iframe
                 title="CountPesa Demo Video"
-                src="https://www.loom.com/embed/f48117983d994fcb8b72fd4068a0a863?sid=aebc15da-e4db-4365-b654-bbaf734a59e6"
+                src="https://www.loom.com/embed/f48117983d994fcb8b72fd4068a0a863?sid=aebc15da-e4db-4365-b654-bbaf734a59e6&autoplay=1&hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true"
                 frameBorder="0"
                 allowFullScreen
                 className="absolute top-0 left-0 w-full h-full"
               />
-            </div>
+            ) : (
+              <button
+                type="button"
+                aria-label="Play demo video"
+                onClick={() => setVideoPlaying(true)}
+                className="group absolute inset-0 h-full w-full cursor-pointer"
+              >
+                <img
+                  src={demoPreview}
+                  alt="Preview of the CountPesa dashboard demo"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/25" />
+                <span className="absolute top-1/2 left-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary shadow-lg transition-transform group-hover:scale-110">
+                  <Play className="ml-1 h-7 w-7 fill-current text-primary-foreground" />
+                </span>
+                <span className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-sm text-white">
+                  Watch the demo
+                </span>
+              </button>
+            )}
           </div>
         </div>
 

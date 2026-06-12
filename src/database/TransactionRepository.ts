@@ -68,24 +68,29 @@ export default class TransactionRepository extends AbstractQuery {
   async processMpesaStatementData(
     mpesaTransactions: ExtractedTransaction[],
     accountTransactionDict?: Record<string, string>
-  ) {
+  ): Promise<{ added: number; updated: number }> {
     const now = Date.now();
 
     const existingTrs = await this.getTransactions();
-    const existingIdsDict = existingTrs.reduce(
+    const existingTrsDict = existingTrs.reduce(
       (acc, tr) => {
-        acc[getTrId(tr.amount, tr.code)] = true;
+        acc[getTrId(tr.amount, tr.code)] = tr;
         return acc;
       },
-      {} as { [key: string]: boolean }
+      {} as { [key: string]: Transaction }
     );
 
-    const transactions = mpesaTransactions
-      .filter((t) => !existingIdsDict[getTrId(t.amount, t.code)])
-      .map((t) => {
+    const toAdd: Transaction[] = [];
+    const toUpdate: Transaction[] = [];
+
+    mpesaTransactions.forEach((t) => {
+      const id = getTrId(t.amount, t.code);
+      const existing = existingTrsDict[id];
+
+      if (!existing) {
         const trDate = new Date(t.date!);
-        return {
-          id: getTrId(t.amount, t.code),
+        toAdd.push({
+          id,
           code: t.code,
           date: t.date,
           description: t.description,
@@ -100,11 +105,42 @@ export default class TransactionRepository extends AbstractQuery {
           dayOfWeek: format(trDate, "cccc"), // e.g., "Tuesday"
           hour: format(trDate, "HH:mm"), // e.g. "14:35"
           mode: t.amount > 0 ? MoneyMode.MoneyIn : MoneyMode.MoneyOut,
-        };
-      });
+        });
+        return;
+      }
 
-    // Add all transactions to the database
-    return this.bulkAdd(transactions);
+      // Re-import: refresh fields the user may have fixed elsewhere (e.g. on the
+      // phone), but never overwrite a local category with UNCATEGORIZED.
+      const incomingCategory = t.category || accountTransactionDict?.[t.account];
+      const updated = { ...existing };
+      let changed = false;
+
+      if (
+        incomingCategory &&
+        incomingCategory !== UNCATEGORIZED &&
+        incomingCategory !== existing.category
+      ) {
+        updated.category = incomingCategory;
+        changed = true;
+      }
+      if (t.account && t.account !== "Unknown" && t.account !== existing.account) {
+        updated.account = t.account;
+        changed = true;
+      }
+
+      if (changed) {
+        toUpdate.push(updated);
+      }
+    });
+
+    if (toAdd.length) {
+      await this.bulkAdd(toAdd);
+    }
+    if (toUpdate.length) {
+      await this.bulkUpdate(toUpdate);
+    }
+
+    return { added: toAdd.length, updated: toUpdate.length };
   }
 
   async categorizeTransaction(trId: string, category: string): Promise<void> {

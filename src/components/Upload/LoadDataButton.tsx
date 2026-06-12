@@ -9,16 +9,17 @@ import { Button } from "../ui/button";
 
 type LoadDataButtonProps = {
   variant?: "default" | "ghost";
+  label?: string;
 };
-function LoadDataButton({ variant = "ghost" }: LoadDataButtonProps) {
+function LoadDataButton({ variant = "ghost", label = "Load Transactions" }: LoadDataButtonProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       {variant === "default" ? (
-        <Button variant={variant} onClick={() => setOpen(true)}>
+        <Button variant={variant} size="lg" onClick={() => setOpen(true)}>
           <FileDown className="text-background font-bold h-4 w-4" />
-          <span className="text-background font-bold">Load Transactions</span>{" "}
+          <span className="text-background font-bold">{label}</span>{" "}
         </Button>
       ) : (
         <div
@@ -40,18 +41,18 @@ function LoadDataButton({ variant = "ghost" }: LoadDataButtonProps) {
             <DialogTitle className="text-xl font-semibold">Load Transactions</DialogTitle>
           </DialogHeader>
 
-          <Tabs defaultValue="mpesa">
+          <Tabs defaultValue="backup">
             <TabsList className="grid grid-cols-2 mb-4 w-full mx-auto border-b border-border rounded-none bg-muted">
-              <TabsTrigger value="mpesa">From M-Pesa Statement</TabsTrigger>
               <TabsTrigger value="backup">From a Backup</TabsTrigger>
+              <TabsTrigger value="mpesa">From M-Pesa Statement</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="mpesa">
-              <MpesaUploadSection setOpen={setOpen} />
-            </TabsContent>
 
             <TabsContent value="backup">
               <BackupRestoreSection setOpen={setOpen} />
+            </TabsContent>
+
+            <TabsContent value="mpesa">
+              <MpesaUploadSection setOpen={setOpen} />
             </TabsContent>
           </Tabs>
         </DialogContent>

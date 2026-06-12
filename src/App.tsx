@@ -9,6 +9,7 @@ import useAppInitializer from "./hooks/useAppInitializer";
 import LandingPage from "./pages/LandingPage";
 import useTransactionStore from "./stores/transactions.store";
 import Loader from "./components/Loader";
+import { Toaster } from "./components/ui/sonner";
 
 function AppInitializer({ children }: { children: React.ReactNode }) {
   useAppInitializer();
@@ -62,6 +63,7 @@ function App() {
   return (
     <AppProviders>
       <AppRoutes />
+      <Toaster />
     </AppProviders>
   );
 }

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useCategoryRepository, useTransactionRepository } from "@/context/RepositoryContext";
 import { getDecrypted } from "@/lib/encryptionUtils";
 import { Category, Subcategory, UNCATEGORIZED } from "@/types/Categories";
@@ -46,6 +47,11 @@ export type BrowserBackupFormat = {
 
 export type BackupFormat = PhoneBackupFormat | BrowserBackupFormat | unknown;
 
+export type ImportSummary = {
+  added: number;
+  updated: number;
+};
+
 // Helper function to read file as text
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -81,6 +87,20 @@ const getBackupType = (data: any): "phone" | "browser" | "unknown" => {
   return "unknown";
 };
 
+const formatImportSummary = ({ added, updated }: ImportSummary): string => {
+  if (!added && !updated) {
+    return "Already up to date — no new transactions.";
+  }
+  const parts: string[] = [];
+  if (added) {
+    parts.push(`${added.toLocaleString()} transaction${added === 1 ? "" : "s"} added`);
+  }
+  if (updated) {
+    parts.push(`${updated.toLocaleString()} transaction${updated === 1 ? "" : "s"} updated`);
+  }
+  return `Import complete: ${parts.join(", ")}.`;
+};
+
 export function useUploadData() {
   const transactionRepository = useTransactionRepository();
   const categoryRepository = useCategoryRepository();
@@ -90,7 +110,7 @@ export function useUploadData() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const processPhoneBackup = async (data: PhoneBackupFormat): Promise<void> => {
+  const processPhoneBackup = async (data: PhoneBackupFormat): Promise<ImportSummary> => {
     const transactions = data.mpesaTrs.map(
       (tx) =>
         ({
@@ -118,12 +138,13 @@ export function useUploadData() {
     );
 
     // Save to database
-    await transactionRepository.processMpesaStatementData(transactions);
+    const summary = await transactionRepository.processMpesaStatementData(transactions);
     await categoryRepository.bulkAddCategories(categories);
     await categoryRepository.bulkAddSubcategories(subcategories);
+    return summary;
   };
 
-  const processBrowserBackup = async (data: BrowserBackupFormat): Promise<void> => {
+  const processBrowserBackup = async (data: BrowserBackupFormat): Promise<ImportSummary> => {
     const transactions = data.transactions.map(
       (tx) =>
         ({
@@ -157,7 +178,7 @@ export function useUploadData() {
     }, {});
 
     // Save transactions to database
-    await transactionRepository.processMpesaStatementData(transactions);
+    const summary = await transactionRepository.processMpesaStatementData(transactions);
 
     // Save categories and subcategories
     await Object.values(categoryData).reduce(async (previousPromise, categoryItem) => {
@@ -186,35 +207,47 @@ export function useUploadData() {
       // Return a resolved promise for the next iteration
       return Promise.resolve();
     }, Promise.resolve());
+
+    return summary;
   };
 
-  const uploadData = async (file: File) => {
-    const fileContent = await readFileAsText(file);
+  // Shared import pipeline used by both manual file upload and Google Drive sync.
+  const importBackupContent = async (fileContent: string): Promise<ImportSummary> => {
     const decrypted = getDecrypted(fileContent);
     const jsonData = JSON.parse(decrypted) as BackupFormat;
     const backupType = getBackupType(jsonData);
 
+    let summary: ImportSummary;
     switch (backupType) {
       case "phone":
-        await processPhoneBackup(jsonData as PhoneBackupFormat);
+        summary = await processPhoneBackup(jsonData as PhoneBackupFormat);
         break;
 
       case "browser":
-        await processBrowserBackup(jsonData as BrowserBackupFormat);
+        summary = await processBrowserBackup(jsonData as BrowserBackupFormat);
         break;
       default:
         throw new Error("Invalid backup format");
     }
     await loadInitialTransactions();
+    toast.success(formatImportSummary(summary));
+
     const isBaseUrl = location.pathname === "/";
     if (isBaseUrl) {
       navigate("/dashboard");
     } else {
       setLoading(false);
     }
+    return summary;
+  };
+
+  const uploadData = async (file: File) => {
+    const fileContent = await readFileAsText(file);
+    await importBackupContent(fileContent);
   };
 
   return {
     uploadData,
+    importBackupContent,
   };
 }
