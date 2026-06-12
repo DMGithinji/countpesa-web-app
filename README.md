@@ -46,7 +46,7 @@ For privacy purposes, the app does not store any user data. All data is stored l
 ### Prerequisites
 
 - Node.js (v18+)
-- Google Gemini API key
+- A running `countpesa-server` instance (AI chat/analysis and statement parsing go through it)
 
 ### Setup
 
@@ -56,10 +56,10 @@ For privacy purposes, the app does not store any user data. All data is stored l
 yarn install # or npm install --legacy-peer-deps
 ```
 
-2. Create a `.env` file with your API key:
+2. Create a `.env` file:
 
 ```
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
+# Backend URL — used for statement parsing and all AI features (/chat/web/*)
 VITE_API_URL=backend_api_url
 VITE_SECRET_KEY=hex_aes_key_shared_with_the_phone_app
 VITE_IV_STRING=hex_aes_iv_shared_with_the_phone_app

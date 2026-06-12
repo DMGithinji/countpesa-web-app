@@ -1,4 +1,3 @@
-import json5 from "json5";
 import { Filter, FilterMode } from "@/types/Filters";
 import { endOfDay, startOfDay } from "date-fns";
 import { GenAiOutput } from "../types";
@@ -14,23 +13,6 @@ export function validateFilters(filters: Filter[] | undefined | false): boolean 
       return filter.field && filter.operator && filter.value;
     })
   );
-}
-
-function getLastJSON(text: string): string | null {
-  // regex to remove backticks at the back and front, and json substring (which is present sometimes)
-  const regex = /```(?:json)?\n([\s\S]*?)\n```/gi;
-  let match = regex.exec(text);
-  let lastJSON = null;
-
-  // Use a while loop without assignment in the condition
-  while (match !== null) {
-    const [, jsonContent] = match;
-    lastJSON = jsonContent;
-
-    match = regex.exec(text);
-  }
-
-  return lastJSON || text;
 }
 
 function parseInstructions(filters: false | Filter[] | undefined) {
@@ -97,9 +79,7 @@ function parseInstructions(filters: false | Filter[] | undefined) {
   });
 }
 
-export function handleResponse(response: string) {
-  const cleanedResponse = getLastJSON(response) as string;
-  const parsedResponse = json5.parse(cleanedResponse.trim()) as GenAiOutput;
+export function handleResponse(parsedResponse: GenAiOutput) {
   const isValid = parsedResponse && parsedResponse.isPromptValid;
   if (!isValid) {
     return {

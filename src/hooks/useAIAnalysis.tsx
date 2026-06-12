@@ -3,9 +3,8 @@ import useAIMessageStore from "@/stores/aiMessages.store";
 import useTransactionStore from "@/stores/transactions.store";
 import { useAnalysisRepository } from "@/context/RepositoryContext";
 import { submitData } from "@/lib/feedbackUtils";
-import { getAnalysisPrompt } from "@/prompts/composer";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AnalysisReport } from "@/prompts/types";
+import { postAnalysis } from "@/lib/aiApi";
+import { AnalysisReport, AssessmentMode } from "@/prompts/types";
 import { getReportAnalysisId } from "@/database/AnalysisRepository";
 
 export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: boolean }) => {
@@ -36,19 +35,17 @@ export const useAIAnalysis = ({ isAnalysisSheetOpen }: { isAnalysisSheetOpen: bo
       setAIResponse("");
 
       try {
-        const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
         const derivedData = {
           transactions,
           calculatedData,
           dateRangeData,
         };
-        const prompt = getAnalysisPrompt(assessmentMode, derivedData, filters);
-
-        const result = await model.generateContent(prompt);
-        const response = result.response.text();
-        setAIResponse(response);
+        const result = await postAnalysis({
+          mode: assessmentMode === AssessmentMode.ROAST ? "roast" : "serious",
+          derivedData,
+          filters,
+        });
+        setAIResponse(result.response);
       } catch (error) {
         setAIResponse(
           "Sorry, there was an error generating your financial assessment. Please try again."
